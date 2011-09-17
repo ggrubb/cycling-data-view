@@ -87,6 +87,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\*.dll $(OutDir)\imageformats\."
 			/>
 		</Configuration>
 		<Configuration
@@ -163,6 +164,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\*.dll $(OutDir)\imageformats\."
 			/>
 		</Configuration>
 	</Configurations>
