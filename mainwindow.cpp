@@ -188,16 +188,17 @@ void parseRideDetails(QDomElement& doc, RideDetailData& detail_data)
 		total_track_points += num_track_pts;
 
 		// Allocate space
-		detail_data._num_points = num_track_pts;
+		detail_data._num_points = total_track_points;
 		detail_data.resize(total_track_points);
 
 		// Now extract all the data
 		track_point = track.firstChild();
-		for (int i=0; i < detail_data._num_points; ++i)
+		for (int i=0; i < num_track_pts; ++i)
 		{
 			QStringList tmp_sl = track_point.firstChildElement("Time").firstChild().nodeValue().split('T');
 			if (tmp_sl.size() > 1) // check to ensure the time format is as expected
 			{
+				// Note to self...sometimes the xml contains empty trackpoint nodes, with just a time, but no data. need to filter these out somehow...
 				QString tmp_s = tmp_sl.at(1);
 				tmp_s.chop(1);
 				QStringList time_strings = tmp_s.split(':');
@@ -219,7 +220,24 @@ void parseRideDetails(QDomElement& doc, RideDetailData& detail_data)
 }
 
 /******************************************************/
-void createPage(std::ostringstream& page)
+std::string createPolyline(const RideDetailData& ride_data)
+{
+	std::ostringstream stream;
+	int i=0;
+	while (i < ride_data._num_points-1)
+	{
+		if ( ride_data._lat[i] != 0)
+			stream << "new google.maps.LatLng(" << ride_data._lat[i] << "," << ride_data._long[i] << ")," << std::endl;
+		++i;
+	}
+	if ( ride_data._lat[i] != 0)
+		stream << "new google.maps.LatLng(" << ride_data._lat[i] << "," << ride_data._long[i] << ")";
+
+	return stream.str();
+}
+
+/******************************************************/
+void createPage(std::ostringstream& page, const RideDetailData& ride_data)
 {
 	using namespace std;
 	ostringstream oss;
@@ -240,13 +258,27 @@ void createPage(std::ostringstream& page)
 		<< "</script>" << endl
 		<< "<script type=\"text/javascript\">" << endl
 		<< "function initialize() {" << endl
-		<< "var latlng = new google.maps.LatLng(-34.397, 150.644);" << endl
+		<< "var latlng = new google.maps.LatLng(" << ride_data._lat[0] << "," << ride_data._long[0] << ");" << endl
 		<< "var myOptions = {" << endl
-		<< "zoom: 8," << endl
+		<< "zoom: 10," << endl
 		<< "center: latlng," << endl
 		<< "mapTypeId: google.maps.MapTypeId.ROADMAP" << endl
 		<< "};" << endl
 		<< "var map = new google.maps.Map(document.getElementById(\"map_canvas\"), myOptions);" << endl
+
+		<< "var ride_coords = [" << endl
+		<< createPolyline(ride_data) << endl
+		<< "];" << endl
+
+		<< "var ride_path = new google.maps.Polyline({" << endl
+		<< "path: ride_coords," << endl
+		<< "strokeColor: \"#FF0000\"," << endl
+		<< "strokeOpacity: 1.0," << endl
+		<< "strokeWeight: 2" << endl
+		<< "});" << endl
+
+		<< "ride_path.setMap(map);" << endl
+
 		<< "}" << endl
 		<< "</script>" << endl
 		<< "</head>" << endl
@@ -289,7 +321,7 @@ class ChromePage : public QWebPage
     html_file.remove();
     html_file.open(QIODevice::ReadWrite);
 	std::ostringstream page;
-	createPage(page);
+	createPage(page, detail_data);
     html_file.write(page.str().c_str(),page.str().length());
     html_file.flush();
     html_file.close();
@@ -298,7 +330,7 @@ class ChromePage : public QWebPage
 
 	
 	QWebView *view = new QWebView();
-	view->setPage(new ChromePage());
+	view->setPage(new ChromePage()); // hack required to get g maps to display for a desktop, not touchscreen
     view->load(QUrl(url_name));
 	view->show();
 
