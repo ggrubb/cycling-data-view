@@ -13,6 +13,7 @@
 #include <qtgui/qapplication>
 #include <qtwebkit/qwebview>
 #include <qtwebkit/qwebpage>
+#include <qwt_plot.h>
 
 #include <highgui.h>
 
@@ -102,6 +103,7 @@ _dom_document("mydocument")
      updateActions();
  }
 
+/******************************************************/
 struct RideOverviewData
 {
 	QString _name;
@@ -116,6 +118,7 @@ struct RideOverviewData
 	float _avg_cadence;
 };
 
+/******************************************************/
 struct RideDetailData
 {
 	int _num_points;
@@ -174,6 +177,7 @@ void parseRideDetails(QDomElement& doc, RideDetailData& detail_data)
 	
 	int track_point_idx = 0;
 	int total_track_points = 0;
+	int num_empty_track_points = 0;
 	while (!track.isNull())
 	{
 		QDomNode track_point = track.firstChild();
@@ -198,7 +202,6 @@ void parseRideDetails(QDomElement& doc, RideDetailData& detail_data)
 			QStringList tmp_sl = track_point.firstChildElement("Time").firstChild().nodeValue().split('T');
 			if (tmp_sl.size() > 1) // check to ensure the time format is as expected
 			{
-				// Note to self...sometimes the xml contains empty trackpoint nodes, with just a time, but no data. need to filter these out somehow...
 				QString tmp_s = tmp_sl.at(1);
 				tmp_s.chop(1);
 				QStringList time_strings = tmp_s.split(':');
@@ -212,11 +215,26 @@ void parseRideDetails(QDomElement& doc, RideDetailData& detail_data)
 				detail_data._alt[track_point_idx] = track_point.firstChildElement("AltitudeMeters").firstChild().nodeValue().toFloat();
 			}
 			track_point = track_point.nextSibling();
-			track_point_idx++;
+
+			// Sometimes the xml contains empty trackpoint nodes, with just a time, but no data.
+			// Hee we check this, and don't increment counter if the trackpoint was empty
+			bool valid_track_point = true;
+			if (detail_data._long[track_point_idx] == 0 && detail_data._lat[track_point_idx] == 0)
+			{
+				valid_track_point = false;
+				num_empty_track_points++;
+			}
+
+			if (valid_track_point)
+				track_point_idx++;
 		}
 
 		track = track.nextSibling();
 	}
+	total_track_points -= num_empty_track_points;
+	detail_data.resize(total_track_points);
+	detail_data._num_points = total_track_points;
+
 }
 
 /******************************************************/
@@ -226,12 +244,10 @@ std::string createPolyline(const RideDetailData& ride_data)
 	int i=0;
 	while (i < ride_data._num_points-1)
 	{
-		if ( ride_data._lat[i] != 0)
-			stream << "new google.maps.LatLng(" << ride_data._lat[i] << "," << ride_data._long[i] << ")," << std::endl;
+		stream << "new google.maps.LatLng(" << ride_data._lat[i] << "," << ride_data._long[i] << ")," << std::endl;
 		++i;
 	}
-	if ( ride_data._lat[i] != 0)
-		stream << "new google.maps.LatLng(" << ride_data._lat[i] << "," << ride_data._long[i] << ")";
+	stream << "new google.maps.LatLng(" << ride_data._lat[i] << "," << ride_data._long[i] << ")";
 
 	return stream.str();
 }
@@ -333,6 +349,10 @@ class ChromePage : public QWebPage
 	view->setPage(new ChromePage()); // hack required to get g maps to display for a desktop, not touchscreen
     view->load(QUrl(url_name));
 	view->show();
+
+	// Do a Qwt test
+	QwtPlot* plot = new QwtPlot();
+	plot->show();
 
 	//// Do some OpenCV tests
 	//cv::Mat img_orig = cv::imread("img.png");
