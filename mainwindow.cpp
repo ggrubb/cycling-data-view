@@ -14,6 +14,7 @@
 #include <qtwebkit/qwebview>
 #include <qtwebkit/qwebpage>
 #include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 
 #include <highgui.h>
 
@@ -122,14 +123,14 @@ struct RideOverviewData
 struct RideDetailData
 {
 	int _num_points;
-	std::vector<int> _time;
-	std::vector<float> _lat;
-	std::vector<float> _long;
-	std::vector<float> _alt;
-	std::vector<float> _dist;
+	std::vector<double> _time;
+	std::vector<double> _lat;
+	std::vector<double> _long;
+	std::vector<double> _alt;
+	std::vector<double> _dist;
 	std::vector<int> _heart_rate;
 	std::vector<int> _cadence;
-	std::vector<float> _speed;
+	std::vector<double> _speed;
 
 	void resize(int size)
 	{
@@ -217,7 +218,7 @@ void parseRideDetails(QDomElement& doc, RideDetailData& detail_data)
 			track_point = track_point.nextSibling();
 
 			// Sometimes the xml contains empty trackpoint nodes, with just a time, but no data.
-			// Hee we check this, and don't increment counter if the trackpoint was empty
+			// Here we check this, and don't increment counter if the trackpoint was empty
 			bool valid_track_point = true;
 			if (detail_data._long[track_point_idx] == 0 && detail_data._lat[track_point_idx] == 0)
 			{
@@ -231,9 +232,17 @@ void parseRideDetails(QDomElement& doc, RideDetailData& detail_data)
 
 		track = track.nextSibling();
 	}
+
+	// Resize to account for empty trackpoints
 	total_track_points -= num_empty_track_points;
 	detail_data.resize(total_track_points);
 	detail_data._num_points = total_track_points;
+
+	// Clean up the ride time
+	for (int i=detail_data._num_points-1; i >= 0; --i)
+	{
+		detail_data._time[i] = detail_data._time[i] - detail_data._time[0];
+	}
 
 }
 
@@ -346,12 +355,24 @@ class ChromePage : public QWebPage
 
 	
 	QWebView *view = new QWebView();
-	view->setPage(new ChromePage()); // hack required to get g maps to display for a desktop, not touchscreen
+	view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
     view->load(QUrl(url_name));
 	view->show();
 
 	// Do a Qwt test
-	QwtPlot* plot = new QwtPlot();
+	QwtPlot* plot = new QwtPlot("Signal Plots);
+
+	QwtPlotCurve *curve_hr = new QwtPlotCurve("Heart Rate");
+	QwtPlotCurve *curve_alt = new QwtPlotCurve("Altitude");
+
+	std::vector<double> hr = std::vector<double>(detail_data._heart_rate.begin(), detail_data._heart_rate.end());
+	curve_hr->setSamples(&detail_data._time[0], &hr[0], detail_data._num_points);
+	curve_alt->setSamples(&detail_data._time[0], &detail_data._alt[0], detail_data._num_points);
+	
+	curve_hr->attach(plot);
+	curve_alt->attach(plot);
+
+	plot->replot();
 	plot->show();
 
 	//// Do some OpenCV tests
