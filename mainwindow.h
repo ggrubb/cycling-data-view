@@ -27,6 +27,7 @@
      void normalSize();
      void fitToWindow();
      void about();
+	 void plotSelection(const QPointF& point);
 
  private:
      void createActions();

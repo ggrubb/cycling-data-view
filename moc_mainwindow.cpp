@@ -1,12 +1,12 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Sat 21. May 21:51:33 2011
+** Created: Sat 24. Sep 11:33:33 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
-#include "stdafx.h"
+
 #include "mainwindow.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'mainwindow.h' doesn't include <QObject>."
@@ -23,7 +23,7 @@ static const uint qt_meta_data_ImageViewer[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-       7,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -38,6 +38,7 @@ static const uint qt_meta_data_ImageViewer[] = {
       47,   12,   12,   12, 0x08,
       60,   12,   12,   12, 0x08,
       74,   12,   12,   12, 0x08,
+      88,   82,   12,   12, 0x08,
 
        0        // eod
 };
@@ -45,7 +46,7 @@ static const uint qt_meta_data_ImageViewer[] = {
 static const char qt_meta_stringdata_ImageViewer[] = {
     "ImageViewer\0\0open()\0print()\0zoomIn()\0"
     "zoomOut()\0normalSize()\0fitToWindow()\0"
-    "about()\0"
+    "about()\0point\0plotSelection(QPointF)\0"
 };
 
 const QMetaObject ImageViewer::staticMetaObject = {
@@ -84,9 +85,10 @@ int ImageViewer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 4: normalSize(); break;
         case 5: fitToWindow(); break;
         case 6: about(); break;
+        case 7: plotSelection((*reinterpret_cast< const QPointF(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 7;
+        _id -= 8;
     }
     return _id;
 }

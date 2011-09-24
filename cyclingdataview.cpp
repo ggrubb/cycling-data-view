@@ -1,9 +1,6 @@
 // cyclingdataview.cpp : Defines the entry point for the console application.
 
-#include "stdafx.h"
-
 #include <qtgui/qapplication>
-
 #include "mainwindow.h"
 
 int main( int argc, char ** argv )
@@ -13,4 +10,3 @@ int main( int argc, char ** argv )
     iv->show();
     return a.exec();
 }
-

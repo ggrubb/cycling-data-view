@@ -1,6 +1,7 @@
-#include "stdafx.h"
 #include "mainwindow.h"
 
+#include <stdio.h>
+#include <iostream>
 #include <qtgui/qlabel>
 #include <qtgui/qscrollarea>
 #include <qtgui/qscrollbar>
@@ -15,7 +16,10 @@
 #include <qtwebkit/qwebpage>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
-
+#include <qwt_plot_picker.h>
+#include <qwt_plot_zoomer.h>
+#include <qwt_plot_panner.h>
+#include <qwt_picker_machine.h>
 #include <highgui.h>
 
 ImageViewer::ImageViewer():
@@ -316,6 +320,12 @@ void createPage(std::ostringstream& page, const RideDetailData& ride_data)
 }
 
 /******************************************************/
+void ImageViewer::plotSelection(const QPointF& point)
+{
+	std::cout << point.x() << " " << point.y() << std::endl;
+}
+
+/******************************************************/
 class ChromePage : public QWebPage
 {
 	virtual QString userAgentForUrl(const QUrl& url) const {
@@ -360,7 +370,7 @@ class ChromePage : public QWebPage
 	view->show();
 
 	// Do a Qwt test
-	QwtPlot* plot = new QwtPlot("Signal Plots);
+	QwtPlot* plot = new QwtPlot();
 
 	QwtPlotCurve *curve_hr = new QwtPlotCurve("Heart Rate");
 	QwtPlotCurve *curve_alt = new QwtPlotCurve("Altitude");
@@ -374,6 +384,30 @@ class ChromePage : public QWebPage
 
 	plot->replot();
 	plot->show();
+
+	// Plot picker
+	QwtPlotPicker* plot_picker = 
+		new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, plot->canvas());
+	connect(plot_picker, SIGNAL(selected(const QPointF&)), this, SLOT(plotSelection(const QPointF&)));
+	plot_picker->setStateMachine(new QwtPickerDragPointMachine());
+	plot_picker->setRubberBandPen(QColor(Qt::green));
+    plot_picker->setRubberBand(QwtPicker::CrossRubberBand);
+    plot_picker->setTrackerPen(QColor(Qt::white));
+
+	// Plot zoomer
+	QwtPlotZoomer* plot_zoomer = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft, plot->canvas());
+    plot_zoomer->setRubberBand(QwtPicker::RectRubberBand);
+    plot_zoomer->setRubberBandPen(QColor(Qt::green));
+    plot_zoomer->setTrackerMode(QwtPicker::ActiveOnly);
+    plot_zoomer->setTrackerPen(QColor(Qt::white));
+	//plot_zoomer->setTrackerMode(QwtPicker::AlwaysOff);
+    plot_zoomer->setRubberBand(QwtPicker::NoRubberBand);
+    plot_zoomer->setMousePattern(QwtEventPattern::MouseSelect2,Qt::RightButton, Qt::ControlModifier);
+    plot_zoomer->setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
+
+	// Plot panner
+	QwtPlotPanner* plot_panner = new QwtPlotPanner(plot->canvas());
+	plot_panner->setMouseButton(Qt::MidButton);
 
 	//// Do some OpenCV tests
 	//cv::Mat img_orig = cv::imread("img.png");
