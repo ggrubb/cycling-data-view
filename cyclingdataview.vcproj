@@ -181,7 +181,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\datalog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\googlemap.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\mainwindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\plotwindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tcxparser.cpp"
 				>
 			</File>
 		</Filter>
@@ -191,6 +207,34 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\datalog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\googlemap.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\mainwindow.h"
 				>
 				<FileConfiguration
@@ -199,7 +243,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -214,6 +258,34 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\plotwindow.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tcxparser.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Generated Files"
@@ -221,7 +293,15 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath=".\moc_googlemap.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\moc_mainwindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\moc_plotwindow.cpp"
 				>
 			</File>
 		</Filter>

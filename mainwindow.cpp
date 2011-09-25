@@ -1,4 +1,8 @@
 #include "mainwindow.h"
+#include "tcxparser.h"
+#include "datalog.h"
+#include "googlemap.h"
+#include "plotwindow.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -12,14 +16,6 @@
 #include <qtgui/qmessagebox>
 #include <qtgui/qpainter>
 #include <qtgui/qapplication>
-#include <qtwebkit/qwebview>
-#include <qtwebkit/qwebpage>
-#include <qwt_plot.h>
-#include <qwt_plot_curve.h>
-#include <qwt_plot_picker.h>
-#include <qwt_plot_zoomer.h>
-#include <qwt_plot_panner.h>
-#include <qwt_picker_machine.h>
 #include <highgui.h>
 
 ImageViewer::ImageViewer():
@@ -109,305 +105,21 @@ _dom_document("mydocument")
  }
 
 /******************************************************/
-struct RideOverviewData
-{
-	QString _name;
-	QString _date;
-	float _total_time;
-	float _total_dist;
-	float _max_speed;
-	float _max_heart_rate;
-	float _max_cadence;
-	float _avg_speed;
-	float _avg_heart_rate;
-	float _avg_cadence;
-};
-
-/******************************************************/
-struct RideDetailData
-{
-	int _num_points;
-	std::vector<double> _time;
-	std::vector<double> _lat;
-	std::vector<double> _long;
-	std::vector<double> _alt;
-	std::vector<double> _dist;
-	std::vector<int> _heart_rate;
-	std::vector<int> _cadence;
-	std::vector<double> _speed;
-
-	void resize(int size)
-	{
-		_time.resize(size);
-		_lat.resize(size);
-		_long.resize(size);
-		_alt.resize(size);
-		_dist.resize(size);
-		_heart_rate.resize(size);
-		_cadence.resize(size);
-		_speed.resize(size);
-	};
-};
-
-/******************************************************/
-void parseRideOverview(QDomElement& doc, RideOverviewData& overview_data)
-{
-	QDomElement lap = doc.firstChild().firstChild().firstChildElement("Lap");
-	QDomElement	total_time_seconds = lap.firstChildElement("TotalTimeSeconds");
-	QDomElement	distance_meters = lap.firstChildElement("DistanceMeters");
-	QDomElement	max_speed = lap.firstChildElement("MaximumSpeed");
-	QDomNode	max_heart_rate = lap.firstChildElement("MaximumHeartRateBpm").firstChild();
-	QDomNode	max_cadence = lap.firstChildElement("Extensions").firstChild().firstChild().nextSibling();
-	QDomNode	avg_heart_rate = lap.firstChildElement("AverageHeartRateBpm").firstChild();
-	QDomNode	avg_speed = lap.firstChildElement("Extensions").firstChild().firstChild();
-	QDomElement	avg_cadence = lap.firstChildElement("Cadence");
-
-	overview_data._name = QString("Ride X");
-	overview_data._date = lap.attributes().item(0).nodeValue();
-	overview_data._total_time = total_time_seconds.firstChild().nodeValue().toFloat();
-	overview_data._total_dist = distance_meters.firstChild().nodeValue().toFloat();
-	overview_data._avg_cadence = avg_cadence.firstChild().nodeValue().toFloat();
-	overview_data._avg_heart_rate = avg_heart_rate.firstChild().nodeValue().toFloat();
-	overview_data._avg_speed = avg_speed.firstChild().nodeValue().toFloat();
-	overview_data._max_speed = max_speed.firstChild().nodeValue().toFloat();
-	overview_data._max_heart_rate = max_heart_rate.firstChild().nodeValue().toFloat();
-	overview_data._max_cadence = -1;
-
-}
-
-/******************************************************/
-void parseRideDetails(QDomElement& doc, RideDetailData& detail_data)
-{
-	QDomNode track = doc.firstChild().firstChild().firstChildElement("Lap").firstChildElement("Track");
-	
-	int track_point_idx = 0;
-	int total_track_points = 0;
-	int num_empty_track_points = 0;
-	while (!track.isNull())
-	{
-		QDomNode track_point = track.firstChild();
-
-		// Count the number of track points to allocate sufficient space
-		int num_track_pts = 0;
-		while (!track_point.isNull())
-		{
-			num_track_pts++;
-			track_point = track_point.nextSibling();
-		}
-		total_track_points += num_track_pts;
-
-		// Allocate space
-		detail_data._num_points = total_track_points;
-		detail_data.resize(total_track_points);
-
-		// Now extract all the data
-		track_point = track.firstChild();
-		for (int i=0; i < num_track_pts; ++i)
-		{
-			QStringList tmp_sl = track_point.firstChildElement("Time").firstChild().nodeValue().split('T');
-			if (tmp_sl.size() > 1) // check to ensure the time format is as expected
-			{
-				QString tmp_s = tmp_sl.at(1);
-				tmp_s.chop(1);
-				QStringList time_strings = tmp_s.split(':');
-				detail_data._time[track_point_idx] = time_strings.at(0).toInt()*3600 + time_strings.at(1).toInt()*60 + time_strings.at(2).toInt();
-				detail_data._speed[track_point_idx] = track_point.firstChildElement("Extensions").firstChild().firstChild().nodeValue().toFloat();
-				detail_data._long[track_point_idx] = track_point.firstChildElement("Position").firstChildElement("LongitudeDegrees").firstChild().nodeValue().toFloat();
-				detail_data._lat[track_point_idx] = track_point.firstChildElement("Position").firstChildElement("LatitudeDegrees").firstChild().nodeValue().toFloat();
-				detail_data._heart_rate[track_point_idx] = track_point.firstChildElement("HeartRateBpm").firstChild().firstChild().nodeValue().toFloat();
-				detail_data._dist[track_point_idx] = track_point.firstChildElement("DistanceMeters").firstChild().nodeValue().toFloat();
-				detail_data._cadence[track_point_idx] = track_point.firstChildElement("Cadence").firstChild().nodeValue().toFloat();
-				detail_data._alt[track_point_idx] = track_point.firstChildElement("AltitudeMeters").firstChild().nodeValue().toFloat();
-			}
-			track_point = track_point.nextSibling();
-
-			// Sometimes the xml contains empty trackpoint nodes, with just a time, but no data.
-			// Here we check this, and don't increment counter if the trackpoint was empty
-			bool valid_track_point = true;
-			if (detail_data._long[track_point_idx] == 0 && detail_data._lat[track_point_idx] == 0)
-			{
-				valid_track_point = false;
-				num_empty_track_points++;
-			}
-
-			if (valid_track_point)
-				track_point_idx++;
-		}
-
-		track = track.nextSibling();
-	}
-
-	// Resize to account for empty trackpoints
-	total_track_points -= num_empty_track_points;
-	detail_data.resize(total_track_points);
-	detail_data._num_points = total_track_points;
-
-	// Clean up the ride time
-	for (int i=detail_data._num_points-1; i >= 0; --i)
-	{
-		detail_data._time[i] = detail_data._time[i] - detail_data._time[0];
-	}
-
-}
-
-/******************************************************/
-std::string createPolyline(const RideDetailData& ride_data)
-{
-	std::ostringstream stream;
-	int i=0;
-	while (i < ride_data._num_points-1)
-	{
-		stream << "new google.maps.LatLng(" << ride_data._lat[i] << "," << ride_data._long[i] << ")," << std::endl;
-		++i;
-	}
-	stream << "new google.maps.LatLng(" << ride_data._lat[i] << "," << ride_data._long[i] << ")";
-
-	return stream.str();
-}
-
-/******************************************************/
-void createPage(std::ostringstream& page, const RideDetailData& ride_data)
-{
-	using namespace std;
-	ostringstream oss;
-    oss.precision(6);
-    oss.setf(ios::fixed,ios::floatfield);
-
-	oss << "<!DOCTYPE html>" << endl
-		<< "<html>" << endl
-		<< "<head>" << endl
-		<< "<meta name=\"viewport\" content=\"initial-scale=1.0, user-scalable=no\" />" << endl
-		<< "<style type=\"text/css\">" << endl
-		<< "html { height: 100% }" << endl
-		<< "body { height: 100%; margin: 0; padding: 0 }" << endl
-		<< "#map_canvas { height: 100% }" << endl
-		<< "</style>" << endl
-		<< "<script type=\"text/javascript\"" << endl
-	    << "src=\"http://maps.googleapis.com/maps/api/js?v=3.1&sensor=true\">" << endl
-		<< "</script>" << endl
-		<< "<script type=\"text/javascript\">" << endl
-		<< "function initialize() {" << endl
-		<< "var latlng = new google.maps.LatLng(" << ride_data._lat[0] << "," << ride_data._long[0] << ");" << endl
-		<< "var myOptions = {" << endl
-		<< "zoom: 10," << endl
-		<< "center: latlng," << endl
-		<< "mapTypeId: google.maps.MapTypeId.ROADMAP" << endl
-		<< "};" << endl
-		<< "var map = new google.maps.Map(document.getElementById(\"map_canvas\"), myOptions);" << endl
-
-		<< "var ride_coords = [" << endl
-		<< createPolyline(ride_data) << endl
-		<< "];" << endl
-
-		<< "var ride_path = new google.maps.Polyline({" << endl
-		<< "path: ride_coords," << endl
-		<< "strokeColor: \"#FF0000\"," << endl
-		<< "strokeOpacity: 1.0," << endl
-		<< "strokeWeight: 2" << endl
-		<< "});" << endl
-
-		<< "ride_path.setMap(map);" << endl
-
-		<< "}" << endl
-		<< "</script>" << endl
-		<< "</head>" << endl
-		<< "<body onload=\"initialize()\">" << endl
-		<< "<div id=\"map_canvas\" style=\"width:100%; height:100%\"></div>" << endl
-		<< "</body>" << endl
-		<< "</html>" << endl;
-
-	page << oss.str();
-}
-
-/******************************************************/
-void ImageViewer::plotSelection(const QPointF& point)
-{
-	std::cout << point.x() << " " << point.y() << std::endl;
-}
-
-/******************************************************/
-class ChromePage : public QWebPage
-{
-	virtual QString userAgentForUrl(const QUrl& url) const {
-	 return "Chrome/1.0";
-	}
-};
-
-/******************************************************/
  void ImageViewer::about()
  {
 	// Define the file to read
-	QString error_msg;
-	int error_line, error_column;
-	QFile file("05_04_2011 17_42_07_history.tcx");
-	bool read_success = _dom_document.setContent(&file, &error_msg, &error_line, &error_column);
-	QDomElement doc = _dom_document.documentElement();
-
-	// Extract the data
-	RideOverviewData overview_data;
-	RideDetailData detail_data;
-	parseRideOverview(doc, overview_data);
-	parseRideDetails(doc, detail_data);
+	QString filename("05_04_2011 17_42_07_history.tcx");
+	DataLog data_log;
+	TcxParser parser;
+	parser.parse(filename, data_log);
 
 	// Do a QWebView test
-	QString html_file_name(QDir::tempPath());
-    html_file_name.append("/maps.html");
-    QFile html_file(html_file_name);
-    html_file.remove();
-    html_file.open(QIODevice::ReadWrite);
-	std::ostringstream page;
-	createPage(page, detail_data);
-    html_file.write(page.str().c_str(),page.str().length());
-    html_file.flush();
-    html_file.close();
-    QString url_name("file:///");
-    url_name.append(html_file_name);
-
-	
-	QWebView *view = new QWebView();
-	view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
-    view->load(QUrl(url_name));
-	view->show();
+	GoogleMap* google_map = new GoogleMap();
+	google_map->displayRide(data_log);
 
 	// Do a Qwt test
-	QwtPlot* plot = new QwtPlot();
-
-	QwtPlotCurve *curve_hr = new QwtPlotCurve("Heart Rate");
-	QwtPlotCurve *curve_alt = new QwtPlotCurve("Altitude");
-
-	std::vector<double> hr = std::vector<double>(detail_data._heart_rate.begin(), detail_data._heart_rate.end());
-	curve_hr->setSamples(&detail_data._time[0], &hr[0], detail_data._num_points);
-	curve_alt->setSamples(&detail_data._time[0], &detail_data._alt[0], detail_data._num_points);
-	
-	curve_hr->attach(plot);
-	curve_alt->attach(plot);
-
-	plot->replot();
-	plot->show();
-
-	// Plot picker
-	QwtPlotPicker* plot_picker = 
-		new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, plot->canvas());
-	connect(plot_picker, SIGNAL(selected(const QPointF&)), this, SLOT(plotSelection(const QPointF&)));
-	plot_picker->setStateMachine(new QwtPickerDragPointMachine());
-	plot_picker->setRubberBandPen(QColor(Qt::green));
-    plot_picker->setRubberBand(QwtPicker::CrossRubberBand);
-    plot_picker->setTrackerPen(QColor(Qt::white));
-
-	// Plot zoomer
-	QwtPlotZoomer* plot_zoomer = new QwtPlotZoomer( QwtPlot::xBottom, QwtPlot::yLeft, plot->canvas());
-    plot_zoomer->setRubberBand(QwtPicker::RectRubberBand);
-    plot_zoomer->setRubberBandPen(QColor(Qt::green));
-    plot_zoomer->setTrackerMode(QwtPicker::ActiveOnly);
-    plot_zoomer->setTrackerPen(QColor(Qt::white));
-	//plot_zoomer->setTrackerMode(QwtPicker::AlwaysOff);
-    plot_zoomer->setRubberBand(QwtPicker::NoRubberBand);
-    plot_zoomer->setMousePattern(QwtEventPattern::MouseSelect2,Qt::RightButton, Qt::ControlModifier);
-    plot_zoomer->setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
-
-	// Plot panner
-	QwtPlotPanner* plot_panner = new QwtPlotPanner(plot->canvas());
-	plot_panner->setMouseButton(Qt::MidButton);
+	PlotWindow* plot_window = new PlotWindow();
+	plot_window->displayRide(data_log);
 
 	//// Do some OpenCV tests
 	//cv::Mat img_orig = cv::imread("img.png");
