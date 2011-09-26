@@ -1,61 +1,41 @@
-#ifndef IMAGEVIEWER_H
-#define IMAGEVIEWER_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <qtgui/qmainwindow>
-#include <qtgui/qprinter>
-#include <qtgui/qprintdialog>
-#include <qtxml/qdomdocument>
 
  class QAction;
  class QLabel;
  class QMenu;
- class QScrollArea;
- class QScrollBar;
+ class TcxParser;
+ class GoogleMap;
+ class PlotWindow;
 
- class ImageViewer : public QMainWindow
+ class MainWindow : public QMainWindow
  {
-     Q_OBJECT
+    Q_OBJECT
 
  public:
-     ImageViewer();
+    MainWindow();
+    ~MainWindow();
 
  private slots:
-     void open();
-     void print();
-     void zoomIn();
-     void zoomOut();
-     void normalSize();
-     void fitToWindow();
-     void about();
+    void open();
+    void about();
 
  private:
-     void createActions();
-     void createMenus();
-     void updateActions();
-     void scaleImage(double factor);
-     void adjustScrollBar(QScrollBar* scroll_bar, double factor);
+    void createActions();
+    void createMenus();
 
- #ifndef QT_NO_PRINTER
-     QPrinter _printer;
- #endif
-     QLabel* _image_label;
-     QScrollArea* _scroll_area;
-     double _scale_factor;
+    QAction* _open_act;
+    QAction* _exit_act;
+    QAction* _about_act;
 
-     QAction* _open_act;
-     QAction* _print_act;
-     QAction* _exit_act;
-     QAction* _zoom_in_act;
-     QAction* _zoom_out_act;
-     QAction* _normal_size_act;
-     QAction* _fit_to_window_act;
-     QAction* _about_act;
+    QMenu* _file_menu;
+    QMenu* _help_menu;
 
-     QMenu* _file_menu;
-     QMenu* _view_menu;
-     QMenu* _help_menu;
-
-	 QDomDocument _dom_document;
+	TcxParser* _parser;
+	GoogleMap* _google_map;
+	PlotWindow* _plot_window;
  };
 
- #endif
+ #endif // MAINWINDOW_H

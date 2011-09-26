@@ -11,7 +11,8 @@ class TcxParser
 	TcxParser();
 	~TcxParser();
 
-	void parse(const QString& flename, DataLog& data_log);
+	// Returns true if file was parsed
+	bool parse(const QString& flename, DataLog& data_log);
 
  private:
 

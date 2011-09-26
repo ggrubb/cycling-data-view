@@ -97,10 +97,12 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		<< "};" << endl
 		<< "var map = new google.maps.Map(document.getElementById(\"map_canvas\"), myOptions);" << endl
 
+		// Create a path from GPS coords
 		<< "var ride_coords = [" << endl
 		<< createPolyline(data_log) << endl
 		<< "];" << endl
 
+		// Plot the path
 		<< "var ride_path = new google.maps.Polyline({" << endl
 		<< "path: ride_coords," << endl
 		<< "strokeColor: \"#FF0000\"," << endl
@@ -109,6 +111,11 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		<< "});" << endl
 
 		<< "ride_path.setMap(map);" << endl
+
+		//Create an icon marker
+		<< "var image = '" << QDir::currentPath().toStdString() << "/bike.png';" << endl
+		<< "var myLatLng = new google.maps.LatLng(" << data_log.ltd(0) << "," << data_log.lgd(0) << ");" << endl
+		<< "var beachMarker = new google.maps.Marker({ position: myLatLng, map: map, icon: image });" << endl
 
 		<< "}" << endl
 		<< "</script>" << endl

@@ -19,6 +19,7 @@ class PlotWindow : public QObject
 
  private slots:
 	void plotSelection(const QPointF& point);
+	void plotMoved(int x, int y);
 
  private:
 	QwtPlot* _plot;

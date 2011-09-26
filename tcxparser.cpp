@@ -118,17 +118,22 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 }
 
 /******************************************************/
-void TcxParser::parse(const QString& flename, DataLog& data_log)
+bool TcxParser::parse(const QString& flename, DataLog& data_log)
 {
 	// Define the file to read
 	QString error_msg;
 	int error_line, error_column;
-	QFile file("05_04_2011 17_42_07_history.tcx");
+	QFile file(flename);
 	bool read_success = _dom_document.setContent(&file, &error_msg, &error_line, &error_column);
 	QDomElement doc = _dom_document.documentElement();
 
 	// Extract the data
 	data_log.name() = flename;
-	parseRideSummary(data_log);
-	parseRideDetails(data_log);
+	if (read_success)
+	{
+		parseRideSummary(data_log);
+		parseRideDetails(data_log);
+	}
+
+	return read_success;
 }
