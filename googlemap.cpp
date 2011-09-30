@@ -3,6 +3,7 @@
 
 #include <QWebView.h>
 #include <QWebPage.h>
+#include <QWebFrame.h>
 #include <QDir.h>
 #include <sstream>
 #include <iostream>
@@ -32,24 +33,37 @@ class ChromePage : public QWebPage
 };
 
 /******************************************************/
+void GoogleMap::somethingHappened(const QPointF& point)
+{
+	using namespace std;
+	ostringstream stream;
+	//stream << "var image = '" << QDir::currentPath().toStdString() << "/bike.png';" << endl
+	//stream 	<< "var myLatLng = new google.maps.LatLng(57.6957,11.9234);" << endl
+	//	<< "var beachMarker = new google.maps.Marker({ position: myLatLng, map: window.map });" << endl;
+
+	int idx = point.x();
+	double ltd = _data_log.ltd(idx);
+	double lgd = _data_log.lgd(idx);
+	std::cout << ltd << " " << lgd << std::endl;
+
+	stream << "//deleteMarker();" << endl 
+		<< "setMarker(" << ltd << "," << lgd << ");";
+	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
+	//_view->page()->mainFrame()->evaluateJavaScript(QString("setMarker(57.6957,11.9234)"));
+}
+
+/******************************************************/
 void GoogleMap::displayRide(DataLog& data_log)
 {
-	QString html_file_name(QDir::tempPath());
-    html_file_name.append("/maps.html");
-    QFile html_file(html_file_name);
-    html_file.remove();
-    html_file.open(QIODevice::ReadWrite);
 	std::ostringstream page;
 	createPage(page, data_log);
-    html_file.write(page.str().c_str(),page.str().length());
-    html_file.flush();
-    html_file.close();
-    QString url_name("file:///");
-    url_name.append(html_file_name);
-
+ 
 	_view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
-    _view->load(QUrl(url_name));
+	_view->setHtml(QString::fromStdString(page.str()));
 	_view->show();
+
+	connect(_view, SIGNAL(loadFinished(bool)), this, SLOT(somethingHappened()));
+	_data_log = data_log;
 }
 
 /******************************************************/
@@ -88,6 +102,13 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 	    << "src=\"http://maps.googleapis.com/maps/api/js?v=3.1&sensor=true\">" << endl
 		<< "</script>" << endl
 		<< "<script type=\"text/javascript\">" << endl
+		
+		// Gloabal variables
+		<< "var map;" << endl
+		<< "var marker;" << endl
+		//<< "new google.maps.Marker()" << endl
+		
+		// Function initialise
 		<< "function initialize() {" << endl
 		<< "var latlng = new google.maps.LatLng(" << data_log.ltd(0) << "," << data_log.lgd(0) << ");" << endl
 		<< "var myOptions = {" << endl
@@ -95,13 +116,11 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		<< "center: latlng," << endl
 		<< "mapTypeId: google.maps.MapTypeId.ROADMAP" << endl
 		<< "};" << endl
-		<< "var map = new google.maps.Map(document.getElementById(\"map_canvas\"), myOptions);" << endl
-
+		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), myOptions);" << endl
 		// Create a path from GPS coords
 		<< "var ride_coords = [" << endl
 		<< createPolyline(data_log) << endl
 		<< "];" << endl
-
 		// Plot the path
 		<< "var ride_path = new google.maps.Polyline({" << endl
 		<< "path: ride_coords," << endl
@@ -109,15 +128,21 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		<< "strokeOpacity: 1.0," << endl
 		<< "strokeWeight: 2" << endl
 		<< "});" << endl
-
 		<< "ride_path.setMap(map);" << endl
-
-		//Create an icon marker
-		<< "var image = '" << QDir::currentPath().toStdString() << "/bike.png';" << endl
-		<< "var myLatLng = new google.maps.LatLng(" << data_log.ltd(0) << "," << data_log.lgd(0) << ");" << endl
-		<< "var beachMarker = new google.maps.Marker({ position: myLatLng, map: map, icon: image });" << endl
-
 		<< "}" << endl
+		
+		// Function setMarker
+		<< "function setMarker(ltd,lgd) {" << endl
+		//<< "var image = '" << QDir::currentPath().toStdString() << "/bike.png';" << endl
+		<< "var lat_lng = new google.maps.LatLng(ltd ,lgd);" << endl
+		<< "marker = new google.maps.Marker({ position: lat_lng, map: map});" << endl
+		<< "}" << endl
+
+		// Function deleteMarker
+		<< "function deleteMarker() { " << endl
+		<< "marker.setMap(null);" << endl
+		<< "}" << endl
+
 		<< "</script>" << endl
 		<< "</head>" << endl
 		<< "<body onload=\"initialize()\">" << endl

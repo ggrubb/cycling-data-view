@@ -1,5 +1,6 @@
 #include "plotwindow.h"
 #include "datalog.h"
+#include "googlemap.h"
 
 #include <qwt_plot_picker.h>
 #include <qwt_plot_zoomer.h>
@@ -37,7 +38,7 @@ PlotWindow::~PlotWindow()
 }
 
 /******************************************************/
-void PlotWindow::displayRide(DataLog& data_log)
+void PlotWindow::displayRide(DataLog& data_log, GoogleMap* google_map)
 {
 	_curve_hr->setSamples(&data_log.time(0), &data_log.heartRate(0), data_log.numPoints());
 	_curve_alt->setSamples(&data_log.time(0), &data_log.alt(0), data_log.numPoints());
@@ -50,7 +51,8 @@ void PlotWindow::displayRide(DataLog& data_log)
 	// Plot picker
 	QwtPlotPicker* plot_picker = 
 		new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, _plot->canvas());
-	connect(plot_picker, SIGNAL(selected(const QPointF&)), this, SLOT(plotSelection(const QPointF&)));
+	connect(plot_picker, SIGNAL(moved(const QPointF&)), this, SLOT(plotSelection(const QPointF&)));
+	connect(plot_picker, SIGNAL(moved(const QPointF&)), google_map, SLOT(somethingHappened(const QPointF&)));
 	plot_picker->setRubberBandPen(QColor(Qt::white));
     plot_picker->setRubberBand(QwtPicker::CrossRubberBand);
     plot_picker->setTrackerMode(QwtPicker::AlwaysOn);
@@ -75,7 +77,7 @@ void PlotWindow::displayRide(DataLog& data_log)
 /******************************************************/
 void PlotWindow::plotSelection(const QPointF& point)
 {
-	std::cout << point.x() << " " << point.y() << std::endl;
+	//std::cout << point.x() << " " << point.y() << std::endl;
 }
 
 /******************************************************/

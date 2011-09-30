@@ -6,6 +6,7 @@
 #include <qwt_plot_curve.h>
 
 class DataLog;
+class GoogleMap;
 
 class PlotWindow : public QObject
 {
@@ -15,7 +16,7 @@ class PlotWindow : public QObject
 	PlotWindow();
 	~PlotWindow();
 
-	void displayRide(DataLog& data_log);
+	void displayRide(DataLog& data_log, GoogleMap* google_map);
 
  private slots:
 	void plotSelection(const QPointF& point);

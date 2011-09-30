@@ -57,7 +57,7 @@ MainWindow::~MainWindow()
 		_google_map->displayRide(data_log);
 
 		// Plot 2d curves
-		_plot_window->displayRide(data_log);
+		_plot_window->displayRide(data_log, _google_map);
      }
  }
 
@@ -66,9 +66,8 @@ MainWindow::~MainWindow()
  void MainWindow::about()
  {
 	// Define the file to read
-	QString filename("05_04_2011 17_42_07_history.tcx");
+	//QString filename("05_04_2011 17_42_07_history.tcx");
 	
-
 	//// Do some OpenCV tests
 	//cv::Mat img_orig = cv::imread("img.png");
 	//std::vector<uchar> buf;
