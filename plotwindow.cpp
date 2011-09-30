@@ -52,7 +52,7 @@ void PlotWindow::displayRide(DataLog& data_log, GoogleMap* google_map)
 	QwtPlotPicker* plot_picker = 
 		new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, _plot->canvas());
 	connect(plot_picker, SIGNAL(moved(const QPointF&)), this, SLOT(plotSelection(const QPointF&)));
-	connect(plot_picker, SIGNAL(moved(const QPointF&)), google_map, SLOT(somethingHappened(const QPointF&)));
+	connect(plot_picker, SIGNAL(moved(const QPointF&)), google_map, SLOT(setMarkerPosition(const QPointF&)));
 	plot_picker->setRubberBandPen(QColor(Qt::white));
     plot_picker->setRubberBand(QwtPicker::CrossRubberBand);
     plot_picker->setTrackerMode(QwtPicker::AlwaysOn);

@@ -21,7 +21,7 @@ class GoogleMap : public QObject
 	void displayRide(DataLog& data_log);
 
 private slots:
-	void somethingHappened(const QPointF& point);
+	void setMarkerPosition(const QPointF& point);
 
  private:
 	void createPage(std::ostringstream& page, DataLog& data_log);

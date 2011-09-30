@@ -9,8 +9,6 @@
 #include <iostream>
 
 
-
-
 /******************************************************/
 GoogleMap::GoogleMap()
 {
@@ -33,37 +31,31 @@ class ChromePage : public QWebPage
 };
 
 /******************************************************/
-void GoogleMap::somethingHappened(const QPointF& point)
+void GoogleMap::setMarkerPosition(const QPointF& point)
 {
 	using namespace std;
 	ostringstream stream;
-	//stream << "var image = '" << QDir::currentPath().toStdString() << "/bike.png';" << endl
-	//stream 	<< "var myLatLng = new google.maps.LatLng(57.6957,11.9234);" << endl
-	//	<< "var beachMarker = new google.maps.Marker({ position: myLatLng, map: window.map });" << endl;
-
+	
 	int idx = point.x();
 	double ltd = _data_log.ltd(idx);
 	double lgd = _data_log.lgd(idx);
-	std::cout << ltd << " " << lgd << std::endl;
+	//std::cout << ltd << " " << lgd << std::endl;
 
-	stream << "//deleteMarker();" << endl 
-		<< "setMarker(" << ltd << "," << lgd << ");";
+	stream << "setMarker(" << ltd << "," << lgd << ");";
 	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
-	//_view->page()->mainFrame()->evaluateJavaScript(QString("setMarker(57.6957,11.9234)"));
 }
 
 /******************************************************/
 void GoogleMap::displayRide(DataLog& data_log)
 {
 	std::ostringstream page;
+	_data_log = data_log;
 	createPage(page, data_log);
  
 	_view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
 	_view->setHtml(QString::fromStdString(page.str()));
 	_view->show();
-
-	connect(_view, SIGNAL(loadFinished(bool)), this, SLOT(somethingHappened()));
-	_data_log = data_log;
+	
 }
 
 /******************************************************/
@@ -103,10 +95,10 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		<< "</script>" << endl
 		<< "<script type=\"text/javascript\">" << endl
 		
-		// Gloabal variables
+		// Global variables
 		<< "var map;" << endl
 		<< "var marker;" << endl
-		//<< "new google.maps.Marker()" << endl
+		<< "marker = new google.maps.Marker();" << endl
 		
 		// Function initialise
 		<< "function initialize() {" << endl
@@ -117,12 +109,10 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		<< "mapTypeId: google.maps.MapTypeId.ROADMAP" << endl
 		<< "};" << endl
 		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), myOptions);" << endl
-		// Create a path from GPS coords
 		<< "var ride_coords = [" << endl
-		<< createPolyline(data_log) << endl
+		<< createPolyline(data_log) << endl // create a path from GPS coords
 		<< "];" << endl
-		// Plot the path
-		<< "var ride_path = new google.maps.Polyline({" << endl
+		<< "var ride_path = new google.maps.Polyline({" << endl // plot the path
 		<< "path: ride_coords," << endl
 		<< "strokeColor: \"#FF0000\"," << endl
 		<< "strokeOpacity: 1.0," << endl
@@ -130,12 +120,13 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		<< "});" << endl
 		<< "ride_path.setMap(map);" << endl
 		<< "}" << endl
-		
+
 		// Function setMarker
 		<< "function setMarker(ltd,lgd) {" << endl
 		//<< "var image = '" << QDir::currentPath().toStdString() << "/bike.png';" << endl
 		<< "var lat_lng = new google.maps.LatLng(ltd ,lgd);" << endl
-		<< "marker = new google.maps.Marker({ position: lat_lng, map: map});" << endl
+		<< "marker.setPosition(lat_lng);" << endl
+		<< "marker.setMap(map);" << endl
 		<< "}" << endl
 
 		// Function deleteMarker
