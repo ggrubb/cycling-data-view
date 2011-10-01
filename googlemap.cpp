@@ -8,18 +8,9 @@
 #include <sstream>
 #include <iostream>
 
+using namespace std;
 
-/******************************************************/
-GoogleMap::GoogleMap()
-{
-	_view = new QWebView();
-}
-
-/******************************************************/
-GoogleMap::~GoogleMap()
-{
-
-}
+#define UNDEFINED_TIME -1
 
 /******************************************************/
 /* Helper class to fool google maps to give desktop view*/
@@ -31,52 +22,114 @@ class ChromePage : public QWebPage
 };
 
 /******************************************************/
+GoogleMap::GoogleMap()
+{
+	_view = new QWebView();
+	_view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
+	_selection_begin_time = UNDEFINED_TIME;
+	_selection_end_time = UNDEFINED_TIME;
+}
+
+/******************************************************/
+GoogleMap::~GoogleMap()
+{
+
+}
+
+/******************************************************/
 void GoogleMap::setMarkerPosition(const QPointF& point)
 {
-	using namespace std;
-	ostringstream stream;
-	
-	int idx = point.x();
-	double ltd = _data_log.ltd(idx);
-	double lgd = _data_log.lgd(idx);
-	//std::cout << ltd << " " << lgd << std::endl;
+	double time = point.x();
+	QMap<double, std::pair<double, double> >::iterator ltd_lgd_iterator = _time_v_ltd_lgd.lowerBound(time);
+	if (ltd_lgd_iterator != _time_v_ltd_lgd.end())
+	{
+		double ltd = ltd_lgd_iterator.value().first;
+		double lgd = ltd_lgd_iterator.value().second;
 
-	stream << "setMarker(" << ltd << "," << lgd << ");";
+		ostringstream stream;
+		stream << "setMarker(" << ltd << "," << lgd << ");";
+		_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
+	}
+}
+
+/******************************************************/
+void GoogleMap::beginSelection(const QPointF& point)
+{
+	_selection_begin_time = point.x();
+}
+
+/******************************************************/
+void GoogleMap::endSelection(const QPointF& point)
+{
+	_selection_end_time = point.x();
+
+	QMap<double, std::pair<double, double> >::iterator begin_it = _time_v_ltd_lgd.lowerBound(_selection_begin_time);
+	QMap<double, std::pair<double, double> >::iterator end_it = _time_v_ltd_lgd.lowerBound(_selection_end_time);
+	
+	ostringstream stream;
+	stream << "var coords = [" << endl
+		<< defineCoords(begin_it, end_it) << endl // create a path from GPS coords
+		<< "];" << endl
+		<< "setSelectionPath(coords);";
 	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
+}
+
+/******************************************************/
+void GoogleMap::clearSelection(const QRectF& rect)
+{
+	if (rect.x() == 0 && rect.y() == 0) // check if zoomed to full view
+	{
+		_selection_begin_time = UNDEFINED_TIME;
+		_selection_end_time = UNDEFINED_TIME;
+
+		ostringstream stream;
+		stream << "deleteSelectionPath();";
+		_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
+	}
+	else // handle the case where zooming out, but not to full view
+	{
+		beginSelection(rect.topLeft());
+		endSelection(rect.bottomRight());
+	}
+}
+
+/******************************************************/
+void GoogleMap::setTimeVLtdLgd(DataLog& data_log)
+{
+	// Create a map from log time to log latitude and longitude
+	for (int i=0; i < data_log.numPoints(); ++i)
+	{
+		_time_v_ltd_lgd.insert(data_log.time(i), std::pair<double, double>(data_log.ltd(i), data_log.lgd(i)));
+	}
 }
 
 /******************************************************/
 void GoogleMap::displayRide(DataLog& data_log)
 {
 	std::ostringstream page;
-	_data_log = data_log;
-	createPage(page, data_log);
- 
-	_view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
+	setTimeVLtdLgd(data_log);
+	createPage(page);
 	_view->setHtml(QString::fromStdString(page.str()));
 	_view->show();
-	
 }
 
 /******************************************************/
-std::string GoogleMap::createPolyline(DataLog& data_log)
+std::string GoogleMap::defineCoords(
+	QMap<double, std::pair<double, double> >::iterator first,
+	QMap<double, std::pair<double, double> >::iterator last)
 {
 	std::ostringstream stream;
-	int i=0;
-	while (i < data_log.numPoints()-1)
+	for (QMap<double, std::pair<double, double> >::iterator it = first; it != last; it++)
 	{
-		stream << "new google.maps.LatLng(" << data_log.ltd(i) << "," << data_log.lgd(i) << ")," << std::endl;
-		++i;
+		stream << "new google.maps.LatLng(" << it.value().first << "," << it.value().second << ")," << std::endl;
 	}
-	stream << "new google.maps.LatLng(" << data_log.ltd(i) << "," << data_log.lgd(i) << ")";
 
 	return stream.str();
 }
 
 /******************************************************/
-void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
+void GoogleMap::createPage(std::ostringstream& page)
 {
-	using namespace std;
 	ostringstream oss;
     oss.precision(6);
     oss.setf(ios::fixed,ios::floatfield);
@@ -99,10 +152,12 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		<< "var map;" << endl
 		<< "var marker;" << endl
 		<< "marker = new google.maps.Marker();" << endl
-		
+		<< "var selected_path;" << endl
+		<< "selected_path = new google.maps.Polyline({strokeColor: \"#0000FF\",strokeOpacity: 0.7,strokeWeight: 3});" << endl
+
 		// Function initialise
 		<< "function initialize() {" << endl
-		<< "var latlng = new google.maps.LatLng(" << data_log.ltd(0) << "," << data_log.lgd(0) << ");" << endl
+		<< "var latlng = new google.maps.LatLng(" << _time_v_ltd_lgd.begin().value().first << "," << _time_v_ltd_lgd.begin().value().second << ");" << endl
 		<< "var myOptions = {" << endl
 		<< "zoom: 10," << endl
 		<< "center: latlng," << endl
@@ -110,20 +165,19 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		<< "};" << endl
 		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), myOptions);" << endl
 		<< "var ride_coords = [" << endl
-		<< createPolyline(data_log) << endl // create a path from GPS coords
+		<< defineCoords(_time_v_ltd_lgd.begin(), _time_v_ltd_lgd.end()) << endl // create a path from GPS coords
 		<< "];" << endl
 		<< "var ride_path = new google.maps.Polyline({" << endl // plot the path
 		<< "path: ride_coords," << endl
 		<< "strokeColor: \"#FF0000\"," << endl
 		<< "strokeOpacity: 1.0," << endl
-		<< "strokeWeight: 2" << endl
+		<< "strokeWeight: 2," << endl
+		<< "map: map" << endl
 		<< "});" << endl
-		<< "ride_path.setMap(map);" << endl
 		<< "}" << endl
 
 		// Function setMarker
 		<< "function setMarker(ltd,lgd) {" << endl
-		//<< "var image = '" << QDir::currentPath().toStdString() << "/bike.png';" << endl
 		<< "var lat_lng = new google.maps.LatLng(ltd ,lgd);" << endl
 		<< "marker.setPosition(lat_lng);" << endl
 		<< "marker.setMap(map);" << endl
@@ -132,6 +186,17 @@ void GoogleMap::createPage(std::ostringstream& page, DataLog& data_log)
 		// Function deleteMarker
 		<< "function deleteMarker() { " << endl
 		<< "marker.setMap(null);" << endl
+		<< "}" << endl
+
+		// Function setSelectionPath
+		<< "function setSelectionPath(coords) { " << endl
+		<< "selected_path.setPath(coords);" << endl
+		<< "selected_path.setMap(map);" << endl
+		<< "}" << endl
+
+		// Function deleteSelectionPath
+		<< "function deleteSelectionPath() { " << endl
+		<< "selected_path.setMap(null);" << endl
 		<< "}" << endl
 
 		<< "</script>" << endl

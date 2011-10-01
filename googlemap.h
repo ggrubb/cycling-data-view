@@ -7,6 +7,7 @@
 #include <qtcore/qobject>
 #include <qtcore/qpoint>
 #include <QWebView.h>
+#include <qmap.h>
 
 //class DataLog;
 
@@ -22,13 +23,20 @@ class GoogleMap : public QObject
 
 private slots:
 	void setMarkerPosition(const QPointF& point);
-
+	void beginSelection(const QPointF& point);
+	void endSelection(const QPointF& point);
+	void clearSelection(const QRectF& rect);
  private:
-	void createPage(std::ostringstream& page, DataLog& data_log);
-	std::string createPolyline(DataLog& data_log);
+	void setTimeVLtdLgd(DataLog& data_log);
+	void createPage(std::ostringstream& page);
+	std::string defineCoords(	
+		QMap<double, std::pair<double, double> >::iterator first,
+		QMap<double, std::pair<double, double> >::iterator last);
 
 	QWebView *_view;
-	DataLog _data_log;
+	QMap<double, std::pair<double, double> > _time_v_ltd_lgd;
+	double _selection_begin_time;
+	double _selection_end_time;
 };
 
 #endif // GOOGLEMAP_H
