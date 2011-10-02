@@ -53,20 +53,11 @@ void GoogleMap::setMarkerPosition(const QPointF& point)
 }
 
 /******************************************************/
-void GoogleMap::beginSelection(const QPointF& point)
+void GoogleMap::setSelection(const double& start_time, const double& end_time)
 {
-	if (point.x() > 0)
-		_selection_begin_time = point.x();
-}
+	QMap<double, std::pair<double, double> >::iterator begin_it = _time_v_ltd_lgd.lowerBound(std::max(start_time,0.0));
+	QMap<double, std::pair<double, double> >::iterator end_it = _time_v_ltd_lgd.lowerBound(end_time);
 
-/******************************************************/
-void GoogleMap::endSelection(const QPointF& point)
-{
-	_selection_end_time = point.x();
-
-	QMap<double, std::pair<double, double> >::iterator begin_it = _time_v_ltd_lgd.lowerBound(_selection_begin_time);
-	QMap<double, std::pair<double, double> >::iterator end_it = _time_v_ltd_lgd.lowerBound(_selection_end_time);
-	
 	ostringstream stream;
 	stream << "var coords = [" << endl
 		<< defineCoords(begin_it, end_it) << endl // create a path from GPS coords
@@ -76,9 +67,22 @@ void GoogleMap::endSelection(const QPointF& point)
 }
 
 /******************************************************/
+void GoogleMap::beginSelection(const QPointF& point)
+{
+	_selection_begin_time = point.x();
+}
+
+/******************************************************/
+void GoogleMap::endSelection(const QPointF& point)
+{
+	_selection_end_time = point.x();
+	setSelection(_selection_begin_time,_selection_end_time);
+}
+
+/******************************************************/
 void GoogleMap::zoomSelection(const QRectF& rect)
 {
-	if (rect.x() == 0 && rect.y() == 0) // check if zoomed to full view
+	if (rect.x() <= 0 && rect.y() <= 0) // check if zoomed to full view
 	{
 		_selection_begin_time = UNDEFINED_TIME;
 		_selection_end_time = UNDEFINED_TIME;
@@ -89,19 +93,24 @@ void GoogleMap::zoomSelection(const QRectF& rect)
 	}
 	else // handle the case where zooming out, but not to full view
 	{
-		beginSelection(rect.topLeft());
-		endSelection(rect.bottomRight());
+		_selection_begin_time = rect.left();
+		_selection_end_time = rect.right();
+		setSelection(_selection_begin_time,_selection_end_time);
 	}
 }
 
 /******************************************************/
-void GoogleMap::moveSelection(int x, int y)
+void GoogleMap::moveSelection(double delta_x)
 {
-	
-	beginSelection(QPointF(_selection_begin_time + x,0));
-	endSelection(QPointF(_selection_end_time + x, 0));
-	cout << "x: " << x << endl;
-	cout << "delta: " << _selection_end_time - _selection_begin_time << endl;
+	setSelection(_selection_begin_time - delta_x,_selection_end_time - delta_x);
+}
+
+/******************************************************/
+void GoogleMap::holdSelection(double delta_x)
+{
+	_selection_begin_time -= delta_x;
+	_selection_end_time -= delta_x;
+	setSelection(_selection_begin_time,_selection_end_time);
 }
 
 /******************************************************/

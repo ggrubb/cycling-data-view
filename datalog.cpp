@@ -114,6 +114,15 @@ double& DataLog::altMap(int idx)
 }
 
 /****************************************/
+double& DataLog::altSmooth(int idx)
+{ 
+	assert(idx >= 0); 
+	assert(idx < _num_points);
+	return _alt_smooth[idx]; 
+}
+
+
+/****************************************/
 void DataLog::resize(int size)
 {
 	assert(size >= 0);
@@ -139,17 +148,14 @@ void DataLog::computePower()
 }
 
 /****************************************/
-void DataLog::computeGradient(
+void DataLog::smoothAlt(
 	const std::vector<double>& alt,
-	const std::vector<double>& dist,
-	std::vector<double>& grad)
+	std::vector<double>& alt_smoothed)
 {
-	assert(alt.size() == dist.size());
 	assert(alt.size() > 1);
 
 	// Smooth altitude with averaging filter
 	const int n = 10; // window size over which to smooth alt
-	std::vector<double> alt_smoothed;
 	alt_smoothed.resize(alt.size());
 	std::vector<double>::const_iterator alt_it = alt.begin();
 	for (int i=0; i < (int)alt.size(); ++i)
@@ -159,13 +165,22 @@ void DataLog::computeGradient(
 		alt_smoothed[i] = std::accumulate(alt_it+i-x, alt_it+i+y,0)/double(x + y);
 		
 	}
+}
 
-	// Compute gradient from smoothed altitude
+/****************************************/
+void DataLog::computeGradient(
+	const std::vector<double>& alt,
+	const std::vector<double>& dist,
+	std::vector<double>& grad)
+{
+	assert(alt.size() == dist.size());
+	assert(alt.size() > 1);
+
+	// Compute gradient from altitude
 	grad.resize(alt.size());
-	for (uint i=1; i < alt_smoothed.size(); ++i)
+	for (uint i=1; i < alt.size(); ++i)
 	{
 		if (dist[i] - dist[i-1] > 5)
-			grad[i] = 100*(alt_smoothed[i] - alt_smoothed[i-1])/(dist[i] - dist[i-1]);
+			grad[i] = 100*(alt[i] - alt[i-1])/(dist[i] - dist[i-1]);
 	}
-	//grad = alt_smoothed;
 }

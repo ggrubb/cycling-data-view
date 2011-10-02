@@ -35,6 +35,7 @@ class DataLog
 	double& gradient(int idx);
 	double& power(int idx);
 	double& altMap(int idx);
+	double& altSmooth(int idx);
 
 	std::vector<double>& time() { return _time; }
 	std::vector<double>& ltd() { return _ltd; }
@@ -47,12 +48,16 @@ class DataLog
 	std::vector<double>& gradient() { return _gradient; }
 	std::vector<double>& power() { return _power; }
 	std::vector<double>& altMap() { return _alt_map; }
+	std::vector<double>& altSmooth() { return _alt_smooth; }
 
 	static void computePower();
 	static void computeGradient(
 		const std::vector<double>& alt,
 		const std::vector<double>& dist,
 		std::vector<double>& grad);
+	static void smoothAlt(
+		const std::vector<double>& alt,
+		std::vector<double>& alt_smoothed);
 
  private:
 
@@ -81,6 +86,7 @@ class DataLog
 	std::vector<double> _gradient; //%
 	std::vector<double> _power; //W
 	std::vector<double> _alt_map; //m
+	std::vector<double> _alt_smooth; //m
  };
 
 #endif // DATALOG_H

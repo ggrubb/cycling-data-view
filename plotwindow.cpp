@@ -73,12 +73,11 @@ void PlotWindow::displayRide(DataLog& data_log, GoogleMap* google_map)
 	plot_picker1->setRubberBandPen(QColor(Qt::white));
     plot_picker1->setTrackerPen(QColor(Qt::black));
 	plot_picker1->setStateMachine(new QwtPickerTrackerMachine());
-	connect(plot_picker1, SIGNAL(moved(const QPointF&)), this, SLOT(plotSelection(const QPointF&)));
 	connect(plot_picker1, SIGNAL(moved(const QPointF&)), google_map, SLOT(setMarkerPosition(const QPointF&)));
 	
 	// Plot picker for user selection
 	QwtPlotPicker* plot_picker2 = 
-		new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOff, _plot->canvas());
+		new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::NoRubberBand, QwtPicker::AlwaysOff, _plot->canvas());
 	plot_picker2->setStateMachine(new QwtPickerDragPointMachine());
 	connect(plot_picker2, SIGNAL(appended(const QPointF&)), google_map, SLOT(beginSelection(const QPointF&)));
 	connect(plot_picker2, SIGNAL(moved(const QPointF&)), google_map, SLOT(endSelection(const QPointF&)));
@@ -95,21 +94,21 @@ void PlotWindow::displayRide(DataLog& data_log, GoogleMap* google_map)
 
 	// Plot panner
 	QwtPlotPanner* plot_panner = new QwtPlotPanner(_plot->canvas());
-	connect(plot_panner, SIGNAL(moved(int, int)), this, SLOT(plotMoved(int , int)));
 	plot_panner->setMouseButton(Qt::MidButton);
-	connect(plot_panner, SIGNAL(moved(int, int)), google_map, SLOT(moveSelection(int, int)));
-
+	connect(plot_panner, SIGNAL(moved(int, int)), this, SLOT(panSelection(int, int)));
+	connect(plot_panner, SIGNAL(panned(int, int)), this, SLOT(panAndHoldSelection(int, int)));
+	connect(this, SIGNAL(panSelection(double)), google_map, SLOT(moveSelection(double)));
+	connect(this, SIGNAL(panAndHoldSelection(double)), google_map, SLOT(holdSelection(double)));
 }
 
 /******************************************************/
-void PlotWindow::plotSelection(const QPointF& point)
+void PlotWindow::panSelection(int x, int y)
 {
-	//std::cout << point.x() << " " << point.y() << std::endl;
+	emit panSelection(_plot->invTransform(QwtPlot::xBottom,x)-_plot->invTransform(QwtPlot::xBottom,0));
 }
 
 /******************************************************/
-void PlotWindow::plotMoved(int x, int y)
+void PlotWindow::panAndHoldSelection(int x, int y)
 {
-	_plot->updateAxes();
-	_plot->replot();
+	emit panAndHoldSelection(_plot->invTransform(QwtPlot::xBottom,x)-_plot->invTransform(QwtPlot::xBottom,0));
 }

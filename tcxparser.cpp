@@ -120,7 +120,8 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 /******************************************************/
 void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 {
-	DataLog::computeGradient(data_log.alt(), data_log.dist(), data_log.gradient());
+	DataLog::smoothAlt(data_log.alt(), data_log.altSmooth());
+	DataLog::computeGradient(data_log.altSmooth(), data_log.dist(), data_log.gradient());
 }
 
 /******************************************************/
