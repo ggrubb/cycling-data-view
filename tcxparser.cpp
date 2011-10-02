@@ -118,6 +118,12 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 }
 
 /******************************************************/
+void TcxParser::computeAdditionalDetailts(DataLog& data_log)
+{
+	DataLog::computeGradient(data_log.alt(), data_log.dist(), data_log.gradient());
+}
+
+/******************************************************/
 bool TcxParser::parse(const QString& flename, DataLog& data_log)
 {
 	// Define the file to read
@@ -133,6 +139,7 @@ bool TcxParser::parse(const QString& flename, DataLog& data_log)
 	{
 		parseRideSummary(data_log);
 		parseRideDetails(data_log);
+		computeAdditionalDetailts(data_log);
 	}
 
 	return read_success;

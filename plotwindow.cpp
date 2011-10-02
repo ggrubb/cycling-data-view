@@ -59,7 +59,7 @@ PlotWindow::~PlotWindow()
 /******************************************************/
 void PlotWindow::displayRide(DataLog& data_log, GoogleMap* google_map)
 {
-	_curve_hr->setSamples(&data_log.time(0), &data_log.heartRate(0), data_log.numPoints());
+	_curve_hr->setSamples(&data_log.time(0), &data_log.gradient(0), data_log.numPoints());
 	_curve_alt->setSamples(&data_log.time(0), &data_log.alt(0), data_log.numPoints());
 	_curve_hr->attach(_plot);
 	_curve_alt->attach(_plot);
@@ -91,12 +91,14 @@ void PlotWindow::displayRide(DataLog& data_log, GoogleMap* google_map)
     plot_zoomer->setTrackerPen(QColor(Qt::white));
     plot_zoomer->setMousePattern(QwtEventPattern::MouseSelect2,Qt::RightButton, Qt::ControlModifier);
     plot_zoomer->setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
-	connect(plot_zoomer, SIGNAL(zoomed(const QRectF&)), google_map, SLOT(clearSelection(const QRectF&)));
+	connect(plot_zoomer, SIGNAL(zoomed(const QRectF&)), google_map, SLOT(zoomSelection(const QRectF&)));
 
 	// Plot panner
 	QwtPlotPanner* plot_panner = new QwtPlotPanner(_plot->canvas());
 	connect(plot_panner, SIGNAL(moved(int, int)), this, SLOT(plotMoved(int , int)));
 	plot_panner->setMouseButton(Qt::MidButton);
+	connect(plot_panner, SIGNAL(moved(int, int)), google_map, SLOT(moveSelection(int, int)));
+
 }
 
 /******************************************************/

@@ -55,7 +55,8 @@ void GoogleMap::setMarkerPosition(const QPointF& point)
 /******************************************************/
 void GoogleMap::beginSelection(const QPointF& point)
 {
-	_selection_begin_time = point.x();
+	if (point.x() > 0)
+		_selection_begin_time = point.x();
 }
 
 /******************************************************/
@@ -75,7 +76,7 @@ void GoogleMap::endSelection(const QPointF& point)
 }
 
 /******************************************************/
-void GoogleMap::clearSelection(const QRectF& rect)
+void GoogleMap::zoomSelection(const QRectF& rect)
 {
 	if (rect.x() == 0 && rect.y() == 0) // check if zoomed to full view
 	{
@@ -91,6 +92,16 @@ void GoogleMap::clearSelection(const QRectF& rect)
 		beginSelection(rect.topLeft());
 		endSelection(rect.bottomRight());
 	}
+}
+
+/******************************************************/
+void GoogleMap::moveSelection(int x, int y)
+{
+	
+	beginSelection(QPointF(_selection_begin_time + x,0));
+	endSelection(QPointF(_selection_end_time + x, 0));
+	cout << "x: " << x << endl;
+	cout << "delta: " << _selection_end_time - _selection_begin_time << endl;
 }
 
 /******************************************************/
@@ -157,23 +168,23 @@ void GoogleMap::createPage(std::ostringstream& page)
 
 		// Function initialise
 		<< "function initialize() {" << endl
-		<< "var latlng = new google.maps.LatLng(" << _time_v_ltd_lgd.begin().value().first << "," << _time_v_ltd_lgd.begin().value().second << ");" << endl
 		<< "var myOptions = {" << endl
-		<< "zoom: 10," << endl
-		<< "center: latlng," << endl
 		<< "mapTypeId: google.maps.MapTypeId.ROADMAP" << endl
 		<< "};" << endl
 		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), myOptions);" << endl
-		<< "var ride_coords = [" << endl
-		<< defineCoords(_time_v_ltd_lgd.begin(), _time_v_ltd_lgd.end()) << endl // create a path from GPS coords
-		<< "];" << endl
-		<< "var ride_path = new google.maps.Polyline({" << endl // plot the path
+		<< "var ride_coords = [" << defineCoords(_time_v_ltd_lgd.begin(), _time_v_ltd_lgd.end()) << "];" << endl // create a path from GPS coords
+		<< "var ride_path = new google.maps.Polyline({" << endl
 		<< "path: ride_coords," << endl
 		<< "strokeColor: \"#FF0000\"," << endl
 		<< "strokeOpacity: 1.0," << endl
 		<< "strokeWeight: 2," << endl
 		<< "map: map" << endl
 		<< "});" << endl
+		<< "var bounds = new google.maps.LatLngBounds();" << endl
+		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
+		<< "bounds.extend (ride_coords[i]);" << endl
+		<< "}" << endl
+		<< "map.fitBounds(bounds);" << endl
 		<< "}" << endl
 
 		// Function setMarker

@@ -32,6 +32,27 @@ class DataLog
 	double& heartRate(int idx);
 	double& cadence(int idx);
 	double& speed(int idx);
+	double& gradient(int idx);
+	double& power(int idx);
+	double& altMap(int idx);
+
+	std::vector<double>& time() { return _time; }
+	std::vector<double>& ltd() { return _ltd; }
+	std::vector<double>& lgd() { return _lgd; }
+	std::vector<double>& alt() { return _alt; }
+	std::vector<double>& dist() { return _dist; }
+	std::vector<double>& heartRate() { return _heart_rate; }
+	std::vector<double>& cadence() { return _cadence; }
+	std::vector<double>& speed() { return _speed; }
+	std::vector<double>& gradient() { return _gradient; }
+	std::vector<double>& power() { return _power; }
+	std::vector<double>& altMap() { return _alt_map; }
+
+	static void computePower();
+	static void computeGradient(
+		const std::vector<double>& alt,
+		const std::vector<double>& dist,
+		std::vector<double>& grad);
 
  private:
 
@@ -49,14 +70,17 @@ class DataLog
 	int _num_points;
 
 	// The vectors of data
-	std::vector<double> _time;
-	std::vector<double> _ltd;
-	std::vector<double> _lgd;
-	std::vector<double> _alt;
-	std::vector<double> _dist;
-	std::vector<double> _heart_rate;
-	std::vector<double> _cadence;
-	std::vector<double> _speed;
+	std::vector<double> _time; //sec
+	std::vector<double> _ltd; //deg
+	std::vector<double> _lgd; //deg
+	std::vector<double> _alt; //m
+	std::vector<double> _dist; //m
+	std::vector<double> _heart_rate; //bpm
+	std::vector<double> _cadence; //rpm
+	std::vector<double> _speed; //kmh
+	std::vector<double> _gradient; //%
+	std::vector<double> _power; //W
+	std::vector<double> _alt_map; //m
  };
 
 #endif // DATALOG_H

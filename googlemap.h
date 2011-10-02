@@ -25,7 +25,8 @@ private slots:
 	void setMarkerPosition(const QPointF& point);
 	void beginSelection(const QPointF& point);
 	void endSelection(const QPointF& point);
-	void clearSelection(const QRectF& rect);
+	void zoomSelection(const QRectF& rect);
+	void moveSelection(int x, int y);
  private:
 	void setTimeVLtdLgd(DataLog& data_log);
 	void createPage(std::ostringstream& page);
