@@ -30,7 +30,9 @@ class PlotWindow : public QObject
  private:
 	QwtPlot* _plot;
 	QwtPlotCurve* _curve_hr;
+	QwtPlotCurve* _curve_speed;
+	QwtPlotCurve* _curve_grad;
 	QwtPlotCurve* _curve_alt;
 };
 
-#endif // GOOGLEMAP_H
+#endif // PLOTWINDOW_H

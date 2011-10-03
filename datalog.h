@@ -2,6 +2,7 @@
 #define DATALOG_H
 
 #include <qstring.h>
+#include <qmap.h>
 #include <vector>
 
 class DataLog
@@ -50,14 +51,38 @@ class DataLog
 	std::vector<double>& altMap() { return _alt_map; }
 	std::vector<double>& altSmooth() { return _alt_smooth; }
 
+	// Compute mappings from time to index and dist to index
+	void computeMaps();
+	// Return the index at the specified time
+	int indexFromTime(double time);
+	// Return the index at the specified distance
+	int indexFromDist(double dist);
+
+	// Functions to compute various secondary data
 	static void computePower();
+
 	static void computeGradient(
 		const std::vector<double>& alt,
 		const std::vector<double>& dist,
 		std::vector<double>& grad);
-	static void smoothAlt(
-		const std::vector<double>& alt,
-		std::vector<double>& alt_smoothed);
+
+	static void computeSpeed(
+		const std::vector<double>& time,
+		const std::vector<double>& dist,
+		std::vector<double>& speed);
+
+	static void smoothSignal(
+		const std::vector<double>& signal,
+		std::vector<double>& signal_smoothed,
+		int window_size = 10);
+
+	static double computeAverage(
+		std::vector<double>::const_iterator& start,
+		std::vector<double>::const_iterator& end);
+
+	static double computeMax(
+		std::vector<double>::const_iterator& start,
+		std::vector<double>::const_iterator& end);
 
  private:
 
@@ -87,6 +112,9 @@ class DataLog
 	std::vector<double> _power; //W
 	std::vector<double> _alt_map; //m
 	std::vector<double> _alt_smooth; //m
+
+	QMap<double,int> _time_to_index;
+	QMap<double,int> _dist_to_index;
  };
 
 #endif // DATALOG_H

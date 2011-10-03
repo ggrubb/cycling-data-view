@@ -8,26 +8,6 @@
 #include <qwt_picker_machine.h>
 #include <iostream>
 
-class QwtPlotPickerHighlightSelection: public QwtPlotPicker
-{
-public:
-	QwtPlotPickerHighlightSelection(int xAxis,int yAxis,QwtPicker::RubberBand rubberBand,QwtPicker::DisplayMode trackerMode,QwtPlotCanvas* canvas):
-	QwtPlotPicker(xAxis,yAxis,rubberBand,trackerMode,canvas)
-	{
-	
-	}
-	
-protected: 
-	virtual void widgetMousePressedEvent( QMouseEvent *me )
-	{
-		if ( mouseMatch( QwtEventPattern::MouseSelect1, me ) )
-		{
-			//std::cout << "here!\n";
-		}
-	}
-
-};
-
 /******************************************************/
 PlotWindow::PlotWindow()
 {
@@ -40,6 +20,14 @@ PlotWindow::PlotWindow()
 	_curve_hr = new QwtPlotCurve("Heart Rate");
 	c = Qt::darkRed;
 	_curve_hr->setPen(c);
+
+	_curve_grad = new QwtPlotCurve("Gradient");
+	c = Qt::darkBlue;
+	_curve_grad->setPen(c);
+
+	_curve_speed = new QwtPlotCurve("Speed");
+	c = Qt::yellow;
+	_curve_speed->setPen(c);
 
 	_curve_alt = new QwtPlotCurve("Altitude");
 	_curve_alt->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -59,10 +47,15 @@ PlotWindow::~PlotWindow()
 /******************************************************/
 void PlotWindow::displayRide(DataLog& data_log, GoogleMap* google_map)
 {
-	_curve_hr->setSamples(&data_log.time(0), &data_log.gradient(0), data_log.numPoints());
+	_curve_hr->setSamples(&data_log.time(0), &data_log.heartRate(0), data_log.numPoints());
+	_curve_speed->setSamples(&data_log.time(0), &data_log.speed(0), data_log.numPoints());
+	_curve_grad->setSamples(&data_log.time(0), &data_log.gradient(0), data_log.numPoints());
 	_curve_alt->setSamples(&data_log.time(0), &data_log.alt(0), data_log.numPoints());
-	_curve_hr->attach(_plot);
+	
 	_curve_alt->attach(_plot);
+	_curve_speed->attach(_plot);
+	_curve_grad->attach(_plot);
+	_curve_hr->attach(_plot);
 
 	_plot->replot();
 	_plot->show();

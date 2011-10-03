@@ -80,12 +80,12 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 				QStringList time_strings = tmp_s.split(':');
 				data_log.time(track_point_idx) = time_strings.at(0).toInt()*3600 + time_strings.at(1).toInt()*60 + time_strings.at(2).toInt();
 				data_log.speed(track_point_idx) = track_point.firstChildElement("Extensions").firstChild().firstChild().nodeValue().toFloat();
-				data_log.lgd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LongitudeDegrees").firstChild().nodeValue().toFloat();
-				data_log.ltd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LatitudeDegrees").firstChild().nodeValue().toFloat();
+				data_log.lgd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LongitudeDegrees").firstChild().nodeValue().toDouble();//.toFloat();
+				data_log.ltd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LatitudeDegrees").firstChild().nodeValue().toDouble();//.toFloat();
 				data_log.heartRate(track_point_idx) = track_point.firstChildElement("HeartRateBpm").firstChild().firstChild().nodeValue().toFloat();
-				data_log.dist(track_point_idx) = track_point.firstChildElement("DistanceMeters").firstChild().nodeValue().toFloat();
+				data_log.dist(track_point_idx) = track_point.firstChildElement("DistanceMeters").firstChild().nodeValue().toDouble();//.toFloat();
 				data_log.cadence(track_point_idx) = track_point.firstChildElement("Cadence").firstChild().nodeValue().toFloat();
-				data_log.alt(track_point_idx) = track_point.firstChildElement("AltitudeMeters").firstChild().nodeValue().toFloat();
+				data_log.alt(track_point_idx) = track_point.firstChildElement("AltitudeMeters").firstChild().nodeValue().toDouble();//.toFloat();
 			}
 			track_point = track_point.nextSibling();
 
@@ -120,8 +120,10 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 /******************************************************/
 void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 {
-	DataLog::smoothAlt(data_log.alt(), data_log.altSmooth());
+	DataLog::smoothSignal(data_log.alt(), data_log.altSmooth());
 	DataLog::computeGradient(data_log.altSmooth(), data_log.dist(), data_log.gradient());
+	if (true)
+		DataLog::computeSpeed(data_log.time(), data_log.dist(), data_log.speed());
 }
 
 /******************************************************/

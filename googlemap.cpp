@@ -126,7 +126,7 @@ void GoogleMap::setTimeVLtdLgd(DataLog& data_log)
 /******************************************************/
 void GoogleMap::displayRide(DataLog& data_log)
 {
-	std::ostringstream page;
+	ostringstream page;
 	setTimeVLtdLgd(data_log);
 	createPage(page);
 	_view->setHtml(QString::fromStdString(page.str()));
@@ -138,10 +138,13 @@ std::string GoogleMap::defineCoords(
 	QMap<double, std::pair<double, double> >::iterator first,
 	QMap<double, std::pair<double, double> >::iterator last)
 {
-	std::ostringstream stream;
+	ostringstream stream;
+	stream.precision(6); // set precision so we plot lat/long correctly
+	stream.setf(ios::fixed,ios::floatfield);
+
 	for (QMap<double, std::pair<double, double> >::iterator it = first; it != last; it++)
 	{
-		stream << "new google.maps.LatLng(" << it.value().first << "," << it.value().second << ")," << std::endl;
+		stream << "new google.maps.LatLng(" << it.value().first << "," << it.value().second << ")," << endl;
 	}
 
 	return stream.str();
@@ -151,8 +154,8 @@ std::string GoogleMap::defineCoords(
 void GoogleMap::createPage(std::ostringstream& page)
 {
 	ostringstream oss;
-    oss.precision(6);
-    oss.setf(ios::fixed,ios::floatfield);
+    oss.precision(6); // set precision so we plot lat/long correctly
+	oss.setf(ios::fixed,ios::floatfield);
 
 	oss << "<!DOCTYPE html>" << endl
 		<< "<html>" << endl

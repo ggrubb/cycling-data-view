@@ -1,6 +1,7 @@
 #include "datalog.h"
 #include <cassert>
 #include <numeric>
+#include <algorithm>
 
 /****************************************/
 DataLog::DataLog():
@@ -139,6 +140,38 @@ void DataLog::resize(int size)
 	_gradient.resize(size);
 	_power.resize(size);
 	_alt_map.resize(size);
+
+	_time_to_index.clear();
+	_dist_to_index.clear();
+
+}
+
+/****************************************/
+void DataLog::computeMaps()
+{
+	// Time to index
+	for (int i=0; i < numPoints(); ++i)
+	{
+		_time_to_index.insert(time(i), i);
+	}
+
+	// Time to distance
+	for (int i=0; i < numPoints(); ++i)
+	{
+		_dist_to_index.insert(dist(i), i);
+	}
+}
+
+/****************************************/
+int DataLog::indexFromTime(double time)
+{
+	return _time_to_index.lowerBound(std::max(time,0.0)).value();
+}
+
+/****************************************/
+int DataLog::indexFromDist(double dist)
+{
+	return _dist_to_index.lowerBound(std::max(dist,0.0)).value();
 }
 
 /****************************************/
@@ -148,21 +181,21 @@ void DataLog::computePower()
 }
 
 /****************************************/
-void DataLog::smoothAlt(
-	const std::vector<double>& alt,
-	std::vector<double>& alt_smoothed)
+void DataLog::smoothSignal(
+	const std::vector<double>& signal,
+	std::vector<double>& smoothed,
+	int window_size)
 {
-	assert(alt.size() > 1);
+	assert(signal.size() > 1);
 
 	// Smooth altitude with averaging filter
-	const int n = 10; // window size over which to smooth alt
-	alt_smoothed.resize(alt.size());
-	std::vector<double>::const_iterator alt_it = alt.begin();
-	for (int i=0; i < (int)alt.size(); ++i)
+	smoothed.resize(signal.size());
+	std::vector<double>::const_iterator signal_it = signal.begin();
+	for (int i=0; i < (int)signal.size(); ++i)
 	{
-		int x = i - std::max(0, i - n/2);
-		int y = std::min((int)alt.size(), i + n/2) - i;
-		alt_smoothed[i] = std::accumulate(alt_it+i-x, alt_it+i+y,0)/double(x + y);
+		int x = i - std::max(0, i - window_size/2);
+		int y = std::min((int)signal.size(), i + window_size/2) - i;
+		smoothed[i] = std::accumulate(signal_it+i-x, signal_it+i+y,0)/double(x + y);
 		
 	}
 }
@@ -183,4 +216,42 @@ void DataLog::computeGradient(
 		if (dist[i] - dist[i-1] > 5)
 			grad[i] = 100*(alt[i] - alt[i-1])/(dist[i] - dist[i-1]);
 	}
+}
+
+/****************************************/
+void DataLog::computeSpeed(
+	const std::vector<double>& time,
+	const std::vector<double>& dist,
+	std::vector<double>& speed)
+{
+	assert(time.size() == dist.size());
+	assert(time.size() > 2);
+
+	// Compute speed from distance over time
+	speed.resize(time.size());
+	for (uint i=2; i < time.size(); ++i)
+	{
+		if (time[i] - time[i-2] > 0)
+			speed[i] = 3.6*(dist[i] - dist[i-2])/(time[i] - time[i-2]);
+	}
+}
+/****************************************/
+double DataLog::computeAverage(
+	std::vector<double>::const_iterator& start,
+	std::vector<double>::const_iterator& end)
+{
+	double avg = 0;
+	if (end-start > 0)
+		avg = std::accumulate(start, end,0)/(end-start);
+	return avg;
+}
+
+/****************************************/
+double DataLog::computeMax(
+	std::vector<double>::const_iterator& start,
+	std::vector<double>::const_iterator& end)
+{
+	std::vector<double>::const_iterator max_it;
+	max_it = std::max_element(start, end);
+	return *max_it;
 }

@@ -3,6 +3,7 @@
 #include "datalog.h"
 #include "googlemap.h"
 #include "plotwindow.h"
+#include "datastatisticsview.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -27,6 +28,7 @@ MainWindow::MainWindow()
 	_parser = new TcxParser();
 	_google_map = new GoogleMap();
 	_plot_window = new PlotWindow();
+	_stats_view = new DataStatisticsView();
 
 	setWindowTitle(tr("Cycling Data View"));
 	resize(500, 400);

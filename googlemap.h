@@ -37,16 +37,23 @@ private slots:
 	void holdSelection(double delta_x);
 
  private:
+	// Convert raw data log into internal map structure for easy lookup
 	void setTimeVLtdLgd(DataLog& data_log);
 	void createPage(std::ostringstream& page);
+	// Create sting decription of lat/long between first and last iterators
 	std::string defineCoords(	
 		QMap<double, std::pair<double, double> >::iterator first,
 		QMap<double, std::pair<double, double> >::iterator last);
+	// Draw the path between the start and end time on the map
 	void setSelection(const double& start_time, const double& end_time);
 
+	// The window to display google maps
 	QWebView *_view;
+	// Map to define association between time and lat/long
 	QMap<double, std::pair<double, double> > _time_v_ltd_lgd;
+	// The start time of selection to highlight
 	double _selection_begin_time;
+	// The end time of selection to highlight
 	double _selection_end_time;
 };
 
