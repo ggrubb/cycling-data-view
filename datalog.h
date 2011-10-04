@@ -84,6 +84,14 @@ class DataLog
 		std::vector<double>::const_iterator& start,
 		std::vector<double>::const_iterator& end);
 
+	static double computeGain(
+		std::vector<double>::const_iterator& start,
+		std::vector<double>::const_iterator& end);
+
+	static double computeLoss(
+		std::vector<double>::const_iterator& start,
+		std::vector<double>::const_iterator& end);
+
  private:
 
 	// Summary data

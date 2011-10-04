@@ -7,6 +7,7 @@
 
 class DataLog;
 class GoogleMap;
+class DataStatisticsView;
 class QwtPlotPicker;
 
 class PlotWindow : public QObject
@@ -17,7 +18,7 @@ class PlotWindow : public QObject
 	PlotWindow();
 	~PlotWindow();
 	// Display the ride log in plots, and connect curser to google map
-	void displayRide(DataLog* data_log, GoogleMap* google_map);
+	void displayRide(DataLog* data_log, GoogleMap* google_map, DataStatisticsView* stats_view);
 
  signals:
 	void setMarkerPosition(int idx);

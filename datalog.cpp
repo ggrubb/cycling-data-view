@@ -243,6 +243,7 @@ void DataLog::computeSpeed(
 			speed[i] = 3.6*(dist[i] - dist[i-2])/(time[i] - time[i-2]);
 	}
 }
+
 /****************************************/
 double DataLog::computeAverage(
 	std::vector<double>::const_iterator& start,
@@ -263,3 +264,36 @@ double DataLog::computeMax(
 	max_it = std::max_element(start, end);
 	return *max_it;
 }
+
+/****************************************/
+double DataLog::computeGain(
+	std::vector<double>::const_iterator& start,
+	std::vector<double>::const_iterator& end)
+{
+	double gain = 0;
+	for (std::vector<double>::const_iterator it=++start; it != end; ++it)
+	{
+		double val1 = *it;
+		double val2 = *(it-1);
+		if (val1 > val2)
+			gain += val1 - val2;
+	}
+	return gain;
+}
+
+/****************************************/
+double DataLog::computeLoss(
+	std::vector<double>::const_iterator& start,
+	std::vector<double>::const_iterator& end)
+{
+	double loss = 0;
+	for (std::vector<double>::const_iterator it=++start; it != end; ++it)
+	{
+		double val1 = *it;
+		double val2 = *(it-1);
+		if (val1 < val2)
+			loss += val2 - val1;
+	}
+	return loss;
+}
+

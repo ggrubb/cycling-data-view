@@ -1,6 +1,7 @@
 #include "plotwindow.h"
 #include "datalog.h"
 #include "googlemap.h"
+#include "datastatisticsview.h"
 
 #include <qwt_plot_picker.h>
 #include <qwt_plot_zoomer.h>
@@ -45,7 +46,7 @@ PlotWindow::~PlotWindow()
 }
 
 /******************************************************/
-void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map)
+void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStatisticsView* stats_view)
 {
 	_data_log = data_log;
 
@@ -100,6 +101,9 @@ void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map)
 	connect(this, SIGNAL(zoomSelection(int,int)), google_map, SLOT(zoomSelection(int,int)));
 	connect(this, SIGNAL(panSelection(int)), google_map, SLOT(moveSelection(int)));
 	connect(this, SIGNAL(panAndHoldSelection(int)), google_map, SLOT(moveAndHoldSelection(int)));
+
+	// Connect this window to the statistical viewer
+	connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(setSelection(int,int)));
 }
 
 /******************************************************/

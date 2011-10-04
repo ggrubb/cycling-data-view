@@ -37,6 +37,17 @@ GoogleMap::~GoogleMap()
 }
 
 /******************************************************/
+void GoogleMap::displayRide(DataLog* data_log)
+{
+	_data_log = data_log;
+
+	ostringstream page;
+	createPage(page);
+	_view->setHtml(QString::fromStdString(page.str()));
+	_view->show();
+}
+
+/******************************************************/
 void GoogleMap::setMarkerPosition(int idx)
 {
 	if (idx > 0 && idx < _data_log->numPoints())
@@ -115,17 +126,6 @@ void GoogleMap::moveAndHoldSelection(int delta_idx)
 	_selection_begin_idx = std::max(_selection_begin_idx - delta_idx, 0);
 	_selection_end_idx = std::min(_selection_end_idx - delta_idx, _data_log->numPoints());
 	setSelection(_selection_begin_idx,_selection_end_idx);
-}
-
-/******************************************************/
-void GoogleMap::displayRide(DataLog* data_log)
-{
-	_data_log = data_log;
-
-	ostringstream page;
-	createPage(page);
-	_view->setHtml(QString::fromStdString(page.str()));
-	_view->show();
 }
 
 /******************************************************/

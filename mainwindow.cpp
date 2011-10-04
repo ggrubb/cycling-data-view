@@ -41,6 +41,8 @@ MainWindow::~MainWindow()
 	delete _parser;
 	delete _google_map;
 	delete _plot_window;
+	delete _stats_view;
+	delete _data_log;
 }
 
 /******************************************************/
@@ -58,8 +60,12 @@ MainWindow::~MainWindow()
 		// Overlay route in Google maps
 		_google_map->displayRide(_data_log);
 
+		// Statistical viewer
+		_stats_view->displayRide(_data_log);
+
 		// Plot 2d curves
-		_plot_window->displayRide(_data_log, _google_map);
+		_plot_window->displayRide(_data_log, _google_map, _stats_view);
+
      }
  }
 
