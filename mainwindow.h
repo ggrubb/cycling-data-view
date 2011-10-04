@@ -9,6 +9,7 @@
  class TcxParser;
  class GoogleMap;
  class PlotWindow;
+ class DataLog;
  class DataStatisticsView;
 
  class MainWindow : public QMainWindow
@@ -37,6 +38,7 @@
 	TcxParser* _parser;
 	GoogleMap* _google_map;
 	PlotWindow* _plot_window;
+	DataLog* _data_log;
 	DataStatisticsView* _stats_view;
  };
 

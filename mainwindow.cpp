@@ -29,6 +29,7 @@ MainWindow::MainWindow()
 	_google_map = new GoogleMap();
 	_plot_window = new PlotWindow();
 	_stats_view = new DataStatisticsView();
+	_data_log = new DataLog();
 
 	setWindowTitle(tr("Cycling Data View"));
 	resize(500, 400);
@@ -48,18 +49,17 @@ MainWindow::~MainWindow()
      QString filename = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath(),tr("TCX Files (*.tcx)"));
      if (!filename.isEmpty()) {
 
-		DataLog data_log;
-		if (!_parser->parse(filename, data_log)) 
+		if (!_parser->parse(filename, *_data_log)) 
 		{
 			QMessageBox::information(this, tr("Cycling Data View"),tr("Cannot load %1.").arg(filename));
 			return;
 		}
 		
 		// Overlay route in Google maps
-		_google_map->displayRide(data_log);
+		_google_map->displayRide(_data_log);
 
 		// Plot 2d curves
-		_plot_window->displayRide(data_log, _google_map);
+		_plot_window->displayRide(_data_log, _google_map);
      }
  }
 

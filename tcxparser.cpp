@@ -143,6 +143,7 @@ bool TcxParser::parse(const QString& flename, DataLog& data_log)
 		parseRideSummary(data_log);
 		parseRideDetails(data_log);
 		computeAdditionalDetailts(data_log);
+		data_log.computeMaps();
 	}
 
 	return read_success;

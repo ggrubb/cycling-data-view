@@ -165,13 +165,21 @@ void DataLog::computeMaps()
 /****************************************/
 int DataLog::indexFromTime(double time)
 {
-	return _time_to_index.lowerBound(std::max(time,0.0)).value();
+	QMap<double,int>::iterator it = _time_to_index.lowerBound(std::max(time,0.0));
+	if (it == _time_to_index.end())
+		return numPoints()-1;
+	else
+		return it.value();
 }
 
 /****************************************/
 int DataLog::indexFromDist(double dist)
 {
-	return _dist_to_index.lowerBound(std::max(dist,0.0)).value();
+	QMap<double,int>::iterator it = _dist_to_index.lowerBound(std::max(dist,0.0));
+	if (it == _time_to_index.end())
+		return numPoints()-1;
+	else
+		return it.value();
 }
 
 /****************************************/
