@@ -50,6 +50,8 @@ void GoogleMap::displayRide(DataLog* data_log)
 /******************************************************/
 void GoogleMap::setMarkerPosition(int idx)
 {
+	definePathColour();
+
 	if (idx > 0 && idx < _data_log->numPoints())
 	{
 		double ltd = _data_log->ltd(idx);
@@ -129,6 +131,24 @@ void GoogleMap::moveAndHoldSelection(int delta_idx)
 }
 
 /******************************************************/
+void GoogleMap::definePathColour()
+{
+	ostringstream stream;
+	stream.precision(2); // only need low precision
+	stream.setf(ios::fixed,ios::floatfield);
+
+	const double factor = 0.9;
+	stream << "var key = [" << endl;
+	for (int i=0; i < _data_log->numPoints()-1; ++i) // one less key since there is one more polyline segment in the path
+	{
+		stream << ((_data_log->heartRate(i)/_data_log->maxHeartRate())*(1.0+factor) ) - factor << ", ";
+	}
+	stream << "];" << endl; 
+	stream << "strokeRidePath(key);";
+	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
+}
+
+/******************************************************/
 std::string GoogleMap::defineCoords(int idx_start, int idx_end)
 {
 	ostringstream stream;
@@ -169,22 +189,18 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "var marker;" << endl
 		<< "marker = new google.maps.Marker();" << endl
 		<< "var selected_path;" << endl
-		<< "selected_path = new google.maps.Polyline({strokeColor: \"#0000FF\",strokeOpacity: 0.7,strokeWeight: 3});" << endl
+		<< "var colours = [\"00FF00\", \"0CF200\", \"19E500\", \"26D800\", \"32CC00\", \"3FBF00\", \"4CB200\", \"59A500\", \"669900\", \"728C00\", \"7F7F00\", \"8C7200\", \"996600\", \"A55900\", \"B24C00\", \"BF3F00\", \"CC3300\", \"D82600\", \"E51900\", \"F20C00\", \"FF0000\"];" << endl // colour table, from green to red in 20 steps
+		<< "var ride_path = new Array();" << endl
 
 		// Function initialise
 		<< "function initialize() {" << endl
-		<< "var myOptions = {" << endl
-		<< "mapTypeId: google.maps.MapTypeId.ROADMAP" << endl
-		<< "};" << endl
-		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), myOptions);" << endl
+		<< "selected_path = new google.maps.Polyline({strokeColor: \"#0000FF\",strokeOpacity: 0.7,strokeWeight: 4});" << endl
+		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeId: google.maps.MapTypeId.ROADMAP});" << endl
 		<< "var ride_coords = [" << defineCoords(0, _data_log->numPoints()) << "];" << endl // create a path from GPS coords
-		<< "var ride_path = new google.maps.Polyline({" << endl
-		<< "path: ride_coords," << endl
-		<< "strokeColor: \"#FF0000\"," << endl
-		<< "strokeOpacity: 1.0," << endl
-		<< "strokeWeight: 2," << endl
-		<< "map: map" << endl
-		<< "});" << endl
+		<< "for (i=0;i<ride_coords.length-1;i++) {" << endl
+		<< "path = [ride_coords[i], ride_coords[i+1]];" << endl
+		<< "ride_path[i] = new google.maps.Polyline({path: path, strokeColor: \"#FF0000\", strokeOpacity: 0.75, strokeWeight: 3, map: map });" << endl
+		<< "}" << endl
 		<< "var bounds = new google.maps.LatLngBounds();" << endl
 		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
 		<< "bounds.extend (ride_coords[i]);" << endl
@@ -211,10 +227,38 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "}" << endl
 
 		// Function deleteSelectionPath
-		<< "function deleteSelectionPath() { " << endl
+		<< "function deleteSelectionPath() {" << endl
 		<< "selected_path.setMap(null);" << endl
 		<< "}" << endl
 
+		// Function to stroke ride path (ie colour it) according to key vector (0 <= key[i] <= 1)
+		<< "function strokeRidePath(key) {" << endl
+		<< "if (key.length == ride_path.length) {" << endl
+		<< "for (i=0; i<ride_path.length-1; i++) {" << endl
+		<< "ride_path[i].setOptions({strokeColor: colourFromFraction(key[i])});" << endl
+		<< "}" << endl
+		<< "}" << endl
+		<< "}" << endl
+
+		// Function to convert num to hex (0 <= frac <= 1.0)
+		<< "function colourFromFraction(frac) {" << endl
+		<< "index = frac*colours.length" << endl
+		<< "if (Math.round(index) == colours.length)" << endl
+		<< "return colours[colours.length-1];" << endl
+		<< "else" << endl
+		<< "return colours[Math.round(index)];" << endl
+		<< "}" << endl
+
+		// Function to convert num to hex
+		<< "function decimalToHex(d, padding) {" << endl
+		<< "var hex = Number(d).toString(16);" << endl
+		<< "padding = typeof (padding) === \"undefined\" || padding === null ? padding = 2 : padding;" << endl
+		<< "while (hex.length < padding) {" << endl
+		<< "hex = \"0\" + hex;" << endl
+		<< "}" << endl
+		<< "return hex;" << endl
+		<< "}" << endl
+		
 		<< "</script>" << endl
 		<< "</head>" << endl
 		<< "<body onload=\"initialize()\">" << endl

@@ -35,6 +35,8 @@ private slots:
 	void moveSelection(int delta_idx);
 	// Call when a user completes moving the selected region (to highlight path on the map)
 	void moveAndHoldSelection(int delta_idx);
+	// Stroke the ride path according to user selected parameter
+	void definePathColour();
 
  private:
 	void createPage(std::ostringstream& page);
