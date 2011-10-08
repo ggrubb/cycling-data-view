@@ -1,7 +1,7 @@
 #ifndef PLOTWINDOW_H
 #define PLOTWINDOW_H
 
-#include <qtcore/qobject>
+#include <qtgui/qwidget>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 
@@ -9,8 +9,11 @@ class DataLog;
 class GoogleMap;
 class DataStatisticsView;
 class QwtPlotPicker;
+class QwtPlotCustomZoomer;
+class QwtPlotPanner;
+class QComboBox;
 
-class PlotWindow : public QObject
+class PlotWindow : public QWidget
 {
 	Q_OBJECT
 
@@ -35,14 +38,26 @@ class PlotWindow : public QObject
 	void zoomSelection(const QRectF& rect);
 	void panSelection(int x, int y);
 	void panAndHoldSelection(int x, int y);
+	void xAxisUnitsChanged(int idx);
 
  private:
+	void drawGraphs();
+
 	QwtPlot* _plot;
 	QwtPlotCurve* _curve_hr;
 	QwtPlotCurve* _curve_speed;
 	QwtPlotCurve* _curve_grad;
 	QwtPlotCurve* _curve_alt;
+	
+	QComboBox* _x_axis_measurement;
+	
+	QwtPlotPicker* _plot_picker1;
+	QwtPlotPicker* _plot_picker2;
+	QwtPlotCustomZoomer* _plot_zoomer;
+	QwtPlotPanner* _plot_panner;
+
 	DataLog* _data_log;
+
 };
 
 #endif // PLOTWINDOW_H
