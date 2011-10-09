@@ -1,17 +1,18 @@
 #ifndef GOOGLEMAP_H
 #define GOOGLEMAP_H
 
-#include "datalog.h"
+//#include "datalog.h"
 
 #include <qtxml/qdomdocument>
-#include <qtcore/qobject>
+#include <qtgui/qwidget>
 #include <qtcore/qpoint>
 #include <QWebView.h>
 #include <qmap.h>
 
-//class DataLog;
+class DataLog;
+class QComboBox;
 
-class GoogleMap : public QObject
+class GoogleMap : public QWidget
 {
 	Q_OBJECT
 
@@ -55,6 +56,7 @@ private slots:
 	int _selection_end_idx;
 	// Pointer to the data log
 	DataLog* _data_log;
+	QComboBox* _path_colour_scheme;
 };
 
 #endif // GOOGLEMAP_H

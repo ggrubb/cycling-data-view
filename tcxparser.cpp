@@ -79,12 +79,12 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 				tmp_s.chop(1);
 				QStringList time_strings = tmp_s.split(':');
 				data_log.time(track_point_idx) = time_strings.at(0).toInt()*3600 + time_strings.at(1).toInt()*60 + time_strings.at(2).toInt();
-				data_log.speed(track_point_idx) = track_point.firstChildElement("Extensions").firstChild().firstChild().nodeValue().toFloat();
+				data_log.speed(track_point_idx) = track_point.firstChildElement("Extensions").firstChild().firstChild().nodeValue().toDouble();//.toFloat();
 				data_log.lgd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LongitudeDegrees").firstChild().nodeValue().toDouble();//.toFloat();
 				data_log.ltd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LatitudeDegrees").firstChild().nodeValue().toDouble();//.toFloat();
-				data_log.heartRate(track_point_idx) = track_point.firstChildElement("HeartRateBpm").firstChild().firstChild().nodeValue().toFloat();
+				data_log.heartRate(track_point_idx) = track_point.firstChildElement("HeartRateBpm").firstChild().firstChild().nodeValue().toDouble();//.toFloat();
 				data_log.dist(track_point_idx) = track_point.firstChildElement("DistanceMeters").firstChild().nodeValue().toDouble();//.toFloat();
-				data_log.cadence(track_point_idx) = track_point.firstChildElement("Cadence").firstChild().nodeValue().toFloat();
+				data_log.cadence(track_point_idx) = track_point.firstChildElement("Cadence").firstChild().nodeValue().toDouble();//.toFloat();
 				data_log.alt(track_point_idx) = track_point.firstChildElement("AltitudeMeters").firstChild().nodeValue().toDouble();//.toFloat();
 			}
 			track_point = track_point.nextSibling();
@@ -120,10 +120,26 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 /******************************************************/
 void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 {
+	// Compute grad from smoothed gradient
 	DataLog::smoothSignal(data_log.alt(), data_log.altSmooth());
 	DataLog::computeGradient(data_log.altSmooth(), data_log.dist(), data_log.gradient());
+	
+	// Compute speed if not already measured
 	if (true)
 		DataLog::computeSpeed(data_log.time(), data_log.dist(), data_log.speed());
+	
+	// Compute max and avg of all signals
+	data_log.avgSpeed() = DataLog::computeAverage(data_log.speed().begin(), data_log.speed().end());
+	data_log.avgHeartRate() = DataLog::computeAverage(data_log.heartRate().begin(), data_log.heartRate().end());
+	data_log.avgGradient() = DataLog::computeAverage(data_log.gradient().begin(), data_log.gradient().end());
+	data_log.avgCadence() = DataLog::computeAverage(data_log.cadence().begin(), data_log.cadence().end());
+	data_log.avgPower() = DataLog::computeAverage(data_log.power().begin(), data_log.power().end());
+
+	data_log.maxSpeed() = DataLog::computeMax(data_log.speed().begin(), data_log.speed().end());
+	data_log.maxHeartRate() = DataLog::computeMax(data_log.heartRate().begin(), data_log.heartRate().end());
+	data_log.maxGradient() = DataLog::computeMax(data_log.gradient().begin(), data_log.gradient().end());
+	data_log.maxCadence() = DataLog::computeMax(data_log.cadence().begin(), data_log.cadence().end());
+	data_log.maxPower() = DataLog::computeMax(data_log.power().begin(), data_log.power().end());
 }
 
 /******************************************************/

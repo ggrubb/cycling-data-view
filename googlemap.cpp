@@ -5,6 +5,9 @@
 #include <QWebPage.h>
 #include <QWebFrame.h>
 #include <QDir.h>
+#include <QComboBox.h>
+#include <qtgui/qvboxlayout>
+
 #include <sstream>
 #include <iostream>
 
@@ -28,6 +31,21 @@ GoogleMap::GoogleMap()
 	_view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
 	_selection_begin_idx = UNDEFINED_IDX;
 	_selection_end_idx = UNDEFINED_IDX;
+
+	// Selection for path colour scheme
+	_path_colour_scheme = new QComboBox();
+	_path_colour_scheme->insertItem(0,"None");
+	_path_colour_scheme->insertItem(1,"Heart Rate");
+	_path_colour_scheme->insertItem(2,"Speed");
+	_path_colour_scheme->insertItem(3,"Gradient");
+	_path_colour_scheme->insertItem(4,"Cadence");
+	_path_colour_scheme->insertItem(4,"Power");
+	connect(_path_colour_scheme,SIGNAL(currentIndexChanged(int)), this, SLOT(definePathColour()));
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->addWidget(_view);
+	layout->addWidget(_path_colour_scheme);
+	//resize(700,270);
 }
 
 /******************************************************/
@@ -44,14 +62,12 @@ void GoogleMap::displayRide(DataLog* data_log)
 	ostringstream page;
 	createPage(page);
 	_view->setHtml(QString::fromStdString(page.str()));
-	_view->show();
+	show();
 }
 
 /******************************************************/
 void GoogleMap::setMarkerPosition(int idx)
 {
-	definePathColour();
-
 	if (idx > 0 && idx < _data_log->numPoints())
 	{
 		double ltd = _data_log->ltd(idx);
@@ -137,12 +153,47 @@ void GoogleMap::definePathColour()
 	stream.precision(2); // only need low precision
 	stream.setf(ios::fixed,ios::floatfield);
 
-	const double factor = 0.9;
 	stream << "var key = [" << endl;
+
+	double factor;
 	for (int i=0; i < _data_log->numPoints()-1; ++i) // one less key since there is one more polyline segment in the path
 	{
-		stream << ((_data_log->heartRate(i)/_data_log->maxHeartRate())*(1.0+factor) ) - factor << ", ";
+		double key = 0.0;
+		switch (_path_colour_scheme->currentIndex())
+		{
+		case 0: // none
+			key = 1.0;
+			break;
+		case 1: // heart rate
+			factor = 0.9;
+			if (_data_log->maxHeartRate() > 0)
+				key = ((_data_log->heartRate(i)/_data_log->maxHeartRate())*(1.0+factor) ) - factor;
+			break;
+		case 2: // speed
+			factor = 0.1;
+			if (_data_log->maxSpeed())
+				key = ((_data_log->speed(i)/_data_log->maxSpeed())*(1.0+factor) ) - factor;
+			break;
+		case 3: // gradient
+			if (_data_log->maxGradient())
+				key = (_data_log->gradient(i)/(_data_log->maxGradient()*0.5 + 0.00001) ) + 0.5;
+			break;
+		case 4: // cadence
+			factor = 0.9;
+			if (_data_log->maxCadence())
+				key = ((_data_log->cadence(i)/_data_log->maxCadence())*(1.0+factor) ) - factor, 0.0;
+			break;
+		case 5: // power
+			factor = 0.7;
+			if (_data_log->maxPower())
+				key = ((_data_log->power(i)/_data_log->maxPower())*(1.0+factor) ) - factor;
+			break;
+		}
+		key = std::max(key,0.0);
+		key = std::min(key,1.0);
+		stream << key << ", ";
 	}
+
 	stream << "];" << endl; 
 	stream << "strokeRidePath(key);";
 	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));

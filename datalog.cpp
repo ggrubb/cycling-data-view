@@ -11,9 +11,11 @@ _total_time(0.0),
 _total_dist(0.0),
 _max_speed(0.0),
 _max_heart_rate(0.0),
+_max_gradient(0.0),
 _max_cadence(0.0),
 _avg_speed(0.0),
 _avg_heart_rate(0.0),
+_avg_gradient(0.0),
 _avg_cadence(0.0)
 {
 	// Initialise members
@@ -251,7 +253,7 @@ double DataLog::computeAverage(
 {
 	double avg = 0;
 	if (end-start > 0)
-		avg = std::accumulate(start, end,0)/(end-start);
+		avg = std::accumulate(start, end,0)/double(end-start);
 	return avg;
 }
 

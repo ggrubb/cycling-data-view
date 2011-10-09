@@ -19,10 +19,14 @@ class DataLog
 	double& totalDist() { return _total_dist; };
 	double& maxSpeed() { return _max_speed; };
 	double& maxHeartRate() { return _max_heart_rate; };
+	double& maxGradient() { return _max_gradient; };
 	double& maxCadence() { return _max_cadence; };
+	double& maxPower() { return _max_power; };
 	double& avgSpeed() { return _avg_speed; };
 	double& avgHeartRate() { return _avg_heart_rate; };
+	double& avgGradient() { return _avg_gradient; };
 	double& avgCadence() { return _avg_cadence; };
+	double& avgPower() { return _avg_power; };
 	int& numPoints() { return _num_points; };
 
 	double& time(int idx);
@@ -101,10 +105,14 @@ class DataLog
 	double _total_dist;
 	double _max_speed;
 	double _max_heart_rate;
+	double _max_gradient;
 	double _max_cadence;
+	double _max_power;
 	double _avg_speed;
 	double _avg_heart_rate;
+	double _avg_gradient;
 	double _avg_cadence;
+	double _avg_power;
 	int _num_points;
 
 	// The vectors of data
