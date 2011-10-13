@@ -8,9 +8,20 @@
 #include <qwt_plot_panner.h>
 #include <qwt_picker_machine.h>
 #include <qwt_painter.h>
+#include <qwt_scale_widget.h>
+#include <qwt_scale_engine.h>
 #include <qtgui/qcombobox>
 #include <qtgui/qvboxlayout>
+#include <qtgui/qhboxlayout>
+#include <qtgui/qcheckbox>
+#include <qtgui/qlabel>
 #include <iostream>
+
+// Define colour of plot curves
+#define HR_COLOUR Qt::darkRed
+#define ALT_COLOUR Qt::darkGreen
+#define GRAD_COLOUR Qt::darkBlue
+#define SPEED_COLOUR Qt::yellow
 
 // A custom plot zoomer, which defines a better rubber band, and zooms on x-axis only
 class QwtPlotCustomZoomer : public QwtPlotZoomer
@@ -67,34 +78,45 @@ PlotWindow::PlotWindow()
 	_data_log = new DataLog();
 
 	_plot = new QwtPlot();
-	_plot->setAxisScale(QwtPlot::yLeft, 0, 250);
-	_plot->setAxisScale(QwtPlot::xBottom, 0, 10000);
+	_plot->enableAxis(QwtPlot::yRight,true);
+	//_plot->setAxisScale(QwtPlot::yLeft, 0, 250);
+	//_plot->setAxisScale(QwtPlot::xBottom, 0, 10000);
+	_plot->setAxisAutoScale(QwtPlot::xBottom,true);
 
 	QColor c;
 
 	_curve_hr = new QwtPlotCurve("Heart Rate");
-	c = Qt::darkRed;
+	c = HR_COLOUR;
 	_curve_hr->setPen(c);
+	_curve_hr->setYAxis(QwtPlot::yLeft);
 
 	_curve_grad = new QwtPlotCurve("Gradient");
-	c = Qt::darkBlue;
+	c = GRAD_COLOUR;
 	_curve_grad->setPen(c);
+	_curve_grad->setYAxis(QwtPlot::yLeft);
 
 	_curve_speed = new QwtPlotCurve("Speed");
-	c = Qt::yellow;
+	c = SPEED_COLOUR;
 	_curve_speed->setPen(c);
+	_curve_speed->setYAxis(QwtPlot::yLeft);
 
-	_curve_alt = new QwtPlotCurve("Altitude");
+	_curve_alt = new QwtPlotCurve("Elevation");
 	_curve_alt->setRenderHint(QwtPlotItem::RenderAntialiased);
-	c = Qt::darkGreen;
+	c = ALT_COLOUR;
 	c.setAlpha(150);
 	_curve_alt->setPen(c);
     _curve_alt->setBrush(c);
+	_curve_alt->setYAxis(QwtPlot::yRight);
 
 	_curve_alt->attach(_plot);
 	_curve_speed->attach(_plot);
 	_curve_grad->attach(_plot);
 	_curve_hr->attach(_plot);
+
+	QwtScaleWidget* speed_axis = new QwtScaleWidget(QwtScaleDraw::LeftScale);
+	speed_axis->setTitle("m/s");
+	QwtScaleDiv scale_div = _plot->axisScaleEngine(QwtPlot::yLeft)->divideScale(0.0,100.0,5,4);
+	speed_axis->setScaleDiv(_plot->axisScaleEngine(QwtPlot::yLeft)->transformation(), scale_div);
 
 	// Plot picker for cursor display
 	_plot_picker1 = 
@@ -112,7 +134,7 @@ PlotWindow::PlotWindow()
 	connect(_plot_picker2, SIGNAL(moved(const QPointF&)), this, SLOT(endSelection(const QPointF&)));
 
 	// Plot zoomer
-	QwtPlotCustomZoomer* _plot_zoomer = new QwtPlotCustomZoomer(QwtPlot::xBottom, QwtPlot::yLeft, _plot->canvas());
+	_plot_zoomer = new QwtPlotCustomZoomer(QwtPlot::xBottom, QwtPlot::yLeft, _plot->canvas());
 	_plot_zoomer->setRubberBand(QwtPicker::UserRubberBand);
     _plot_zoomer->setRubberBandPen(QColor(Qt::white));
     _plot_zoomer->setTrackerMode(QwtPicker::AlwaysOff);
@@ -126,15 +148,51 @@ PlotWindow::PlotWindow()
 	connect(_plot_panner, SIGNAL(moved(int, int)), this, SLOT(panSelection(int, int)));
 	connect(_plot_panner, SIGNAL(panned(int, int)), this, SLOT(panAndHoldSelection(int, int)));
 
-	// Selection for x-axis
+	// Selection for x-axis measurement
 	_x_axis_measurement = new QComboBox();
 	_x_axis_measurement->insertItem(0,"Time");
 	_x_axis_measurement->insertItem(1,"Distance");
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisUnitsChanged(int)));
 
-	QVBoxLayout* layout = new QVBoxLayout(this);
-	layout->addWidget(_plot);
-	layout->addWidget(_x_axis_measurement);
+	// Selection for graph plots
+	QCheckBox* hr_cb = new QCheckBox("Heart Rate");
+	QCheckBox* speed_cb = new QCheckBox("Speed");
+	QCheckBox* alt_cb = new QCheckBox("Elevation");
+	QCheckBox* grad_cb = new QCheckBox("Gradient");
+	
+	// Layout the GUI
+	QPalette plt;
+	plt.setColor(QPalette::WindowText, HR_COLOUR);
+	hr_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, SPEED_COLOUR);
+	speed_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, ALT_COLOUR);
+	alt_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, GRAD_COLOUR);
+	grad_cb->setPalette(plt);
+
+	QLabel* x_axis_measurement_label = new QLabel("X Axis:");
+	x_axis_measurement_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+	x_axis_measurement_label->setIndent(0);
+	
+	QWidget* plot_options_widget = new QWidget;
+	QHBoxLayout* hlayout1 = new QHBoxLayout(plot_options_widget);
+	hlayout1->addWidget(x_axis_measurement_label);
+	hlayout1->addWidget(_x_axis_measurement);
+	hlayout1->addSpacing(20);
+	hlayout1->addWidget(hr_cb);
+	hlayout1->addWidget(speed_cb);
+	hlayout1->addWidget(alt_cb);
+	hlayout1->addWidget(grad_cb);
+
+	QWidget* plot_widget = new QWidget;
+	QHBoxLayout* hlayout2 = new QHBoxLayout(plot_widget);
+	hlayout2->addWidget(speed_axis);
+	hlayout2->addWidget(_plot);
+	
+	QVBoxLayout* vlayout = new QVBoxLayout(this);
+	vlayout->addWidget(plot_widget);
+	vlayout->addWidget(plot_options_widget);
 	resize(700,270);
 }
 
@@ -186,6 +244,7 @@ void PlotWindow::drawGraphs()
 		_plot->setAxisScale(QwtPlot::xBottom, 0, _data_log->totalDist());
 	}
 	_plot->replot();
+	_plot_zoomer->setZoomBase();
 }
 
 /******************************************************/
