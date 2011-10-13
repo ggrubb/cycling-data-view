@@ -245,12 +245,12 @@ void GoogleMap::createPage(std::ostringstream& page)
 
 		// Function initialise
 		<< "function initialize() {" << endl
-		<< "selected_path = new google.maps.Polyline({strokeColor: \"#0000FF\",strokeOpacity: 0.7,strokeWeight: 4});" << endl
+		<< "selected_path = new google.maps.Polyline({strokeColor: \"#000000\",strokeOpacity: 1.0, strokeWeight: 5, zIndex: 1});" << endl
 		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeId: google.maps.MapTypeId.ROADMAP});" << endl
 		<< "var ride_coords = [" << defineCoords(0, _data_log->numPoints()) << "];" << endl // create a path from GPS coords
 		<< "for (i=0;i<ride_coords.length-1;i++) {" << endl
 		<< "path = [ride_coords[i], ride_coords[i+1]];" << endl
-		<< "ride_path[i] = new google.maps.Polyline({path: path, strokeColor: \"#FF0000\", strokeOpacity: 0.75, strokeWeight: 3, map: map });" << endl
+		<< "ride_path[i] = new google.maps.Polyline({path: path, strokeColor: \"#FF0000\", strokeOpacity: 1.0, strokeWeight: 3, zIndex: 2, map: map });" << endl
 		<< "}" << endl
 		<< "var bounds = new google.maps.LatLngBounds();" << endl
 		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
