@@ -79,8 +79,6 @@ PlotWindow::PlotWindow()
 
 	_plot = new QwtPlot();
 	_plot->enableAxis(QwtPlot::yRight,true);
-	//_plot->setAxisScale(QwtPlot::yLeft, 0, 250);
-	//_plot->setAxisScale(QwtPlot::xBottom, 0, 10000);
 	_plot->setAxisAutoScale(QwtPlot::xBottom,true);
 
 	QColor c;
@@ -90,10 +88,10 @@ PlotWindow::PlotWindow()
 	_curve_hr->setPen(c);
 	_curve_hr->setYAxis(QwtPlot::yLeft);
 
-	_curve_grad = new QwtPlotCurve("Gradient");
+	_curve_cadence = new QwtPlotCurve("Cadence");
 	c = GRAD_COLOUR;
-	_curve_grad->setPen(c);
-	_curve_grad->setYAxis(QwtPlot::yLeft);
+	_curve_cadence->setPen(c);
+	_curve_cadence->setYAxis(QwtPlot::yLeft);
 
 	_curve_speed = new QwtPlotCurve("Speed");
 	c = SPEED_COLOUR;
@@ -110,13 +108,8 @@ PlotWindow::PlotWindow()
 
 	_curve_alt->attach(_plot);
 	_curve_speed->attach(_plot);
-	_curve_grad->attach(_plot);
+	_curve_cadence->attach(_plot);
 	_curve_hr->attach(_plot);
-
-	QwtScaleWidget* speed_axis = new QwtScaleWidget(QwtScaleDraw::LeftScale);
-	speed_axis->setTitle("m/s");
-	QwtScaleDiv scale_div = _plot->axisScaleEngine(QwtPlot::yLeft)->divideScale(0.0,100.0,5,4);
-	speed_axis->setScaleDiv(_plot->axisScaleEngine(QwtPlot::yLeft)->transformation(), scale_div);
 
 	// Plot picker for cursor display
 	_plot_picker1 = 
@@ -155,21 +148,29 @@ PlotWindow::PlotWindow()
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisUnitsChanged(int)));
 
 	// Selection for graph plots
-	QCheckBox* hr_cb = new QCheckBox("Heart Rate");
-	QCheckBox* speed_cb = new QCheckBox("Speed");
-	QCheckBox* alt_cb = new QCheckBox("Elevation");
-	QCheckBox* grad_cb = new QCheckBox("Gradient");
+	_hr_cb = new QCheckBox("Heart Rate");
+	_speed_cb = new QCheckBox("Speed");
+	_alt_cb = new QCheckBox("Elevation");
+	_cadence_cb = new QCheckBox("Cadence");
+	_hr_cb->setChecked(true);
+	_speed_cb->setChecked(true);
+	_alt_cb->setChecked(true);
+	_cadence_cb->setChecked(true);
+	connect(_hr_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_speed_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_alt_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_cadence_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	
 	// Layout the GUI
 	QPalette plt;
 	plt.setColor(QPalette::WindowText, HR_COLOUR);
-	hr_cb->setPalette(plt);
+	_hr_cb->setPalette(plt);
 	plt.setColor(QPalette::WindowText, SPEED_COLOUR);
-	speed_cb->setPalette(plt);
+	_speed_cb->setPalette(plt);
 	plt.setColor(QPalette::WindowText, ALT_COLOUR);
-	alt_cb->setPalette(plt);
+	_alt_cb->setPalette(plt);
 	plt.setColor(QPalette::WindowText, GRAD_COLOUR);
-	grad_cb->setPalette(plt);
+	_cadence_cb->setPalette(plt);
 
 	QLabel* x_axis_measurement_label = new QLabel("X Axis:");
 	x_axis_measurement_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -180,14 +181,13 @@ PlotWindow::PlotWindow()
 	hlayout1->addWidget(x_axis_measurement_label);
 	hlayout1->addWidget(_x_axis_measurement);
 	hlayout1->addSpacing(20);
-	hlayout1->addWidget(hr_cb);
-	hlayout1->addWidget(speed_cb);
-	hlayout1->addWidget(alt_cb);
-	hlayout1->addWidget(grad_cb);
+	hlayout1->addWidget(_hr_cb);
+	hlayout1->addWidget(_speed_cb);
+	hlayout1->addWidget(_alt_cb);
+	hlayout1->addWidget(_cadence_cb);
 
 	QWidget* plot_widget = new QWidget;
 	QHBoxLayout* hlayout2 = new QHBoxLayout(plot_widget);
-	hlayout2->addWidget(speed_axis);
 	hlayout2->addWidget(_plot);
 	
 	QVBoxLayout* vlayout = new QVBoxLayout(this);
@@ -215,6 +215,7 @@ void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStati
 	connect(this, SIGNAL(beginSelection(int)), google_map, SLOT(beginSelection(int)));
 	connect(this, SIGNAL(endSelection(int)), google_map, SLOT(endSelection(int)));
 	connect(this, SIGNAL(zoomSelection(int,int)), google_map, SLOT(zoomSelection(int,int)));
+	connect(this, SIGNAL(deleteSelection()), google_map, SLOT(deleteSelection()));
 	connect(this, SIGNAL(panSelection(int)), google_map, SLOT(moveSelection(int)));
 	connect(this, SIGNAL(panAndHoldSelection(int)), google_map, SLOT(moveAndHoldSelection(int)));
 
@@ -229,7 +230,7 @@ void PlotWindow::drawGraphs()
 	{
 		_curve_hr->setRawSamples(&_data_log->time(0), &_data_log->heartRate(0), _data_log->numPoints());
 		_curve_speed->setRawSamples(&_data_log->time(0), &_data_log->speed(0), _data_log->numPoints());
-		_curve_grad->setRawSamples(&_data_log->time(0), &_data_log->gradient(0), _data_log->numPoints());
+		_curve_cadence->setRawSamples(&_data_log->time(0), &_data_log->cadence(0), _data_log->numPoints());
 		_curve_alt->setRawSamples(&_data_log->time(0), &_data_log->alt(0), _data_log->numPoints());
 		
 		_plot->setAxisScale(QwtPlot::xBottom, 0, _data_log->totalTime());
@@ -238,7 +239,7 @@ void PlotWindow::drawGraphs()
 	{
 		_curve_hr->setRawSamples(&_data_log->dist(0), &_data_log->heartRate(0), _data_log->numPoints());
 		_curve_speed->setRawSamples(&_data_log->dist(0), &_data_log->speed(0), _data_log->numPoints());
-		_curve_grad->setRawSamples(&_data_log->dist(0), &_data_log->gradient(0), _data_log->numPoints());
+		_curve_cadence->setRawSamples(&_data_log->dist(0), &_data_log->cadence(0), _data_log->numPoints());
 		_curve_alt->setRawSamples(&_data_log->dist(0), &_data_log->alt(0), _data_log->numPoints());
 		
 		_plot->setAxisScale(QwtPlot::xBottom, 0, _data_log->totalDist());
@@ -279,12 +280,21 @@ void PlotWindow::endSelection(const QPointF& point)
 /******************************************************/
 void PlotWindow::zoomSelection(const QRectF& rect)
 {
+	
 	_plot_picker1->setRubberBand(QwtPlotPicker::CrossRubberBand);
 	_plot_picker1->setEnabled(true);
-	if (_x_axis_measurement->currentIndex() == 0) // time
-		emit zoomSelection(_data_log->indexFromTime(rect.left()), _data_log->indexFromTime(rect.right()));
-	else // distance
-		emit zoomSelection(_data_log->indexFromDist(rect.left()), _data_log->indexFromDist(rect.right()));
+
+	if (_plot_zoomer->zoomRectIndex() == 0) // if fully zoomed out
+	{
+		emit deleteSelection();
+	}
+	else // regular zoom
+	{
+		if (_x_axis_measurement->currentIndex() == 0) // time
+			emit zoomSelection(_data_log->indexFromTime(rect.left()), _data_log->indexFromTime(rect.right()));
+		else // distance
+			emit zoomSelection(_data_log->indexFromDist(rect.left()), _data_log->indexFromDist(rect.right()));
+	}
 }
 
 /******************************************************/
@@ -302,5 +312,16 @@ void PlotWindow::panAndHoldSelection(int x, int y)
 /******************************************************/
 void PlotWindow::xAxisUnitsChanged(int idx)
 {
+	emit deleteSelection();
 	drawGraphs();
+}
+/******************************************************/
+void PlotWindow::curveSelectionChanged()
+{
+	if (_hr_cb->isChecked()) _curve_hr->show(); else _curve_hr->hide();
+	if (_alt_cb->isChecked()) _curve_alt->show(); else _curve_alt->hide();
+	if (_cadence_cb->isChecked()) _curve_cadence->show(); else _curve_cadence->hide();
+	if (_speed_cb->isChecked()) _curve_speed->show(); else _curve_speed->hide();
+
+	_plot->replot();
 }

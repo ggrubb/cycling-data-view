@@ -140,6 +140,10 @@ void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 	data_log.maxGradient() = DataLog::computeMax(data_log.gradient().begin(), data_log.gradient().end());
 	data_log.maxCadence() = DataLog::computeMax(data_log.cadence().begin(), data_log.cadence().end());
 	data_log.maxPower() = DataLog::computeMax(data_log.power().begin(), data_log.power().end());
+
+	// Totals
+	data_log.totalTime() = data_log.time(data_log.numPoints()-1);
+	data_log.totalDist() = data_log.dist(data_log.numPoints()-1);
 }
 
 /******************************************************/

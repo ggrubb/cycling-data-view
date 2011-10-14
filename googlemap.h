@@ -32,6 +32,8 @@ private slots:
 	void endSelection(int idx_end);
 	// Call when a user defines a selection to zoom (to highlight path on the map)
 	void zoomSelection(int idx_start, int idx_end);
+	// Call when user returns to full zoom, so no selection to highligh
+	void deleteSelection();
 	// Call when a user moves the selected region (to highlight path on the map)
 	void moveSelection(int delta_idx);
 	// Call when a user completes moving the selected region (to highlight path on the map)

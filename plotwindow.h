@@ -12,6 +12,7 @@ class QwtPlotPicker;
 class QwtPlotCustomZoomer;
 class QwtPlotPanner;
 class QComboBox;
+class QCheckBox;
 
 class PlotWindow : public QWidget
 {
@@ -28,6 +29,7 @@ class PlotWindow : public QWidget
 	void beginSelection(int idx_begin);
 	void endSelection(int idx_end);
 	void zoomSelection(int idx_begin, int idx_end);
+	void deleteSelection();
 	void panSelection(int idx_delta);
 	void panAndHoldSelection(int idx_delta);
 
@@ -39,6 +41,7 @@ class PlotWindow : public QWidget
 	void panSelection(int x, int y);
 	void panAndHoldSelection(int x, int y);
 	void xAxisUnitsChanged(int idx);
+	void curveSelectionChanged();
 
  private:
 	void drawGraphs();
@@ -46,10 +49,14 @@ class PlotWindow : public QWidget
 	QwtPlot* _plot;
 	QwtPlotCurve* _curve_hr;
 	QwtPlotCurve* _curve_speed;
-	QwtPlotCurve* _curve_grad;
+	QwtPlotCurve* _curve_cadence;
 	QwtPlotCurve* _curve_alt;
 	
 	QComboBox* _x_axis_measurement;
+	QCheckBox* _hr_cb;
+	QCheckBox* _speed_cb;
+	QCheckBox* _alt_cb;
+	QCheckBox* _cadence_cb;
 	
 	QwtPlotPicker* _plot_picker1;
 	QwtPlotPicker* _plot_picker2;

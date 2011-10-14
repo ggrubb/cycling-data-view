@@ -113,21 +113,20 @@ void GoogleMap::endSelection(int idx_end)
 /******************************************************/
 void GoogleMap::zoomSelection(int idx_start, int idx_end)
 {
-	if (idx_start == 0 && idx_end == _data_log->numPoints()-1) // check if zoomed to full view
-	{
-		_selection_begin_idx = UNDEFINED_IDX;
-		_selection_end_idx = UNDEFINED_IDX;
+	_selection_begin_idx = idx_start;
+	_selection_end_idx = idx_end;
+	setSelection(_selection_begin_idx,_selection_end_idx);
+}
 
-		ostringstream stream;
-		stream << "deleteSelectionPath();";
-		_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
-	}
-	else // handle the case where zooming out, but not to full view
-	{
-		_selection_begin_idx = idx_start;
-		_selection_end_idx = idx_end;
-		setSelection(_selection_begin_idx,_selection_end_idx);
-	}
+/******************************************************/
+void GoogleMap::deleteSelection()
+{
+	_selection_begin_idx = UNDEFINED_IDX;
+	_selection_end_idx = UNDEFINED_IDX;
+
+	ostringstream stream;
+	stream << "deleteSelectionPath();";
+	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
 }
 
 /******************************************************/
@@ -245,7 +244,7 @@ void GoogleMap::createPage(std::ostringstream& page)
 
 		// Function initialise
 		<< "function initialize() {" << endl
-		<< "selected_path = new google.maps.Polyline({strokeColor: \"#000000\",strokeOpacity: 1.0, strokeWeight: 5, zIndex: 1});" << endl
+		<< "selected_path = new google.maps.Polyline({strokeColor: \"#000000\",strokeOpacity: 1.0, strokeWeight: 6, zIndex: 1});" << endl
 		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeId: google.maps.MapTypeId.ROADMAP});" << endl
 		<< "var ride_coords = [" << defineCoords(0, _data_log->numPoints()) << "];" << endl // create a path from GPS coords
 		<< "for (i=0;i<ride_coords.length-1;i++) {" << endl
