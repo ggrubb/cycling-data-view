@@ -9,24 +9,23 @@
 DataStatisticsView::DataStatisticsView()
 {
 	_table = new QTableWidget(14,2,this);
+	_table->setSelectionMode(QAbstractItemView::NoSelection);
 
 	QStringList column_headers, row_headers;
-	column_headers 
+	row_headers 
 		<< "Time (s)" << "Distance (km)" 
 		<< "Avg Speed (km/h)" << "Avg Heart Rate (bpm)" << "Avg Gradient (%)" << "Avg Cadence (rpm)" << "Avg Power (W)" 
 		<< "Elevation Gain (m)" << "Elevation Loss (m)" 
 		<< "Max Speed (km/h)" << "Max Heart Rate (bpm)" << "Max Gradient (%)" << "Max Cadence (rpm)" << "Max Power (W)";
-	row_headers << "Overall" << "Selection";
-	_table->setVerticalHeaderLabels(column_headers);
-	_table->setHorizontalHeaderLabels(row_headers);
+	column_headers << " Overall " << "Selection";
+	_table->setVerticalHeaderLabels(row_headers);
+	_table->setHorizontalHeaderLabels(column_headers);
 	_table->resizeRowsToContents();
-	_table->setColumnWidth(2,50);
-	_table->setColumnWidth(3,50);
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	layout->addWidget(_table);
 	setLayout(layout);
-	resize(360,340);
+	setMaximumSize(270,340);
 	
 	clearTable();
 }
@@ -72,6 +71,7 @@ void DataStatisticsView::clearTable()
 {
 	clearTotalsColumn();
 	clearSelectionColumn();
+	_table->resizeColumnsToContents();
 }
 
 /******************************************************/

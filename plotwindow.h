@@ -22,8 +22,12 @@ class PlotWindow : public QWidget
  public:
 	PlotWindow();
 	~PlotWindow();
+	
 	// Display the ride log in plots, and connect curser to google map
 	void displayRide(DataLog* data_log, GoogleMap* google_map, DataStatisticsView* stats_view);
+
+	// Enable/disable all the user controls
+	void setEnabled(bool enabled);
 
  signals:
 	void setMarkerPosition(int idx);

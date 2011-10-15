@@ -17,10 +17,13 @@
 #include <qtgui/qmessagebox>
 #include <qtgui/qpainter>
 #include <qtgui/qapplication>
+#include <qtgui/qgridlayout>
+#include <qtgui/qdesktopwidget>
 #include <highgui.h>
 
 /******************************************************/
-MainWindow::MainWindow()
+MainWindow::MainWindow():
+QMainWindow()
  {
 	createActions();
 	createMenus();
@@ -31,8 +34,18 @@ MainWindow::MainWindow()
 	_stats_view = new DataStatisticsView();
 	_data_log = new DataLog();
 
-	setWindowTitle(tr("Cycling Data View"));
-	resize(500, 400);
+	QWidget* central_widget = new QWidget;
+	QGridLayout* glayout1 = new QGridLayout(central_widget);
+	glayout1->addWidget(_plot_window,0,1);
+	glayout1->addWidget(_stats_view,1,0);
+	glayout1->addWidget(_google_map,1,1);
+
+	setCentralWidget(central_widget);
+	setWindowTitle(tr("RideViewer"));
+
+	// Set to full screen size
+	QSize size = qApp->desktop()->size();
+	resize(size.boundedTo(QSize(1280,700)));
  }
 
 /******************************************************/
@@ -53,7 +66,7 @@ MainWindow::~MainWindow()
 
 		if (!_parser->parse(filename, *_data_log)) 
 		{
-			QMessageBox::information(this, tr("Cycling Data View"),tr("Cannot load %1.").arg(filename));
+			QMessageBox::information(this, tr("RideViewer"),tr("Cannot load %1.").arg(filename));
 			return;
 		}
 		
@@ -73,6 +86,8 @@ MainWindow::~MainWindow()
 /******************************************************/
  void MainWindow::about()
  {
+	QMessageBox* about = new QMessageBox(QMessageBox::NoIcon, tr("RideViewer"),tr("Version 0.8\nOct 2011\nGrubbtronic Software"), QMessageBox::Close, 0, Qt::SplashScreen );
+	about->show();
 	// Define the file to read
 	//QString filename("05_04_2011 17_42_07_history.tcx");
 	
@@ -86,8 +101,6 @@ MainWindow::~MainWindow()
 	//
 	//// Display the data in some way
 	////QMessageBox::about(this, tr("Debug print"), tr("Document read ") + QString::number(read_success) + " " + QString::number(overview_data._total_time));
-	QMessageBox::about(this, tr("Cycling Data View"), tr("Version 0.1\nSept 2011\nGrubtronic Software"));
-
 	//buf[100] = 0;
 	//buf[150] = 0;
 

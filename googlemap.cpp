@@ -101,6 +101,10 @@ GoogleMap::GoogleMap()
 	QVBoxLayout* vlayout = new QVBoxLayout(this);
 	vlayout->addWidget(_view);
 	vlayout->addWidget(widget1);
+	vlayout->setSpacing(0);
+
+	// Disable user interface until a ride is loaded
+	setEnabled(false);
 }
 
 /******************************************************/
@@ -110,14 +114,25 @@ GoogleMap::~GoogleMap()
 }
 
 /******************************************************/
+void GoogleMap::setEnabled(bool enabled)
+{
+	_path_colour_scheme->setEnabled(enabled);
+}
+
+/******************************************************/
 void GoogleMap::displayRide(DataLog* data_log)
 {
 	_data_log = data_log;
 
+	// Create the google map web page
 	ostringstream page;
 	createPage(page);
 	_view->setHtml(QString::fromStdString(page.str()));
+
 	show();
+
+	// Enabled user interface
+	setEnabled(true);
 }
 
 /******************************************************/
@@ -135,13 +150,16 @@ void GoogleMap::setMarkerPosition(int idx)
 }
 
 /******************************************************/
-void GoogleMap::setSelection(int idx_start, int idx_end)
+void GoogleMap::setSelection(int idx_start, int idx_end, bool zoom_map)
 {
 	ostringstream stream;
 	stream << "var coords = [" << endl
 		<< defineCoords(idx_start, idx_end) << endl // create a path from GPS coords
-		<< "];" << endl
-		<< "setSelectionPath(coords);";
+		<< "];" << endl;
+	if (zoom_map)
+		stream << "setSelectionPath(coords, true);";
+	else
+		stream << "setSelectionPath(coords, false);";
 	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
 }
 
@@ -157,11 +175,11 @@ void GoogleMap::endSelection(int idx_end)
 	_selection_end_idx = idx_end;
 	if (_selection_end_idx > _selection_begin_idx)
 	{
-		setSelection(_selection_begin_idx,_selection_end_idx);
+		setSelection(_selection_begin_idx,_selection_end_idx, false);
 	}
 	else
 	{
-		setSelection(_selection_end_idx,_selection_begin_idx);
+		setSelection(_selection_end_idx,_selection_begin_idx, false);
 	}
 }
 
@@ -170,7 +188,7 @@ void GoogleMap::zoomSelection(int idx_start, int idx_end)
 {
 	_selection_begin_idx = idx_start;
 	_selection_end_idx = idx_end;
-	setSelection(_selection_begin_idx,_selection_end_idx);
+	setSelection(_selection_begin_idx,_selection_end_idx, true);
 }
 
 /******************************************************/
@@ -189,7 +207,7 @@ void GoogleMap::moveSelection(int delta_idx)
 {
 	int i = std::max(_selection_begin_idx - delta_idx, 0);
 	int j = std::min(_selection_end_idx - delta_idx, _data_log->numPoints());
-	setSelection(i, j);
+	setSelection(i, j, false);
 }
 
 /******************************************************/
@@ -197,7 +215,7 @@ void GoogleMap::moveAndHoldSelection(int delta_idx)
 {
 	_selection_begin_idx = std::max(_selection_begin_idx - delta_idx, 0);
 	_selection_end_idx = std::min(_selection_end_idx - delta_idx, _data_log->numPoints());
-	setSelection(_selection_begin_idx,_selection_end_idx);
+	setSelection(_selection_begin_idx,_selection_end_idx, true);
 }
 
 /******************************************************/
@@ -307,6 +325,7 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "var selected_path;" << endl
 		<< "var colours = [\"00FF00\", \"0CF200\", \"19E500\", \"26D800\", \"32CC00\", \"3FBF00\", \"4CB200\", \"59A500\", \"669900\", \"728C00\", \"7F7F00\", \"8C7200\", \"996600\", \"A55900\", \"B24C00\", \"BF3F00\", \"CC3300\", \"D82600\", \"E51900\", \"F20C00\", \"FF0000\"];" << endl // colour table, from green to red in 20 steps
 		<< "var ride_path = new Array();" << endl
+		<< "var ride_bounds = new google.maps.LatLngBounds();" << endl
 
 		// Function initialise
 		<< "function initialize() {" << endl
@@ -317,11 +336,10 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "path = [ride_coords[i], ride_coords[i+1]];" << endl
 		<< "ride_path[i] = new google.maps.Polyline({path: path, strokeColor: \"#FF0000\", strokeOpacity: 1.0, strokeWeight: 3, zIndex: 2, map: map });" << endl
 		<< "}" << endl
-		<< "var bounds = new google.maps.LatLngBounds();" << endl
 		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
-		<< "bounds.extend (ride_coords[i]);" << endl
+		<< "ride_bounds.extend(ride_coords[i]);" << endl
 		<< "}" << endl
-		<< "map.fitBounds(bounds);" << endl
+		<< "map.fitBounds(ride_bounds);" << endl
 		<< "}" << endl
 
 		// Function setMarker
@@ -337,14 +355,22 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "}" << endl
 
 		// Function setSelectionPath
-		<< "function setSelectionPath(coords) { " << endl
+		<< "function setSelectionPath(coords, zoom_map) { " << endl
 		<< "selected_path.setPath(coords);" << endl
 		<< "selected_path.setMap(map);" << endl
+		<< "if (zoom_map) {" << endl
+		<< "var path_bounds = new google.maps.LatLngBounds();" << endl
+		<< "for (var i = 0, len = coords.length; i < len; i++) {" << endl
+		<< "path_bounds.extend(coords[i]);" << endl
+		<< "}" << endl
+		<< "map.fitBounds(path_bounds);" << endl
+		<< "}" << endl
 		<< "}" << endl
 
 		// Function deleteSelectionPath
 		<< "function deleteSelectionPath() {" << endl
 		<< "selected_path.setMap(null);" << endl
+		<< "map.fitBounds(ride_bounds);" << endl
 		<< "}" << endl
 
 		// Function to stroke ride path (ie colour it) according to key vector (0 <= key[i] <= 1)

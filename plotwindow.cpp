@@ -12,6 +12,7 @@
 #include <qwt_painter.h>
 #include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
+#include <qwt_text.h>
 #include <qtgui/qcombobox>
 #include <qtgui/qvboxlayout>
 #include <qtgui/qhboxlayout>
@@ -168,9 +169,26 @@ void QwtCustomPlotPicker::xAxisUnitsChanged(int units)
 PlotWindow::PlotWindow()
 {
 	_plot = new QwtPlot();
+	
+	// Setup the axis
 	_plot->enableAxis(QwtPlot::yRight,true);
 	_plot->setAxisAutoScale(QwtPlot::xBottom,true);
 
+	QwtText axis_text;
+	QFont font =  _plot->axisFont(QwtPlot::xBottom);
+	font.setPointSize(8);
+	axis_text.setFont(font);
+
+	axis_text.setText("HR/Speed/Cadence");
+	_plot->setAxisTitle(QwtPlot::yLeft,axis_text);
+
+	axis_text.setText("Elevation");
+	_plot->setAxisTitle(QwtPlot::yRight,axis_text);
+
+	axis_text.setText("Time (s)");
+	_plot->setAxisTitle(QwtPlot::xBottom,axis_text);
+
+	// Define the curves to plot
 	QColor c;
 
 	_curve_hr = new QwtPlotCurve("Heart Rate");
@@ -264,33 +282,49 @@ PlotWindow::PlotWindow()
 	_cadence_cb->setPalette(plt);
 
 	QLabel* x_axis_measurement_label = new QLabel("X Axis:");
-	x_axis_measurement_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-	x_axis_measurement_label->setIndent(0);
 	
-	QWidget* plot_options_widget = new QWidget;
-	QHBoxLayout* hlayout1 = new QHBoxLayout(plot_options_widget);
+	QWidget* axis_selection_widget = new QWidget;
+	QHBoxLayout* hlayout1 = new QHBoxLayout(axis_selection_widget);
 	hlayout1->addWidget(x_axis_measurement_label);
 	hlayout1->addWidget(_x_axis_measurement);
-	hlayout1->addSpacing(20);
-	hlayout1->addWidget(_hr_cb);
-	hlayout1->addWidget(_speed_cb);
-	hlayout1->addWidget(_alt_cb);
-	hlayout1->addWidget(_cadence_cb);
 
-	QWidget* plot_widget = new QWidget;
-	QHBoxLayout* hlayout2 = new QHBoxLayout(plot_widget);
+	QWidget* plot_options_widget = new QWidget;
+	QVBoxLayout* vlayout1 = new QVBoxLayout(plot_options_widget);
+	vlayout1->addWidget(_hr_cb);
+	vlayout1->addWidget(_speed_cb);
+	vlayout1->addWidget(_alt_cb);
+	vlayout1->addWidget(_cadence_cb);
+	vlayout1->addWidget(axis_selection_widget);
+	vlayout1->addStretch();
+
+	QHBoxLayout* hlayout2 = new QHBoxLayout(this);
 	hlayout2->addWidget(_plot);
+	hlayout2->addWidget(plot_options_widget);
 	
-	QVBoxLayout* vlayout = new QVBoxLayout(this);
-	vlayout->addWidget(plot_widget);
-	vlayout->addWidget(plot_options_widget);
 	resize(700,270);
+
+	// Disable all controls until ride data is loaded
+	setEnabled(false);
 }
 
 /******************************************************/
 PlotWindow::~PlotWindow()
 {
 
+}
+
+/******************************************************/
+void PlotWindow::setEnabled(bool enabled)
+{
+	_plot_picker1->setEnabled(enabled);
+	_plot_picker2->setEnabled(enabled);
+	_plot_zoomer->setEnabled(enabled);
+	_plot_panner->setEnabled(enabled);
+	_x_axis_measurement->setEnabled(enabled);
+	_hr_cb->setEnabled(enabled);
+	_speed_cb->setEnabled(enabled);
+	_alt_cb->setEnabled(enabled);
+	_cadence_cb->setEnabled(enabled);
 }
 
 /******************************************************/
@@ -313,6 +347,10 @@ void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStati
 
 	// Connect this window to the statistical viewer
 	connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(setSelection(int,int)));
+
+	// Enabled user interface
+	setEnabled(true);
+
 }
 
 /******************************************************/
@@ -389,20 +427,48 @@ void PlotWindow::zoomSelection(const QRectF& rect)
 /******************************************************/
 void PlotWindow::panSelection(int x, int y)
 {
-	emit panSelection(_plot->invTransform(QwtPlot::xBottom,x)-_plot->invTransform(QwtPlot::xBottom,0));
+	if (_x_axis_measurement->currentIndex() == 0) // time
+	{
+		emit panSelection(
+		_data_log->indexFromTime(_plot->invTransform(QwtPlot::xBottom,x))-
+		_data_log->indexFromTime(_plot->invTransform(QwtPlot::xBottom,0)));
+	}
+	else // distance
+	{
+		emit panSelection(
+		_data_log->indexFromDist(_plot->invTransform(QwtPlot::xBottom,x))-
+		_data_log->indexFromDist(_plot->invTransform(QwtPlot::xBottom,0)));
+	}
 }
 
 /******************************************************/
 void PlotWindow::panAndHoldSelection(int x, int y)
 {
-	emit panAndHoldSelection(_plot->invTransform(QwtPlot::xBottom,x)-_plot->invTransform(QwtPlot::xBottom,0));
+	if (_x_axis_measurement->currentIndex() == 0) // time
+	{
+		emit panAndHoldSelection(
+		_data_log->indexFromTime(_plot->invTransform(QwtPlot::xBottom,x))-
+		_data_log->indexFromTime(_plot->invTransform(QwtPlot::xBottom,0)));
+	}
+	else // distance
+	{
+		emit panAndHoldSelection(
+		_data_log->indexFromDist(_plot->invTransform(QwtPlot::xBottom,x))-
+		_data_log->indexFromDist(_plot->invTransform(QwtPlot::xBottom,0)));
+	}
 }
 
 /******************************************************/
 void PlotWindow::xAxisUnitsChanged(int idx)
 {
-	emit deleteSelection();
+	if (idx == 0) // time
+		_plot->setAxisTitle(QwtPlot::xBottom,"Time (s)");
+	else // dist
+		_plot->setAxisTitle(QwtPlot::xBottom,"Dist (m)");
+	
 	drawGraphs();
+	emit deleteSelection();
+
 }
 /******************************************************/
 void PlotWindow::curveSelectionChanged()
