@@ -6,7 +6,11 @@
 #include <QWebFrame.h>
 #include <QDir.h>
 #include <QComboBox.h>
+#include <QLabel.h>
 #include <qtgui/qvboxlayout>
+#include <qwt_scale_widget.h>
+#include <qwt_color_map.h>
+#include <qwt_interval.h>
 
 #include <sstream>
 #include <iostream>
@@ -16,12 +20,51 @@ using namespace std;
 #define UNDEFINED_IDX -1
 
 /******************************************************/
-/* Helper class to fool google maps to give desktop view*/
+// Helper class to fool google maps to give desktop view
 class ChromePage : public QWebPage
 {
 	virtual QString userAgentForUrl(const QUrl& url) const {
 	 return "Chrome/1.0";
 	}
+};
+
+/******************************************************/
+// A horizontal bar which shows the colour scale of path colour
+class ColourBar : public QWidget
+{
+public:
+	ColourBar(): QWidget()
+	{
+		_start_colour = Qt::red;
+		_end_colour = Qt::red;
+	}
+
+	void setColourRange(const QColor start_colour, const QColor end_colour)
+	{
+		_start_colour = start_colour;
+		_end_colour = end_colour;
+	}
+
+protected:
+	void paintEvent(QPaintEvent* e)
+	{
+		QwtLinearColorMap color_map(_start_colour, _end_colour);
+		QPainter* painter = new QPainter(this);
+
+		QwtScaleWidget *colour_bar = new QwtScaleWidget(QwtScaleDraw::BottomScale);
+		colour_bar->setColorMap(QwtInterval(0.0, 1.0), &color_map);
+		colour_bar->setColorBarEnabled(true);
+		colour_bar->drawColorBar(painter, QRect(20,0, 340, 15));
+		painter->setPen(Qt::black);
+		painter->setFont(QFont("Helvetica", 8));
+		painter->drawText(0,13,"Min");
+		painter->drawText(365,13,"Max");
+		painter->end();
+	}
+
+private:
+	QColor _start_colour;
+	QColor _end_colour;
 };
 
 /******************************************************/
@@ -34,6 +77,7 @@ GoogleMap::GoogleMap()
 
 	// Selection for path colour scheme
 	_path_colour_scheme = new QComboBox();
+	_path_colour_scheme->setMaximumWidth(90);
 	_path_colour_scheme->insertItem(0,"None");
 	_path_colour_scheme->insertItem(1,"Heart Rate");
 	_path_colour_scheme->insertItem(2,"Speed");
@@ -42,10 +86,21 @@ GoogleMap::GoogleMap()
 	_path_colour_scheme->insertItem(4,"Power");
 	connect(_path_colour_scheme,SIGNAL(currentIndexChanged(int)), this, SLOT(definePathColour()));
 
-	QVBoxLayout* layout = new QVBoxLayout(this);
-	layout->addWidget(_view);
-	layout->addWidget(_path_colour_scheme);
-	//resize(700,270);
+	QLabel* label = new QLabel("Path coloured to: ");
+	label->setMaximumWidth(90);
+	
+	_colour_bar = new ColourBar();
+	QWidget* widget1 = new QWidget;
+	QHBoxLayout* hlayout = new QHBoxLayout(widget1);
+	hlayout->addSpacing(20);
+	hlayout->addWidget(label);
+	hlayout->addWidget(_path_colour_scheme);
+	hlayout->addSpacing(20);
+	hlayout->addWidget(_colour_bar);
+
+	QVBoxLayout* vlayout = new QVBoxLayout(this);
+	vlayout->addWidget(_view);
+	vlayout->addWidget(widget1);
 }
 
 /******************************************************/
@@ -148,16 +203,17 @@ void GoogleMap::moveAndHoldSelection(int delta_idx)
 /******************************************************/
 void GoogleMap::definePathColour()
 {
+	// Colour the path and set the colour bar correspondingly
 	ostringstream stream;
 	stream.precision(2); // only need low precision
 	stream.setf(ios::fixed,ios::floatfield);
-
-	stream << "var key = [" << endl;
-
+	
 	double factor;
+	double min_key = 1.0;
+	stream << "var key = [" << endl;
 	for (int i=0; i < _data_log->numPoints()-1; ++i) // one less key since there is one more polyline segment in the path
 	{
-		double key = 0.0;
+		double key = 1.0;
 		switch (_path_colour_scheme->currentIndex())
 		{
 		case 0: // none
@@ -165,37 +221,47 @@ void GoogleMap::definePathColour()
 			break;
 		case 1: // heart rate
 			factor = 0.9;
-			if (_data_log->maxHeartRate() > 0)
+			if (_data_log->maxHeartRate() > 0.0)
 				key = ((_data_log->heartRate(i)/_data_log->maxHeartRate())*(1.0+factor) ) - factor;
 			break;
 		case 2: // speed
 			factor = 0.1;
-			if (_data_log->maxSpeed())
+			if (_data_log->maxSpeed() > 0.0)
 				key = ((_data_log->speed(i)/_data_log->maxSpeed())*(1.0+factor) ) - factor;
 			break;
 		case 3: // gradient
-			if (_data_log->maxGradient())
+			if (_data_log->maxGradient() > 0.0)
 				key = (_data_log->gradient(i)/(_data_log->maxGradient()*0.5 + 0.00001) ) + 0.5;
 			break;
 		case 4: // cadence
 			factor = 0.9;
-			if (_data_log->maxCadence())
-				key = ((_data_log->cadence(i)/_data_log->maxCadence())*(1.0+factor) ) - factor, 0.0;
+			if (_data_log->maxCadence() > 0.0)
+				key = ((_data_log->cadence(i)/_data_log->maxCadence())*(1.0+factor) ) - factor;
 			break;
 		case 5: // power
 			factor = 0.7;
-			if (_data_log->maxPower())
+			if (_data_log->maxPower() > 0.0)
 				key = ((_data_log->power(i)/_data_log->maxPower())*(1.0+factor) ) - factor;
 			break;
 		}
 		key = std::max(key,0.0);
 		key = std::min(key,1.0);
 		stream << key << ", ";
+
+		if (key < min_key) // keep track of the max key value
+			min_key = key;
 	}
 
 	stream << "];" << endl; 
 	stream << "strokeRidePath(key);";
 	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
+
+	// Draw the colour bar appropriately, depending on the max key value
+	if (min_key < 1.0)
+		_colour_bar->setColourRange(Qt::green, Qt::red);
+	else
+		_colour_bar->setColourRange(Qt::red, Qt::red);
+	_colour_bar->update();
 }
 
 /******************************************************/

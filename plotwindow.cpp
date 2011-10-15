@@ -102,8 +102,11 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 		if ( p.count() != 1 )
 			return;
 
+		painter->setFont(QFont("Helvetica", 8, QFont::Bold));
 		const QPoint& pt1 = p[0];
-		const double x_val = plot()->invTransform(QwtPlot::xBottom,pt1.x());
+		const double x_val = plot()->invTransform(QwtPlot::xBottom,pt1.x()); // determine x value (time or dist)
+		
+		// Compute the index based on the x value
 		int idx;
 		if (_x_axis_units == TimeAxis)
 		{
@@ -115,19 +118,18 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 			painter->drawText(QPoint(pt1.x(), 10), "dist: " + QString::number(x_val,'g',5));
 			idx = _data_log->indexFromDist(x_val);
 		}
-			
+		
+		// Using the index, determine the curve values
 		const double hr = _data_log->heartRate(idx);
 		const QPoint pt1_hr(pt1.x(),plot()->transform(QwtPlot::yLeft,hr));
-
 		const double speed = _data_log->speed(idx);
 		const QPoint pt1_speed(pt1.x(),plot()->transform(QwtPlot::yLeft,speed));
-
 		const double alt = _data_log->alt(idx);
 		const QPoint pt1_alt(pt1.x(),plot()->transform(QwtPlot::yRight,alt));
-
 		const double cadence = _data_log->cadence(idx);
 		const QPoint pt1_cadence(pt1.x(),plot()->transform(QwtPlot::yLeft,cadence));
 
+		// Draw it all nicely on the plot
 		const QPoint offset(8,-5);
 		const QwtPlotItemList item_list = plot()->itemList(QwtPlotCurve::Rtti_PlotCurve);
 		for (int i = 0; i < item_list.size(); ++i) 
@@ -165,8 +167,6 @@ void QwtCustomPlotPicker::xAxisUnitsChanged(int units)
 /******************************************************/
 PlotWindow::PlotWindow()
 {
-	//_data_log = new DataLog();
-
 	_plot = new QwtPlot();
 	_plot->enableAxis(QwtPlot::yRight,true);
 	_plot->setAxisAutoScale(QwtPlot::xBottom,true);
@@ -238,11 +238,11 @@ PlotWindow::PlotWindow()
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisUnitsChanged(int)));
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
 
-	// Selection for graph plots
-	_hr_cb = new QCheckBox("Heart Rate");
-	_speed_cb = new QCheckBox("Speed");
-	_alt_cb = new QCheckBox("Elevation");
-	_cadence_cb = new QCheckBox("Cadence");
+	// Checkboxes for graph plots
+	_hr_cb = new QCheckBox("Heart Rate (bpm)");
+	_speed_cb = new QCheckBox("Speed (km/h)");
+	_alt_cb = new QCheckBox("Elevation (m)");
+	_cadence_cb = new QCheckBox("Cadence (rpm)");
 	_hr_cb->setChecked(true);
 	_speed_cb->setChecked(true);
 	_alt_cb->setChecked(true);

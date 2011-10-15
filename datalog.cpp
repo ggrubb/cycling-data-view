@@ -2,6 +2,7 @@
 #include <cassert>
 #include <numeric>
 #include <algorithm>
+#include <iostream>
 
 /****************************************/
 DataLog::DataLog():
@@ -178,7 +179,7 @@ int DataLog::indexFromTime(double time)
 int DataLog::indexFromDist(double dist)
 {
 	QMap<double,int>::iterator it = _dist_to_index.lowerBound(std::max(dist,0.0));
-	if (it == _time_to_index.end())
+	if (it == _dist_to_index.end())
 		return numPoints()-1;
 	else
 		return it.value();

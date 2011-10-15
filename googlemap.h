@@ -11,6 +11,7 @@
 
 class DataLog;
 class QComboBox;
+class ColourBar;
 
 class GoogleMap : public QWidget
 {
@@ -59,6 +60,7 @@ private slots:
 	// Pointer to the data log
 	DataLog* _data_log;
 	QComboBox* _path_colour_scheme;
+	ColourBar* _colour_bar;
 };
 
 #endif // GOOGLEMAP_H
