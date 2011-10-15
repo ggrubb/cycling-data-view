@@ -10,6 +10,7 @@ class GoogleMap;
 class DataStatisticsView;
 class QwtPlotPicker;
 class QwtPlotCustomZoomer;
+class QwtPlotCustomPicker;
 class QwtPlotPanner;
 class QComboBox;
 class QCheckBox;
@@ -58,7 +59,7 @@ class PlotWindow : public QWidget
 	QCheckBox* _alt_cb;
 	QCheckBox* _cadence_cb;
 	
-	QwtPlotPicker* _plot_picker1;
+	QwtPlotCustomPicker* _plot_picker1;
 	QwtPlotPicker* _plot_picker2;
 	QwtPlotCustomZoomer* _plot_zoomer;
 	QwtPlotPanner* _plot_panner;

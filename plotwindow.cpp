@@ -16,19 +16,20 @@
 #include <qtgui/qcheckbox>
 #include <qtgui/qlabel>
 #include <iostream>
+#include <sstream>
 
 // Define colour of plot curves
 #define HR_COLOUR Qt::darkRed
 #define ALT_COLOUR Qt::darkGreen
-#define GRAD_COLOUR Qt::darkBlue
+#define CADENCE_COLOUR Qt::darkBlue
 #define SPEED_COLOUR Qt::yellow
 
 // A custom plot zoomer, which defines a better rubber band, and zooms on x-axis only
 class QwtPlotCustomZoomer : public QwtPlotZoomer
 {
 public:
-	QwtPlotCustomZoomer(int xAxis, int yAxis, QwtPlotCanvas* canvas, bool doReplot=true):
-	QwtPlotZoomer(xAxis,yAxis,canvas,doReplot)
+	QwtPlotCustomZoomer(int x_axis, int y_axis, QwtPlotCanvas* canvas, bool do_replot=true):
+		QwtPlotZoomer(x_axis,y_axis,canvas,do_replot)
 	{}
 
 	// Override user selected points to only take their x coord selection
@@ -51,9 +52,7 @@ public:
 		else
 		{
 			if ( !isActive() || rubberBandPen().style() == Qt::NoPen )
-			{
 				return;
-			}
 
 			QPolygon p = selection();
 
@@ -72,10 +71,94 @@ public:
 
 };
 
+// A custom plot picker to highligh the value of curve closest to the pointer
+class QwtPlotCustomPicker : public QwtPlotPicker
+{
+public:
+	QwtPlotCustomPicker(int x_axis, int y_axis, DataLog* data_log, QwtPlotCanvas* canvas):
+		QwtPlotPicker(x_axis,y_axis,QwtPlotPicker::UserRubberBand, QwtPicker::AlwaysOn, canvas),
+		_data_log(data_log)
+	{}
+
+	// Set the data log for this picker
+	void setDataLog(DataLog* data_log)
+	{
+		_data_log = data_log;
+	}
+
+	// Surpress default tracker drawing
+	void drawTracker(QPainter* painter) const
+	{
+		return;
+	}
+
+	// Draw curve numerical values and highligh curve points
+	void drawRubberBand(QPainter* painter) const
+	{
+		if ( rubberBand() < UserRubberBand )
+			QwtPlotPicker::drawRubberBand( painter );
+		else
+		{
+			if ( !isActive() || rubberBandPen().style() == Qt::NoPen )
+				return;
+
+			QPolygon p = selection();
+
+			if ( p.count() != 1 )
+				return;
+
+			const QPoint& pt1 = p[0];
+			const double time = plot()->invTransform(QwtPlot::xBottom,pt1.x());
+
+			const double hr = _data_log->heartRate(_data_log->indexFromTime(time));
+			const QPoint pt1_hr(pt1.x(),plot()->transform(QwtPlot::yLeft,hr));
+
+			const double speed = _data_log->speed(_data_log->indexFromTime(time));
+			const QPoint pt1_speed(pt1.x(),plot()->transform(QwtPlot::yLeft,speed));
+
+			const double alt = _data_log->alt(_data_log->indexFromTime(time));
+			const QPoint pt1_alt(pt1.x(),plot()->transform(QwtPlot::yRight,alt));
+
+			const double cadence = _data_log->cadence(_data_log->indexFromTime(time));
+			const QPoint pt1_cadence(pt1.x(),plot()->transform(QwtPlot::yLeft,cadence));
+
+			const QPoint offset(8,-5);
+			const QwtPlotItemList item_list = plot()->itemList(QwtPlotCurve::Rtti_PlotCurve);
+			for (int i = 0; i < item_list.size(); ++i) 
+			{
+				if (item_list.at(i)->title().text() == "Heart Rate" && item_list.at(i)->isVisible())
+				{
+					painter->drawEllipse(pt1_hr,3,3);
+					painter->drawText(pt1_hr + offset, QString::number(hr,'g',3));
+				}
+				if (item_list.at(i)->title().text() == "Speed" && item_list.at(i)->isVisible())
+				{
+					painter->drawEllipse(pt1_speed,3,3);
+					painter->drawText(pt1_speed + offset, QString::number(speed,'g',3));
+				}
+				if (item_list.at(i)->title().text() == "Elevation" && item_list.at(i)->isVisible())
+				{
+					painter->drawEllipse(pt1_alt,3,3);
+					painter->drawText(pt1_alt + offset, QString::number(alt,'g',4));
+				}
+				if (item_list.at(i)->title().text() == "Cadence" && item_list.at(i)->isVisible())
+				{
+					painter->drawEllipse(pt1_cadence,3,3);
+					painter->drawText(pt1_cadence + offset, QString::number(cadence,'g',3));
+				}
+			}
+			painter->drawText(QPoint(pt1.x(), 10), "time: " + QString::number(time,'g',4));
+		}
+	}
+
+private:
+	DataLog* _data_log;
+};
+
 /******************************************************/
 PlotWindow::PlotWindow()
 {
-	_data_log = new DataLog();
+	//_data_log = new DataLog();
 
 	_plot = new QwtPlot();
 	_plot->enableAxis(QwtPlot::yRight,true);
@@ -89,7 +172,7 @@ PlotWindow::PlotWindow()
 	_curve_hr->setYAxis(QwtPlot::yLeft);
 
 	_curve_cadence = new QwtPlotCurve("Cadence");
-	c = GRAD_COLOUR;
+	c = CADENCE_COLOUR;
 	_curve_cadence->setPen(c);
 	_curve_cadence->setYAxis(QwtPlot::yLeft);
 
@@ -111,15 +194,15 @@ PlotWindow::PlotWindow()
 	_curve_cadence->attach(_plot);
 	_curve_hr->attach(_plot);
 
-	// Plot picker for cursor display
+	// Plot picker for numerical display
 	_plot_picker1 = 
-		new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, _plot->canvas());
-	_plot_picker1->setRubberBandPen(QColor(Qt::white));
+		new QwtPlotCustomPicker(QwtPlot::xBottom, QwtPlot::yLeft, _data_log, _plot->canvas());
+	_plot_picker1->setRubberBandPen(QColor(Qt::black));
     _plot_picker1->setTrackerPen(QColor(Qt::black));
 	_plot_picker1->setStateMachine(new QwtPickerTrackerMachine());
 	connect(_plot_picker1, SIGNAL(moved(const QPointF&)), this, SLOT(setMarkerPosition(const QPointF&)));
 	
-	// Plot picker for user selection
+	// Plot picker for drawing user selection
 	_plot_picker2 = 
 		new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::NoRubberBand, QwtPicker::AlwaysOff, _plot->canvas());
 	_plot_picker2->setStateMachine(new QwtPickerDragPointMachine());
@@ -169,7 +252,7 @@ PlotWindow::PlotWindow()
 	_speed_cb->setPalette(plt);
 	plt.setColor(QPalette::WindowText, ALT_COLOUR);
 	_alt_cb->setPalette(plt);
-	plt.setColor(QPalette::WindowText, GRAD_COLOUR);
+	plt.setColor(QPalette::WindowText, CADENCE_COLOUR);
 	_cadence_cb->setPalette(plt);
 
 	QLabel* x_axis_measurement_label = new QLabel("X Axis:");
@@ -206,6 +289,7 @@ PlotWindow::~PlotWindow()
 void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStatisticsView* stats_view)
 {
 	_data_log = data_log;
+	_plot_picker1->setDataLog(_data_log);
 
 	drawGraphs();
 	show();
@@ -260,7 +344,6 @@ void PlotWindow::setMarkerPosition(const QPointF& point)
 /******************************************************/
 void PlotWindow::beginSelection(const QPointF& point)
 {
-	_plot_picker1->setRubberBand(QwtPlotPicker::NoRubberBand);
 	_plot_picker1->setEnabled(false);
 	if (_x_axis_measurement->currentIndex() == 0) // time
 		emit beginSelection(_data_log->indexFromTime(point.x()));
@@ -280,8 +363,6 @@ void PlotWindow::endSelection(const QPointF& point)
 /******************************************************/
 void PlotWindow::zoomSelection(const QRectF& rect)
 {
-	
-	_plot_picker1->setRubberBand(QwtPlotPicker::CrossRubberBand);
 	_plot_picker1->setEnabled(true);
 
 	if (_plot_zoomer->zoomRectIndex() == 0) // if fully zoomed out
