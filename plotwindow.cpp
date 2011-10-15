@@ -2,6 +2,8 @@
 #include "datalog.h"
 #include "googlemap.h"
 #include "datastatisticsview.h"
+#include "qwtcustomplotpicker.h"
+#include "qwtcustomplotzoomer.h"
 
 #include <qwt_plot_picker.h>
 #include <qwt_plot_zoomer.h>
@@ -24,136 +26,141 @@
 #define CADENCE_COLOUR Qt::darkBlue
 #define SPEED_COLOUR Qt::yellow
 
-// A custom plot zoomer, which defines a better rubber band, and zooms on x-axis only
-class QwtPlotCustomZoomer : public QwtPlotZoomer
+/******************************************************/
+QwtCustomPlotZoomer::QwtCustomPlotZoomer(int x_axis, int y_axis, QwtPlotCanvas* canvas, bool do_replot):
+	QwtPlotZoomer(x_axis,y_axis,canvas,do_replot)
+{}
+
+/******************************************************/
+bool QwtCustomPlotZoomer::accept(QPolygon& p) const
 {
-public:
-	QwtPlotCustomZoomer(int x_axis, int y_axis, QwtPlotCanvas* canvas, bool do_replot=true):
-		QwtPlotZoomer(x_axis,y_axis,canvas,do_replot)
-	{}
-
-	// Override user selected points to only take their x coord selection
-	bool accept(QPolygon& p) const
-	{
-		if ( p.count() < 2 )
-			return true;
-
-		// Set the zoom rect to be top to bottm, irrespective of what the user selects in y axis
-		p[0].setY(0);
-		p[1].setY(200);
+	if ( p.count() < 2 )
 		return true;
-	}
 
-	// Draw a nice rubber band
-	void drawRubberBand(QPainter* painter) const
-	{
-		if ( rubberBand() < UserRubberBand )
-			QwtPlotPicker::drawRubberBand( painter );
-		else
-		{
-			if ( !isActive() || rubberBandPen().style() == Qt::NoPen )
-				return;
+	// Set the zoom rect to be top to bottm, irrespective of what the user selects in y axis
+	p[0].setY(0);
+	p[1].setY(200);
+	return true;
+}
 
-			QPolygon p = selection();
-
-			if ( p.count() < 2 )
-				return;
-
-			const QPoint& pt1 = p[0];
-			const QPoint& pt2 = p[1];
-
-			const int end = 250;
-			painter->drawLine(pt1.x(), 0, pt1.x(), end);
-			painter->drawLine(pt2.x(), 0, pt2.x(), end);
-			painter->fillRect(QRect(pt1.x(), 0, pt2.x() - pt1.x(), end), QBrush(QColor("black"), Qt::Dense7Pattern));
-		}
-	}
-
-};
-
-// A custom plot picker to highligh the value of curve closest to the pointer
-class QwtPlotCustomPicker : public QwtPlotPicker
+/******************************************************/
+void QwtCustomPlotZoomer::drawRubberBand(QPainter* painter) const
 {
-public:
-	QwtPlotCustomPicker(int x_axis, int y_axis, DataLog* data_log, QwtPlotCanvas* canvas):
-		QwtPlotPicker(x_axis,y_axis,QwtPlotPicker::UserRubberBand, QwtPicker::AlwaysOn, canvas),
-		_data_log(data_log)
-	{}
-
-	// Set the data log for this picker
-	void setDataLog(DataLog* data_log)
+	if ( rubberBand() < UserRubberBand )
+		QwtPlotPicker::drawRubberBand( painter );
+	else
 	{
-		_data_log = data_log;
+		if ( !isActive() || rubberBandPen().style() == Qt::NoPen )
+			return;
+
+		QPolygon p = selection();
+
+		if ( p.count() < 2 )
+			return;
+
+		const QPoint& pt1 = p[0];
+		const QPoint& pt2 = p[1];
+
+		const int end = 250;
+		painter->drawLine(pt1.x(), 0, pt1.x(), end);
+		painter->drawLine(pt2.x(), 0, pt2.x(), end);
+		painter->fillRect(QRect(pt1.x(), 0, pt2.x() - pt1.x(), end), QBrush(QColor("black"), Qt::Dense7Pattern));
 	}
+}
 
-	// Surpress default tracker drawing
-	void drawTracker(QPainter* painter) const
-	{
-		return;
-	}
+/******************************************************/
+QwtCustomPlotPicker::QwtCustomPlotPicker(int x_axis, int y_axis, DataLog* data_log, QwtPlotCanvas* canvas):
+	QwtPlotPicker(x_axis,y_axis,QwtPlotPicker::UserRubberBand, QwtPicker::AlwaysOn, canvas),
+	_data_log(data_log),
+	_x_axis_units(TimeAxis)
+{}
 
-	// Draw curve numerical values and highligh curve points
-	void drawRubberBand(QPainter* painter) const
+/******************************************************/
+void QwtCustomPlotPicker::setDataLog(DataLog* data_log)
+{
+	_data_log = data_log;
+}
+
+/******************************************************/
+void QwtCustomPlotPicker::drawTracker(QPainter* painter) const
+{
+	return;
+}
+
+/******************************************************/
+void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
+{
+	if ( rubberBand() < UserRubberBand )
+		QwtPlotPicker::drawRubberBand( painter );
+	else
 	{
-		if ( rubberBand() < UserRubberBand )
-			QwtPlotPicker::drawRubberBand( painter );
-		else
+		if ( !isActive() || rubberBandPen().style() == Qt::NoPen )
+			return;
+
+		QPolygon p = selection();
+
+		if ( p.count() != 1 )
+			return;
+
+		const QPoint& pt1 = p[0];
+		const double x_val = plot()->invTransform(QwtPlot::xBottom,pt1.x());
+		int idx;
+		if (_x_axis_units == TimeAxis)
 		{
-			if ( !isActive() || rubberBandPen().style() == Qt::NoPen )
-				return;
+			painter->drawText(QPoint(pt1.x(), 10), "time: " + QString::number(x_val,'g',4));
+			idx = _data_log->indexFromTime(x_val);
+		}
+		else if (_x_axis_units == DistAxis)
+		{
+			painter->drawText(QPoint(pt1.x(), 10), "dist: " + QString::number(x_val,'g',5));
+			idx = _data_log->indexFromDist(x_val);
+		}
+			
+		const double hr = _data_log->heartRate(idx);
+		const QPoint pt1_hr(pt1.x(),plot()->transform(QwtPlot::yLeft,hr));
 
-			QPolygon p = selection();
+		const double speed = _data_log->speed(idx);
+		const QPoint pt1_speed(pt1.x(),plot()->transform(QwtPlot::yLeft,speed));
 
-			if ( p.count() != 1 )
-				return;
+		const double alt = _data_log->alt(idx);
+		const QPoint pt1_alt(pt1.x(),plot()->transform(QwtPlot::yRight,alt));
 
-			const QPoint& pt1 = p[0];
-			const double time = plot()->invTransform(QwtPlot::xBottom,pt1.x());
+		const double cadence = _data_log->cadence(idx);
+		const QPoint pt1_cadence(pt1.x(),plot()->transform(QwtPlot::yLeft,cadence));
 
-			const double hr = _data_log->heartRate(_data_log->indexFromTime(time));
-			const QPoint pt1_hr(pt1.x(),plot()->transform(QwtPlot::yLeft,hr));
-
-			const double speed = _data_log->speed(_data_log->indexFromTime(time));
-			const QPoint pt1_speed(pt1.x(),plot()->transform(QwtPlot::yLeft,speed));
-
-			const double alt = _data_log->alt(_data_log->indexFromTime(time));
-			const QPoint pt1_alt(pt1.x(),plot()->transform(QwtPlot::yRight,alt));
-
-			const double cadence = _data_log->cadence(_data_log->indexFromTime(time));
-			const QPoint pt1_cadence(pt1.x(),plot()->transform(QwtPlot::yLeft,cadence));
-
-			const QPoint offset(8,-5);
-			const QwtPlotItemList item_list = plot()->itemList(QwtPlotCurve::Rtti_PlotCurve);
-			for (int i = 0; i < item_list.size(); ++i) 
+		const QPoint offset(8,-5);
+		const QwtPlotItemList item_list = plot()->itemList(QwtPlotCurve::Rtti_PlotCurve);
+		for (int i = 0; i < item_list.size(); ++i) 
+		{
+			if (item_list.at(i)->title().text() == "Heart Rate" && item_list.at(i)->isVisible())
 			{
-				if (item_list.at(i)->title().text() == "Heart Rate" && item_list.at(i)->isVisible())
-				{
-					painter->drawEllipse(pt1_hr,3,3);
-					painter->drawText(pt1_hr + offset, QString::number(hr,'g',3));
-				}
-				if (item_list.at(i)->title().text() == "Speed" && item_list.at(i)->isVisible())
-				{
-					painter->drawEllipse(pt1_speed,3,3);
-					painter->drawText(pt1_speed + offset, QString::number(speed,'g',3));
-				}
-				if (item_list.at(i)->title().text() == "Elevation" && item_list.at(i)->isVisible())
-				{
-					painter->drawEllipse(pt1_alt,3,3);
-					painter->drawText(pt1_alt + offset, QString::number(alt,'g',4));
-				}
-				if (item_list.at(i)->title().text() == "Cadence" && item_list.at(i)->isVisible())
-				{
-					painter->drawEllipse(pt1_cadence,3,3);
-					painter->drawText(pt1_cadence + offset, QString::number(cadence,'g',3));
-				}
+				painter->drawEllipse(pt1_hr,3,3);
+				painter->drawText(pt1_hr + offset, QString::number(hr,'g',3));
 			}
-			painter->drawText(QPoint(pt1.x(), 10), "time: " + QString::number(time,'g',4));
+			if (item_list.at(i)->title().text() == "Speed" && item_list.at(i)->isVisible())
+			{
+				painter->drawEllipse(pt1_speed,3,3);
+				painter->drawText(pt1_speed + offset, QString::number(speed,'g',3));
+			}
+			if (item_list.at(i)->title().text() == "Elevation" && item_list.at(i)->isVisible())
+			{
+				painter->drawEllipse(pt1_alt,3,3);
+				painter->drawText(pt1_alt + offset, QString::number(alt,'g',4));
+			}
+			if (item_list.at(i)->title().text() == "Cadence" && item_list.at(i)->isVisible())
+			{
+				painter->drawEllipse(pt1_cadence,3,3);
+				painter->drawText(pt1_cadence + offset, QString::number(cadence,'g',3));
+			}
 		}
 	}
+}
 
-private:
-	DataLog* _data_log;
-};
+/******************************************************/
+void QwtCustomPlotPicker::xAxisUnitsChanged(int units)
+{
+	_x_axis_units = (AxisUnits)units;
+}
 
 /******************************************************/
 PlotWindow::PlotWindow()
@@ -196,7 +203,7 @@ PlotWindow::PlotWindow()
 
 	// Plot picker for numerical display
 	_plot_picker1 = 
-		new QwtPlotCustomPicker(QwtPlot::xBottom, QwtPlot::yLeft, _data_log, _plot->canvas());
+		new QwtCustomPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, _data_log, _plot->canvas());
 	_plot_picker1->setRubberBandPen(QColor(Qt::black));
     _plot_picker1->setTrackerPen(QColor(Qt::black));
 	_plot_picker1->setStateMachine(new QwtPickerTrackerMachine());
@@ -210,7 +217,7 @@ PlotWindow::PlotWindow()
 	connect(_plot_picker2, SIGNAL(moved(const QPointF&)), this, SLOT(endSelection(const QPointF&)));
 
 	// Plot zoomer
-	_plot_zoomer = new QwtPlotCustomZoomer(QwtPlot::xBottom, QwtPlot::yLeft, _plot->canvas());
+	_plot_zoomer = new QwtCustomPlotZoomer(QwtPlot::xBottom, QwtPlot::yLeft, _plot->canvas());
 	_plot_zoomer->setRubberBand(QwtPicker::UserRubberBand);
     _plot_zoomer->setRubberBandPen(QColor(Qt::white));
     _plot_zoomer->setTrackerMode(QwtPicker::AlwaysOff);
@@ -229,6 +236,7 @@ PlotWindow::PlotWindow()
 	_x_axis_measurement->insertItem(0,"Time");
 	_x_axis_measurement->insertItem(1,"Distance");
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisUnitsChanged(int)));
+	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
 
 	// Selection for graph plots
 	_hr_cb = new QCheckBox("Heart Rate");
