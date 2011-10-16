@@ -12,8 +12,9 @@ class QwtPlotPicker;
 class QwtCustomPlotZoomer;
 class QwtCustomPlotPicker;
 class QwtPlotPanner;
-class QComboBox;
+class QButtonGroup;
 class QCheckBox;
+class QRadioButton;
 
 class PlotWindow : public QWidget
 {
@@ -57,7 +58,9 @@ class PlotWindow : public QWidget
 	QwtPlotCurve* _curve_cadence;
 	QwtPlotCurve* _curve_alt;
 	
-	QComboBox* _x_axis_measurement;
+	QButtonGroup* _x_axis_measurement;
+	QRadioButton* _time_axis;
+	QRadioButton* _dist_axis;
 	QCheckBox* _hr_cb;
 	QCheckBox* _speed_cb;
 	QCheckBox* _alt_cb;
@@ -69,7 +72,6 @@ class PlotWindow : public QWidget
 	QwtPlotPanner* _plot_panner;
 
 	DataLog* _data_log;
-
 };
 
 #endif // PLOTWINDOW_H

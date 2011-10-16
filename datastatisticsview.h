@@ -18,6 +18,7 @@ class DataStatisticsView : public QWidget
 	void clearTotalsColumn();
 	void clearSelectionColumn();
 public slots:
+	void deleteSelection();
 	void setSelection(int idx_start, int idx_end);
 
  private:

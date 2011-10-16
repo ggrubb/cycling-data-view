@@ -87,7 +87,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\*.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;"
+				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qjpegd4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qicod4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -164,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\*.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;"
+				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qjpeg4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qico4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
