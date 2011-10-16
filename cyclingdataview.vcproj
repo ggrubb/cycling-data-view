@@ -87,7 +87,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\*.dll $(OutDir)\imageformats\.&#x0D;&#x0A;"
+				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\*.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -139,7 +139,7 @@
 				AdditionalDependencies="qtgui4.lib qtcore4.lib qtmain.lib qtxml4.lib qtwebkit4.lib qwt.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_contrib220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_core220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_features2d220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_ffmpeg220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_flann220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_gpu220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_haartraining_engine.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_highgui220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_imgproc220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_lapack.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_legacy220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_ml220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_objdetect220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\opencv_video220.lib D:\Software\OpenCV2.2\vs2008\lib\Release\libjasper.lib D:\Software\OpenCV2.2\vs2008\lib\Release\libjpeg.lib D:\Software\OpenCV2.2\vs2008\lib\Release\libpng.lib D:\Software\OpenCV2.2\vs2008\lib\Release\libtiff.lib &quot;C:\Program Files\Microsoft SDKs\Windows\v6.0A\Lib\Vfw32.Lib&quot;"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -164,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\*.dll $(OutDir)\imageformats\.&#x0D;&#x0A;"
+				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\*.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -319,7 +319,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -329,7 +329,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -366,6 +366,14 @@
 			</File>
 			<File
 				RelativePath=".\moc_qwtcustomplotpicker.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			>
+			<File
+				RelativePath=".\cycledataview.rc"
 				>
 			</File>
 		</Filter>

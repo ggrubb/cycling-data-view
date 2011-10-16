@@ -28,6 +28,8 @@ QMainWindow()
 	createActions();
 	createMenus();
 
+	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
+
 	_parser = new TcxParser();
 	_google_map = new GoogleMap();
 	_plot_window = new PlotWindow();
