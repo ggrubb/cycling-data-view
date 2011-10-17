@@ -19,7 +19,12 @@ class QwtCustomPlotPicker : public QwtPlotPicker
 		QwtCustomPlotPicker(int x_axis, int y_axis, DataLog* data_log, QwtPlotCanvas* canvas);
 
 		// Set the data log for this picker
-		void setDataLog(DataLog* data_log);
+		void setDataLog(
+			DataLog* data_log,
+			std::vector<double>* data_hr_filtered,
+			std::vector<double>* data_speed_filtered,
+			std::vector<double>* data_cadence_filtered,
+			std::vector<double>* data_alt_filtered);
 
 		// Surpress default tracker drawing
 		void drawTracker(QPainter* painter) const;
@@ -33,6 +38,11 @@ class QwtCustomPlotPicker : public QwtPlotPicker
 	private:
 		DataLog* _data_log;
 		AxisUnits _x_axis_units;
+
+		std::vector<double>* _data_hr_filtered;
+		std::vector<double>* _data_speed_filtered;
+		std::vector<double>* _data_cadence_filtered;
+		std::vector<double>* _data_alt_filtered;
 };
 
 

@@ -11,21 +11,28 @@ void DataProcessing::computePower()
 }
 
 /****************************************/
-void DataProcessing::smoothSignal(
+void DataProcessing::lowPassFilterSignal(
 	const std::vector<double>& signal,
-	std::vector<double>& smoothed,
+	std::vector<double>& filtered,
 	int window_size)
 {
 	assert(signal.size() > 1);
 
-	// Smooth altitude with averaging filter
-	smoothed.resize(signal.size());
-	std::vector<double>::const_iterator signal_it = signal.begin();
-	for (int i=0; i < (int)signal.size(); ++i)
+	filtered.resize(signal.size());
+	if (window_size > 2)
 	{
-		int x = i - std::max(0, i - window_size/2);
-		int y = std::min((int)signal.size(), i + window_size/2) - i;
-		smoothed[i] = std::accumulate(signal_it+i-x, signal_it+i+y,0.0)/double(x + y);	
+		// Smooth altitude with averaging filter
+		std::vector<double>::const_iterator signal_it = signal.begin();
+		for (int i=0; i < (int)signal.size(); ++i)
+		{
+			int x = i - std::max(0, i - window_size/2);
+			int y = std::min((int)signal.size(), i + window_size/2) - i;
+			filtered[i] = std::accumulate(signal_it+i-x, signal_it+i+y,0.0)/double(x + y);	
+		}
+	}
+	else
+	{
+		std::copy(signal.begin(),signal.end(), filtered.begin());
 	}
 }
 

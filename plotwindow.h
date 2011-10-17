@@ -15,6 +15,7 @@ class QwtPlotPanner;
 class QButtonGroup;
 class QCheckBox;
 class QRadioButton;
+class QSpinBox;
 
 class PlotWindow : public QWidget
 {
@@ -48,9 +49,11 @@ class PlotWindow : public QWidget
 	void panAndHoldSelection(int x, int y);
 	void xAxisUnitsChanged(int idx);
 	void curveSelectionChanged();
+	void signalSmoothingChanged();
 
  private:
 	void drawGraphs();
+	void setCurveData();
 
 	QwtPlot* _plot;
 	QwtPlotCurve* _curve_hr;
@@ -65,6 +68,7 @@ class PlotWindow : public QWidget
 	QCheckBox* _speed_cb;
 	QCheckBox* _alt_cb;
 	QCheckBox* _cadence_cb;
+	QSpinBox* _smoothing_selection;
 	
 	QwtCustomPlotPicker* _plot_picker1;
 	QwtPlotPicker* _plot_picker2;
@@ -72,6 +76,10 @@ class PlotWindow : public QWidget
 	QwtPlotPanner* _plot_panner;
 
 	DataLog* _data_log;
+	std::vector<double>* _data_hr_filtered;
+	std::vector<double>* _data_speed_filtered;
+	std::vector<double>* _data_cadence_filtered;
+	std::vector<double>* _data_alt_filtered;
 };
 
 #endif // PLOTWINDOW_H

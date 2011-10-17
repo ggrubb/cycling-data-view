@@ -18,9 +18,9 @@ class DataProcessing
 		const std::vector<double>& dist,
 		std::vector<double>& speed);
 
-	static void smoothSignal(
+	static void lowPassFilterSignal(
 		const std::vector<double>& signal,
-		std::vector<double>& signal_smoothed,
+		std::vector<double>& filtered,
 		int window_size = 10);
 
 	static double computeAverage(

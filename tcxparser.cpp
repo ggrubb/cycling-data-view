@@ -123,7 +123,7 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 {
 	// Compute grad from smoothed gradient
-	DataProcessing::smoothSignal(data_log.alt(), data_log.altSmooth());
+	DataProcessing::lowPassFilterSignal(data_log.alt(), data_log.altSmooth());
 	DataProcessing::computeGradient(data_log.altSmooth(), data_log.dist(), data_log.gradient());
 	
 	// Compute speed if not already measured
