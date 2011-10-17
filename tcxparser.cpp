@@ -1,5 +1,7 @@
 #include "tcxparser.h"
 #include "datalog.h"
+#include "dataprocessing.h"
+
 #include <QStringList.h>
 #include <QFile.h>
 
@@ -121,25 +123,25 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 {
 	// Compute grad from smoothed gradient
-	DataLog::smoothSignal(data_log.alt(), data_log.altSmooth());
-	DataLog::computeGradient(data_log.altSmooth(), data_log.dist(), data_log.gradient());
+	DataProcessing::smoothSignal(data_log.alt(), data_log.altSmooth());
+	DataProcessing::computeGradient(data_log.altSmooth(), data_log.dist(), data_log.gradient());
 	
 	// Compute speed if not already measured
 	if (true)
-		DataLog::computeSpeed(data_log.time(), data_log.dist(), data_log.speed());
+		DataProcessing::computeSpeed(data_log.time(), data_log.dist(), data_log.speed());
 	
 	// Compute max and avg of all signals
-	data_log.avgSpeed() = DataLog::computeAverage(data_log.speed().begin(), data_log.speed().end());
-	data_log.avgHeartRate() = DataLog::computeAverage(data_log.heartRate().begin(), data_log.heartRate().end());
-	data_log.avgGradient() = DataLog::computeAverage(data_log.gradient().begin(), data_log.gradient().end());
-	data_log.avgCadence() = DataLog::computeAverage(data_log.cadence().begin(), data_log.cadence().end());
-	data_log.avgPower() = DataLog::computeAverage(data_log.power().begin(), data_log.power().end());
+	data_log.avgSpeed() = DataProcessing::computeAverage(data_log.speed().begin(), data_log.speed().end());
+	data_log.avgHeartRate() = DataProcessing::computeAverage(data_log.heartRate().begin(), data_log.heartRate().end());
+	data_log.avgGradient() = DataProcessing::computeAverage(data_log.gradient().begin(), data_log.gradient().end());
+	data_log.avgCadence() = DataProcessing::computeAverage(data_log.cadence().begin(), data_log.cadence().end());
+	data_log.avgPower() = DataProcessing::computeAverage(data_log.power().begin(), data_log.power().end());
 
-	data_log.maxSpeed() = DataLog::computeMax(data_log.speed().begin(), data_log.speed().end());
-	data_log.maxHeartRate() = DataLog::computeMax(data_log.heartRate().begin(), data_log.heartRate().end());
-	data_log.maxGradient() = DataLog::computeMax(data_log.gradient().begin(), data_log.gradient().end());
-	data_log.maxCadence() = DataLog::computeMax(data_log.cadence().begin(), data_log.cadence().end());
-	data_log.maxPower() = DataLog::computeMax(data_log.power().begin(), data_log.power().end());
+	data_log.maxSpeed() = DataProcessing::computeMax(data_log.speed().begin(), data_log.speed().end());
+	data_log.maxHeartRate() = DataProcessing::computeMax(data_log.heartRate().begin(), data_log.heartRate().end());
+	data_log.maxGradient() = DataProcessing::computeMax(data_log.gradient().begin(), data_log.gradient().end());
+	data_log.maxCadence() = DataProcessing::computeMax(data_log.cadence().begin(), data_log.cadence().end());
+	data_log.maxPower() = DataProcessing::computeMax(data_log.power().begin(), data_log.power().end());
 
 	// Totals
 	data_log.totalTime() = data_log.time(data_log.numPoints()-1);

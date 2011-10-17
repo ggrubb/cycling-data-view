@@ -185,6 +185,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataprocessing.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\datastatisticsview.cpp"
 				>
 			</File>
@@ -212,6 +216,10 @@
 			>
 			<File
 				RelativePath=".\datalog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataprocessing.h"
 				>
 			</File>
 			<File

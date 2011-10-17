@@ -1,4 +1,5 @@
 #include "datastatisticsview.h"
+#include "dataprocessing.h"
 #include "datalog.h"
 
 #include <qtgui/qtablewidget>
@@ -45,8 +46,8 @@ void DataStatisticsView::displayRide(DataLog* data_log)
 	// Compute totals
 	double time = _data_log->totalTime();
 	double dist = _data_log->totalDist()/1000.0;
-	double elev_gain = DataLog::computeGain(_data_log->alt().begin(), _data_log->alt().end());
-	double elev_loss = DataLog::computeLoss(_data_log->alt().begin(), _data_log->alt().end());
+	double elev_gain = DataProcessing::computeGain(_data_log->alt().begin(), _data_log->alt().end());
+	double elev_loss = DataProcessing::computeLoss(_data_log->alt().begin(), _data_log->alt().end());
 	
 	// Set totals column
 	_table->item(0,0)->setText(QString::number(time, 'f', 0));
@@ -117,18 +118,18 @@ void DataStatisticsView::setSelection(int idx_start, int idx_end)
 	// Compute stats
 	double time = _data_log->time(idx_end) - _data_log->time(idx_start);
 	double dist = _data_log->dist(idx_end)/1000.0 - _data_log->dist(idx_start)/1000.0;
-	double avg_speed = DataLog::computeAverage(_data_log->speed().begin() + idx_start, _data_log->speed().begin() + idx_end);
-	double avg_hr = DataLog::computeAverage(_data_log->heartRate().begin() + idx_start, _data_log->heartRate().begin() + idx_end);
-	double avg_grad = DataLog::computeAverage(_data_log->gradient().begin() + idx_start, _data_log->gradient().begin() + idx_end);
-	double avg_cadence = DataLog::computeAverage(_data_log->cadence().begin() + idx_start, _data_log->cadence().begin() + idx_end);
-	double avg_power = DataLog::computeAverage(_data_log->power().begin() + idx_start, _data_log->power().begin() + idx_end);
-	double elev_gain = DataLog::computeGain(_data_log->alt().begin() + idx_start, _data_log->alt().begin() + idx_end);
-	double elev_loss = DataLog::computeLoss(_data_log->alt().begin() + idx_start, _data_log->alt().begin() + idx_end);
-	double max_speed = DataLog::computeMax(_data_log->speed().begin() + idx_start, _data_log->speed().begin() + idx_end);
-	double max_hr = DataLog::computeMax(_data_log->heartRate().begin() + idx_start, _data_log->heartRate().begin() + idx_end);
-	double max_gradient = DataLog::computeMax(_data_log->gradient().begin() + idx_start, _data_log->gradient().begin() + idx_end);
-	double max_cadence = DataLog::computeMax(_data_log->cadence().begin() + idx_start, _data_log->cadence().begin() + idx_end);
-	double max_power = DataLog::computeMax(_data_log->power().begin() + idx_start, _data_log->power().begin() + idx_end);
+	double avg_speed = DataProcessing::computeAverage(_data_log->speed().begin() + idx_start, _data_log->speed().begin() + idx_end);
+	double avg_hr = DataProcessing::computeAverage(_data_log->heartRate().begin() + idx_start, _data_log->heartRate().begin() + idx_end);
+	double avg_grad = DataProcessing::computeAverage(_data_log->gradient().begin() + idx_start, _data_log->gradient().begin() + idx_end);
+	double avg_cadence = DataProcessing::computeAverage(_data_log->cadence().begin() + idx_start, _data_log->cadence().begin() + idx_end);
+	double avg_power = DataProcessing::computeAverage(_data_log->power().begin() + idx_start, _data_log->power().begin() + idx_end);
+	double elev_gain = DataProcessing::computeGain(_data_log->alt().begin() + idx_start, _data_log->alt().begin() + idx_end);
+	double elev_loss = DataProcessing::computeLoss(_data_log->alt().begin() + idx_start, _data_log->alt().begin() + idx_end);
+	double max_speed = DataProcessing::computeMax(_data_log->speed().begin() + idx_start, _data_log->speed().begin() + idx_end);
+	double max_hr = DataProcessing::computeMax(_data_log->heartRate().begin() + idx_start, _data_log->heartRate().begin() + idx_end);
+	double max_gradient = DataProcessing::computeMax(_data_log->gradient().begin() + idx_start, _data_log->gradient().begin() + idx_end);
+	double max_cadence = DataProcessing::computeMax(_data_log->cadence().begin() + idx_start, _data_log->cadence().begin() + idx_end);
+	double max_power = DataProcessing::computeMax(_data_log->power().begin() + idx_start, _data_log->power().begin() + idx_end);
 	
 	// Set selection column
 	_table->item(0,1)->setText(QString::number(time, 'f', 0));
