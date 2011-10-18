@@ -84,6 +84,24 @@ double DataProcessing::computeAverage(
 }
 
 /****************************************/
+double DataProcessing::computeNthPercentile(
+		std::vector<double>::const_iterator& start,
+		std::vector<double>::const_iterator& end,
+		double N)
+{
+	assert(N > 0.0 && N < 1.0);
+
+	double nth_percentile = 0.0;
+	if (end-start > 0)
+	{
+		std::vector<double> sorted(end-start);
+		std::copy(start, end, sorted.begin());
+		std::sort(sorted.begin(), sorted.end());
+		nth_percentile = *(sorted.begin() + (int)(N*(double)sorted.size()) );
+	}
+	return nth_percentile;
+}
+/****************************************/
 double DataProcessing::computeMax(
 	std::vector<double>::const_iterator& start,
 	std::vector<double>::const_iterator& end)

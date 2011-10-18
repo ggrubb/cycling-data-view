@@ -27,6 +27,11 @@ class DataProcessing
 		std::vector<double>::const_iterator& start,
 		std::vector<double>::const_iterator& end);
 
+	static double computeNthPercentile(
+		std::vector<double>::const_iterator& start,
+		std::vector<double>::const_iterator& end,
+		double N);
+
 	static double computeMax(
 		std::vector<double>::const_iterator& start,
 		std::vector<double>::const_iterator& end);

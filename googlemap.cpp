@@ -1,5 +1,6 @@
 #include "googlemap.h"
 #include "datalog.h"
+#include "dataprocessing.h"
 
 #include <QWebView.h>
 #include <QWebPage.h>
@@ -83,7 +84,7 @@ GoogleMap::GoogleMap()
 	_path_colour_scheme->insertItem(2,"Speed");
 	_path_colour_scheme->insertItem(3,"Gradient");
 	_path_colour_scheme->insertItem(4,"Cadence");
-	_path_colour_scheme->insertItem(4,"Power");
+	_path_colour_scheme->insertItem(5,"Power");
 	connect(_path_colour_scheme,SIGNAL(currentIndexChanged(int)), this, SLOT(definePathColour()));
 
 	QLabel* label = new QLabel("Path coloured to: ");
@@ -252,9 +253,12 @@ void GoogleMap::definePathColour()
 				key = (_data_log->gradient(i)/(_data_log->maxGradient()*0.5 + 0.00001) ) + 0.5;
 			break;
 		case 4: // cadence
-			factor = 0.9;
-			if (_data_log->maxCadence() > 0.0)
-				key = ((_data_log->cadence(i)/_data_log->maxCadence())*(1.0+factor) ) - factor;
+			{
+			factor = 0.0;
+			double psuedo_cadence_max = DataProcessing::computeNthPercentile(_data_log->cadence().begin(), _data_log->cadence().end(), 0.95); 
+			if (psuedo_cadence_max > 0.0)
+				key = std::min( _data_log->cadence(i)/psuedo_cadence_max, 1.0);
+			}
 			break;
 		case 5: // power
 			factor = 0.7;

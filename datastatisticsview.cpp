@@ -56,10 +56,10 @@ void DataStatisticsView::displayRide(DataLog* data_log)
 	_table->item(3,0)->setText(QString::number(elev_loss, 'f', 1));
 
 	_table->item(5,0)->setText(QString::number(_data_log->avgSpeed(), 'f', 1));
-	_table->item(6,0)->setText(QString::number(_data_log->avgHeartRate(), 'f', 2));
+	_table->item(6,0)->setText(QString::number(_data_log->avgHeartRate(), 'f', 1));
 	_table->item(7,0)->setText(QString::number(_data_log->avgGradient(), 'f', 2));
-	_table->item(8,0)->setText(QString::number(_data_log->avgCadence(), 'f', 2));
-	_table->item(9,0)->setText(QString::number(_data_log->avgPower(), 'f', 2));
+	_table->item(8,0)->setText(QString::number(_data_log->avgCadence(), 'f', 1));
+	_table->item(9,0)->setText(QString::number(_data_log->avgPower(), 'f', 1));
 	
 	_table->item(11,0)->setText(QString::number(_data_log->maxSpeed(), 'f', 1));
 	_table->item(12,0)->setText(QString::number(_data_log->maxHeartRate()));
@@ -138,10 +138,10 @@ void DataStatisticsView::setSelection(int idx_start, int idx_end)
 	_table->item(3,1)->setText(QString::number(elev_loss, 'f', 1));
 
 	_table->item(5,1)->setText(QString::number(avg_speed, 'f', 1));
-	_table->item(6,1)->setText(QString::number(avg_hr, 'f', 2));
+	_table->item(6,1)->setText(QString::number(avg_hr, 'f', 1));
 	_table->item(7,1)->setText(QString::number(avg_grad, 'f', 2));
-	_table->item(8,1)->setText(QString::number(avg_cadence, 'f', 2));
-	_table->item(9,1)->setText(QString::number(avg_power, 'f', 2));
+	_table->item(8,1)->setText(QString::number(avg_cadence, 'f', 1));
+	_table->item(9,1)->setText(QString::number(avg_power, 'f', 1));
 
 	_table->item(11,1)->setText(QString::number(max_speed, 'f', 1));
 	_table->item(12,1)->setText(QString::number(max_hr));
