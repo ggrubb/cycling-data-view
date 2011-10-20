@@ -21,6 +21,8 @@
 #include <qtgui/qgridlayout>
 #include <qtgui/qdesktopwidget>
 #include <qtgui/qbitmap>
+#include <QTreeView.h>
+#include <QFileSystemModel.h>
 
 #define VERSION_INFO "Version 1.0 (Nov 2011)\n Copyright 2011\n grant.grubb@gmail.com"
 
@@ -37,8 +39,16 @@ QMainWindow()
 	_stats_view = new DataStatisticsView();
 	_data_log = new DataLog();
 
+	QFileSystemModel *model = new QFileSystemModel;
+	model->setRootPath(QDir::currentPath());
+	QTreeView *tree = new QTreeView();
+	tree->setModel(model);
+	tree->setAlternatingRowColors(true);
+	tree->setMaximumWidth(270);
+
 	QWidget* central_widget = new QWidget;
 	QGridLayout* glayout1 = new QGridLayout(central_widget);
+	glayout1->addWidget(tree,0,0);
 	glayout1->addWidget(_plot_window,0,1);
 	glayout1->addWidget(_stats_view,1,0);
 	glayout1->addWidget(_google_map,1,1);
