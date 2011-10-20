@@ -4,6 +4,7 @@
 #include "googlemap.h"
 #include "plotwindow.h"
 #include "datastatisticsview.h"
+#include "aboutwindow.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -19,7 +20,9 @@
 #include <qtgui/qapplication>
 #include <qtgui/qgridlayout>
 #include <qtgui/qdesktopwidget>
-#include <highgui.h>
+#include <qtgui/qbitmap>
+
+#define VERSION_INFO "Version 1.0 (Nov 2011)\n Copyright 2011\n grant.grubb@gmail.com"
 
 /******************************************************/
 MainWindow::MainWindow():
@@ -84,12 +87,25 @@ MainWindow::~MainWindow()
      }
  }
 
-
 /******************************************************/
  void MainWindow::about()
  {
-	QMessageBox* about = new QMessageBox(QMessageBox::NoIcon, tr("RideViewer"),tr("Version 0.8\nOct 2011\nGrubbtronic Software"), QMessageBox::Close, 0, Qt::SplashScreen );
+	 // Create and display about window
+	QPixmap about_image("resources/about_screen.png"); 
+	AboutWindow* about = new AboutWindow(about_image);
+	about->setMessageRect(QRect::QRect(200, 80, 150, 50), Qt::AlignRight); // setting the message position
+	 
+	QFont about_font;
+	about_font.setFamily("Arial");
+	about_font.setBold(true);
+	about_font.setPixelSize(9);
+	about_font.setStretch(125);
+	 
+	about->setFont(about_font);
+	about->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::SplashScreen);
 	about->show();
+	about->showVersionInfo(tr(VERSION_INFO));
+
 	// Define the file to read
 	//QString filename("05_04_2011 17_42_07_history.tcx");
 	
