@@ -125,15 +125,18 @@ void GoogleMap::displayRide(DataLog* data_log)
 {
 	_data_log = data_log;
 
-	// Create the google map web page
-	ostringstream page;
-	createPage(page);
-	_view->setHtml(QString::fromStdString(page.str()));
+	if (_data_log->lgdValid() && _data_log->ltdValid())
+	{
+		// Create the google map web page
+		ostringstream page;
+		createPage(page);
+		_view->setHtml(QString::fromStdString(page.str()));
 
-	show();
+		show();
 
-	// Enabled user interface
-	setEnabled(true);
+		// Enabled user interface
+		setEnabled(true);
+	}
 }
 
 /******************************************************/

@@ -147,6 +147,18 @@ void DataLog::resize(int size)
 	_time_to_index.clear();
 	_dist_to_index.clear();
 
+	_time_valid = false;
+	_ltd_valid = false;
+	_lgd_valid = false;
+	_alt_valid = false;
+	_dist_valid = false;
+	_heart_rate_valid = false;
+	_cadence_valid = false;
+	_speed_valid = false;
+	_gradient_valid = false;
+	_power_valid = false;
+	_alt_map_valid = false;
+	_alt_smooth_valid = false;
 }
 
 /****************************************/

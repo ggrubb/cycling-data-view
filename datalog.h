@@ -55,6 +55,19 @@ class DataLog
 	std::vector<double>& altMap() { return _alt_map; }
 	std::vector<double>& altSmooth() { return _alt_smooth; }
 
+	bool& timeValid() { return _time_valid; }
+	bool& ltdValid() { return _ltd_valid; }
+	bool& lgdValid() { return _lgd_valid; }
+	bool& altValid() { return _alt_valid; }
+	bool& distValid() { return _dist_valid; }
+	bool& heartRateValid() { return _heart_rate_valid; }
+	bool& cadenceValid() { return _cadence_valid; }
+	bool& speedValid() { return _speed_valid; }
+	bool& gradientValid() { return _gradient_valid; }
+	bool& powerValid() { return _power_valid; }
+	bool& altMapValid() { return _alt_map_valid; }
+	bool& altSmoothValid() { return _alt_smooth_valid; }
+
 	// Compute mappings from time to index and dist to index
 	void computeMaps();
 	// Return the index at the specified time
@@ -95,8 +108,23 @@ class DataLog
 	std::vector<double> _alt_map; //m
 	std::vector<double> _alt_smooth; //m
 
+	// Maps from time to data index, and distance to index
 	QMap<double,int> _time_to_index;
 	QMap<double,int> _dist_to_index;
+
+	// Flags to indicate which data vectors contain valid data
+	bool _time_valid;
+	bool _ltd_valid;
+	bool _lgd_valid;
+	bool _alt_valid;
+	bool _dist_valid;
+	bool _heart_rate_valid;
+	bool _cadence_valid;
+	bool _speed_valid;
+	bool _gradient_valid;
+	bool _power_valid;
+	bool _alt_map_valid;
+	bool _alt_smooth_valid;
  };
 
 #endif // DATALOG_H

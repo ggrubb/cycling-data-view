@@ -94,7 +94,8 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 			// Sometimes the xml contains empty trackpoint nodes, with just a time, but no data.
 			// Here we check this, and don't increment counter if the trackpoint was empty
 			bool valid_track_point = true;
-			if (data_log.lgd(track_point_idx) == 0 && data_log.ltd(track_point_idx) == 0)
+			if (data_log.lgd(track_point_idx) == 0 && data_log.ltd(track_point_idx) == 0 )
+			//	data_log.dist(track_point_idx) == 0 && data_log.alt(track_point_idx) == 0)
 			{
 				valid_track_point = false;
 				num_empty_track_points++;
@@ -117,18 +118,67 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 		data_log.time(i) = data_log.time(i) - data_log.time(0);
 	}
 
+	// Set flags to indicate vailidity of data read
+	setDataValidFlags(data_log);
+}
+
+/******************************************************/
+void TcxParser::setDataValidFlags(DataLog& data_log)
+{
+	for (int i=0; i < data_log.numPoints(); ++i)
+	{
+		if (data_log.ltd(i) != 0.0 || data_log.lgd(i) != 0.0)
+		{
+			data_log.lgdValid() = true;
+			data_log.ltdValid() = true;
+		}
+
+		if (data_log.alt(i) != 0.0)
+		{
+			data_log.altValid() = true;
+		}
+
+		if (data_log.speed(i) != 0.0)
+		{
+			data_log.speedValid() = true;
+		}
+
+		if (data_log.heartRate(i) != 0.0)
+		{
+			data_log.heartRateValid() = true;
+		}
+
+		if (data_log.cadence(i) != 0.0)
+		{
+			data_log.cadenceValid() = true;
+		}
+
+		if (data_log.dist(i) != 0.0)
+		{
+			data_log.distValid() = true;
+		}
+	}
+
 }
 
 /******************************************************/
 void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 {
 	// Compute grad from smoothed gradient
-	DataProcessing::lowPassFilterSignal(data_log.alt(), data_log.altSmooth());
-	DataProcessing::computeGradient(data_log.altSmooth(), data_log.dist(), data_log.gradient());
+	if (data_log.altValid())
+	{
+		DataProcessing::lowPassFilterSignal(data_log.alt(), data_log.altSmooth());
+		data_log.altSmoothValid() = true;
+		DataProcessing::computeGradient(data_log.altSmooth(), data_log.dist(), data_log.gradient());
+		data_log.gradientValid() = true;
+	}
 	
 	// Compute speed if not already measured
-	if (true)
+	if (!data_log.speedValid())
+	{
 		DataProcessing::computeSpeed(data_log.time(), data_log.dist(), data_log.speed());
+		data_log.speedValid() = true;
+	}
 	
 	// Compute max and avg of all signals
 	data_log.avgSpeed() = DataProcessing::computeAverage(data_log.speed().begin(), data_log.speed().end());
