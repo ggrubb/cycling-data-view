@@ -119,20 +119,27 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 		if ( p.count() != 1 )
 			return;
 
-		painter->setFont(QFont("Helvetica", 8, QFont::Bold));
 		const QPoint& pt1 = p[0];
 		const double x_val = plot()->invTransform(QwtPlot::xBottom,pt1.x()); // determine x value (time or dist)
+		
+		// Draw vertical line where curser is
+		const int end = 250;
+		painter->drawLine(pt1.x(), 0, pt1.x(), end);
+
+		// Set pen and fond for all coming text
+		painter->setPen(QColor(Qt::black));
+		painter->setFont(QFont("Helvetica", 8, QFont::Bold));
 		
 		// Compute the index based on the x value
 		int idx;
 		if (_x_axis_units == TimeAxis)
 		{
-			painter->drawText(QPoint(pt1.x(), 10), "time: " + QString::number(x_val,'g',4));
+			painter->drawText(QPoint(pt1.x()+5, 10), "time: " + QString::number(x_val,'g',4));
 			idx = _data_log->indexFromTime(x_val);
 		}
 		else if (_x_axis_units == DistAxis)
 		{
-			painter->drawText(QPoint(pt1.x(), 10), "dist: " + QString::number(x_val,'g',5));
+			painter->drawText(QPoint(pt1.x()+5, 10), "dist: " + QString::number(x_val,'g',5));
 			idx = _data_log->indexFromDist(x_val);
 		}
 		
@@ -146,29 +153,29 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 		const double cadence = (*_data_cadence_filtered)[idx];
 		const QPoint pt1_cadence(pt1.x(),plot()->transform(QwtPlot::yLeft,cadence));
 
-		// Draw it all nicely on the plot
+		// Draw highlights on all curves
 		const QPoint offset(8,-5);
 		const QwtPlotItemList item_list = plot()->itemList(QwtPlotCurve::Rtti_PlotCurve);
 		for (int i = 0; i < item_list.size(); ++i) 
 		{
 			if (item_list.at(i)->title().text() == "Heart Rate" && item_list.at(i)->isVisible())
 			{
-				painter->drawEllipse(pt1_hr,3,3);
+				painter->drawLine(pt1_hr.x(), pt1_hr.y(), pt1_hr.x()+6, pt1_hr.y());
 				painter->drawText(pt1_hr + offset, QString::number(hr,'g',3));
 			}
 			if (item_list.at(i)->title().text() == "Speed" && item_list.at(i)->isVisible())
 			{
-				painter->drawEllipse(pt1_speed,3,3);
+				painter->drawLine(pt1_speed.x(), pt1_speed.y(), pt1_speed.x()+6, pt1_speed.y());
 				painter->drawText(pt1_speed + offset, QString::number(speed,'g',3));
 			}
 			if (item_list.at(i)->title().text() == "Elevation" && item_list.at(i)->isVisible())
 			{
-				painter->drawEllipse(pt1_alt,3,3);
+				painter->drawLine(pt1_alt.x(), pt1_alt.y(), pt1_alt.x()+6, pt1_alt.y());
 				painter->drawText(pt1_alt + offset, QString::number(alt,'g',4));
 			}
 			if (item_list.at(i)->title().text() == "Cadence" && item_list.at(i)->isVisible())
 			{
-				painter->drawEllipse(pt1_cadence,3,3);
+				painter->drawLine(pt1_cadence.x(), pt1_cadence.y(), pt1_cadence.x()+6, pt1_cadence.y());
 				painter->drawText(pt1_cadence + offset, QString::number(cadence,'g',3));
 			}
 		}
@@ -244,7 +251,7 @@ PlotWindow::PlotWindow()
 	// Plot picker for numerical display
 	_plot_picker1 = 
 		new QwtCustomPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, _data_log, _plot->canvas());
-	_plot_picker1->setRubberBandPen(QColor(Qt::black));
+	_plot_picker1->setRubberBandPen(QColor(Qt::white));
     _plot_picker1->setTrackerPen(QColor(Qt::black));
 	_plot_picker1->setStateMachine(new QwtPickerTrackerMachine());
 	connect(_plot_picker1, SIGNAL(moved(const QPointF&)), this, SLOT(setMarkerPosition(const QPointF&)));
