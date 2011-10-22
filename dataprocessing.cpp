@@ -143,3 +143,19 @@ double DataProcessing::computeLoss(
 	return loss;
 }
 
+/****************************************/
+std::pair<int,int> DataProcessing::minutesFromSeconds(int seconds)
+{
+	std::pair<int,int> minutes(0,0);
+
+	minutes.first = seconds/60;
+	minutes.second = seconds%60;
+
+	return minutes;
+}
+
+/****************************************/
+double DataProcessing::kmFromMeters(double meters)
+{
+	return meters/1000.0;
+}

@@ -6,7 +6,7 @@
 
 /****************************************/
 DataLog::DataLog():
-_name(""),
+_filename(""),
 _date(""),
 _total_time(0.0),
 _total_dist(0.0),
@@ -125,6 +125,11 @@ double& DataLog::altSmooth(int idx)
 	return _alt_smooth[idx]; 
 }
 
+/****************************************/
+void DataLog::setNumLaps(int num_laps)
+{
+	_num_laps = num_laps;
+}
 
 /****************************************/
 void DataLog::resize(int size)
@@ -132,6 +137,7 @@ void DataLog::resize(int size)
 	assert(size >= 0);
 
 	_num_points = size;
+	_num_laps = 0;
 	_time.resize(size);
 	_ltd.resize(size);
 	_lgd.resize(size);

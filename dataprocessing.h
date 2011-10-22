@@ -43,6 +43,10 @@ class DataProcessing
 	static double computeLoss(
 		std::vector<double>::const_iterator& start,
 		std::vector<double>::const_iterator& end);
+
+	// Some functions to convert data
+	static std::pair<int,int> minutesFromSeconds(int seconds);
+	static double kmFromMeters(double meters);
  };
 
 #endif // DATAPROCESSING_H

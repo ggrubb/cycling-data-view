@@ -12,8 +12,9 @@ class DataLog
 	~DataLog();
 
 	void resize(int size);
+	void setNumLaps(int num_laps);
 
-	QString& name() { return _name; };
+	QString& filename() { return _filename; };
 	QString& date() { return _date; };
 	double& totalTime() { return _total_time; };
 	double& totalDist() { return _total_dist; };
@@ -28,6 +29,7 @@ class DataLog
 	double& avgCadence() { return _avg_cadence; };
 	double& avgPower() { return _avg_power; };
 	int& numPoints() { return _num_points; };
+	int& numLaps() { return _num_laps; };
 
 	double& time(int idx);
 	double& ltd(int idx);
@@ -78,7 +80,7 @@ class DataLog
  private:
 
 	// Summary data
-	QString _name;
+	QString _filename;
 	QString _date;
 	double _total_time;
 	double _total_dist;
@@ -93,6 +95,7 @@ class DataLog
 	double _avg_cadence;
 	double _avg_power;
 	int _num_points;
+	int _num_laps;
 
 	// The vectors of data
 	std::vector<double> _time; //sec

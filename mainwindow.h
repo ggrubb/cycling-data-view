@@ -6,11 +6,11 @@
  class QAction;
  class QLabel;
  class QMenu;
- class TcxParser;
  class GoogleMap;
  class PlotWindow;
  class DataLog;
  class DataStatisticsView;
+ class RideSelectionWindow;
 
  class MainWindow : public QMainWindow
  {
@@ -23,6 +23,7 @@
  private slots:
     void open();
     void about();
+	void setRide(DataLog* data_log);
 
  private:
     void createActions();
@@ -35,11 +36,11 @@
     QMenu* _file_menu;
     QMenu* _help_menu;
 
-	TcxParser* _parser;
 	GoogleMap* _google_map;
 	PlotWindow* _plot_window;
 	DataLog* _data_log;
 	DataStatisticsView* _stats_view;
+	RideSelectionWindow* _ride_selector;
  };
 
  #endif // MAINWINDOW_H

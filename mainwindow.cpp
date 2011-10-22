@@ -1,9 +1,9 @@
 #include "mainwindow.h"
-#include "tcxparser.h"
 #include "datalog.h"
 #include "googlemap.h"
 #include "plotwindow.h"
 #include "datastatisticsview.h"
+#include "rideselectionwindow.h"
 #include "aboutwindow.h"
 
 #include <stdio.h>
@@ -21,8 +21,6 @@
 #include <qtgui/qgridlayout>
 #include <qtgui/qdesktopwidget>
 #include <qtgui/qbitmap>
-#include <QTreeView.h>
-#include <QFileSystemModel.h>
 
 #define VERSION_INFO "Version 1.0 (Nov 2011)\n Copyright 2011\n grant.grubb@gmail.com"
 
@@ -33,22 +31,17 @@ QMainWindow()
 	createActions();
 	createMenus();
 
-	_parser = new TcxParser();
 	_google_map = new GoogleMap();
 	_plot_window = new PlotWindow();
 	_stats_view = new DataStatisticsView();
 	_data_log = new DataLog();
+	_ride_selector = new RideSelectionWindow();
+	connect(_ride_selector , SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
 
-	QFileSystemModel *model = new QFileSystemModel;
-	model->setRootPath(QDir::currentPath());
-	QTreeView *tree = new QTreeView();
-	tree->setModel(model);
-	tree->setAlternatingRowColors(true);
-	tree->setMaximumWidth(270);
 
 	QWidget* central_widget = new QWidget;
 	QGridLayout* glayout1 = new QGridLayout(central_widget);
-	glayout1->addWidget(tree,0,0);
+	glayout1->addWidget(_ride_selector,0,0);
 	glayout1->addWidget(_plot_window,0,1);
 	glayout1->addWidget(_stats_view,1,0);
 	glayout1->addWidget(_google_map,1,1);
@@ -66,36 +59,31 @@ QMainWindow()
 /******************************************************/
 MainWindow::~MainWindow()
 {
-	delete _parser;
 	delete _google_map;
 	delete _plot_window;
 	delete _stats_view;
 	delete _data_log;
+	delete _ride_selector;
 }
 
 /******************************************************/
  void MainWindow::open()
  {
-     QString filename = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::currentPath(),tr("TCX Files (*.tcx)"));
-     if (!filename.isEmpty()) {
-
-		if (!_parser->parse(filename, *_data_log)) 
-		{
-			QMessageBox::information(this, tr("RideViewer"),tr("Cannot load %1.").arg(filename));
-			return;
-		}
-		
-		// Overlay route in Google maps
-		_google_map->displayRide(_data_log);
-
-		// Statistical viewer
-		_stats_view->displayRide(_data_log);
-
-		// Plot 2d curves
-		_plot_window->displayRide(_data_log, _google_map, _stats_view);
-
-     }
+	_ride_selector->setLogDirectory("D:/Grant/training logs");
  }
+
+/******************************************************/
+void MainWindow::setRide(DataLog* data_log)
+{
+	// Overlay route in Google maps
+	_google_map->displayRide(data_log);
+
+	// Statistical viewer
+	_stats_view->displayRide(data_log);
+
+	// Plot 2d curves
+	_plot_window->displayRide(data_log, _google_map, _stats_view);
+}
 
 /******************************************************/
  void MainWindow::about()

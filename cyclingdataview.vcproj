@@ -209,6 +209,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\rideselectionwindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\tcxparser.cpp"
 				>
 			</File>
@@ -355,6 +359,30 @@
 				>
 			</File>
 			<File
+				RelativePath=".\rideselectionwindow.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\tcxparser.h"
 				>
 			</File>
@@ -382,6 +410,10 @@
 			</File>
 			<File
 				RelativePath=".\moc_qwtcustomplotpicker.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\moc_rideselectionwindow.cpp"
 				>
 			</File>
 		</Filter>
