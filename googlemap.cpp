@@ -38,18 +38,21 @@ public:
 	{
 		_start_colour = Qt::red;
 		_end_colour = Qt::red;
+		_middle_colour = Qt::red;
 	}
 
-	void setColourRange(const QColor start_colour, const QColor end_colour)
+	void setColourRange(const QColor start_colour, const QColor middle_colour ,const QColor end_colour)
 	{
 		_start_colour = start_colour;
 		_end_colour = end_colour;
+		_middle_colour = middle_colour;
 	}
 
 protected:
 	void paintEvent(QPaintEvent* e)
 	{
 		QwtLinearColorMap color_map(_start_colour, _end_colour);
+		color_map.addColorStop(0.5,_middle_colour);
 		QPainter* painter = new QPainter(this);
 
 		QwtScaleWidget *colour_bar = new QwtScaleWidget(QwtScaleDraw::BottomScale);
@@ -66,6 +69,7 @@ protected:
 private:
 	QColor _start_colour;
 	QColor _end_colour;
+	QColor _middle_colour;
 };
 
 /******************************************************/
@@ -283,9 +287,13 @@ void GoogleMap::definePathColour()
 
 	// Draw the colour bar appropriately, depending on the max key value
 	if (min_key < 1.0)
-		_colour_bar->setColourRange(Qt::green, Qt::red);
+	{
+		_colour_bar->setColourRange(Qt::green, Qt::yellow, Qt::red);
+	}
 	else
-		_colour_bar->setColourRange(Qt::red, Qt::red);
+	{
+		_colour_bar->setColourRange(Qt::red, Qt::red, Qt::red);
+	}
 	_colour_bar->update();
 }
 
@@ -330,7 +338,7 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "var marker;" << endl
 		<< "marker = new google.maps.Marker();" << endl
 		<< "var selected_path;" << endl
-		<< "var colours = [\"00FF00\", \"0CF200\", \"19E500\", \"26D800\", \"32CC00\", \"3FBF00\", \"4CB200\", \"59A500\", \"669900\", \"728C00\", \"7F7F00\", \"8C7200\", \"996600\", \"A55900\", \"B24C00\", \"BF3F00\", \"CC3300\", \"D82600\", \"E51900\", \"F20C00\", \"FF0000\"];" << endl // colour table, from green to red in 20 steps
+		<< "var colours = [\"00FF00\", \"19FF00\", \"32FF00\", \"4CFF00\", \"66FF00\", \"7FFF00\", \"99FF00\", \"B2FF00\", \"CCFF00\", \"E5FF00\", \"FFFF00\", \"FFE500\", \"FFCC00\", \"FFB200\", \"FF9900\", \"FF7F00\", \"FF6600\", \"FF4C00\", \"FF3300\", \"FF1900\", \"FF0000\"];" << endl // colour table, from green to red in 20 steps
 		<< "var ride_path = new Array();" << endl
 		<< "var ride_bounds = new google.maps.LatLngBounds();" << endl
 
