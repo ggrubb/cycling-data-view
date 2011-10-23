@@ -6,6 +6,7 @@
 #include <QTreeView.h>
 #include <QStandardItemModel.h>
 #include <QDir.h>
+#include <QProgressBar.h>
 #include <iostream>
 
 /******************************************************/
@@ -14,8 +15,8 @@ RideSelectionWindow::RideSelectionWindow()
 	// Create dummy model with just the headers
 	QStandardItemModel* model = new QStandardItemModel;
 	QStandardItem* header0 = new QStandardItem(QString("Date"));
-	QStandardItem* header1 = new QStandardItem(QString("Time"));
-	QStandardItem* header2 = new QStandardItem(QString("Distance"));
+	QStandardItem* header1 = new QStandardItem(QString("Time (min)"));
+	QStandardItem* header2 = new QStandardItem(QString("Distance (km)"));
 	model->setHorizontalHeaderItem(0,header0);
 	model->setHorizontalHeaderItem(1,header1);
 	model->setHorizontalHeaderItem(2,header2);
@@ -25,8 +26,8 @@ RideSelectionWindow::RideSelectionWindow()
 	_tree->setModel(model);
 	_tree->setAlternatingRowColors(true);
 	_tree->setColumnWidth(0,123);
-	_tree->setColumnWidth(1,55);
-	_tree->setColumnWidth(2,55);
+	_tree->setColumnWidth(1,60);
+	_tree->setColumnWidth(2,60);
 	_tree->setFixedSize(300,290);
 	_tree->show();
 
@@ -52,7 +53,11 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 	QStringList filenames;
 	filenames = _log_directory->entryList();
 
-	for (int i=0; i < std::min(filenames.size(),3); ++i)
+	QProgressBar* load_progress = new QProgressBar();
+	load_progress->setMinimum(0);
+	load_progress->setMaximum(filenames.size());
+	load_progress->show();
+	for (int i=0; i < std::min(filenames.size(),99); ++i)
 	{
 		DataLog* data_log = new DataLog;
 		const bool parse_summary_only = true;
@@ -64,7 +69,10 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 			std::cout << " success!";
 		}
 		std::cout << std::endl;
+		load_progress->setValue(i);
 	}
+	load_progress->hide();
+	delete load_progress;
 
 	populateWithRides(_data_logs);
 }
@@ -120,8 +128,8 @@ void RideSelectionWindow::populateWithRides(const std::vector<DataLog*>& data_lo
 	}
 
 	QStandardItem* header0 = new QStandardItem(QString("Date"));
-	QStandardItem* header1 = new QStandardItem(QString("Time"));
-	QStandardItem* header2 = new QStandardItem(QString("Distance"));
+	QStandardItem* header1 = new QStandardItem(QString("Time (min)"));
+	QStandardItem* header2 = new QStandardItem(QString("Distance (km)"));
 	_model->setHorizontalHeaderItem(0,header0);
 	_model->setHorizontalHeaderItem(1,header1);
 	_model->setHorizontalHeaderItem(2,header2);

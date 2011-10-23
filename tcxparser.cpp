@@ -4,18 +4,79 @@
 
 #include <QStringList.h>
 #include <QFile.h>
+#include <qtxml/qxmldefaulthandler>
+#include <iostream>
+
+/******************************************************/
+// Class to quickly parse ride summary data
+class TcxSummaryParser : public QXmlDefaultHandler
+{
+public:
+	TcxSummaryParser():
+		QXmlDefaultHandler(),
+		_id(""),
+		_total_time(0),
+		_total_dist(0)
+		{}
+
+	/******************************************************/
+    bool startElement( const QString&, const QString&, const QString& tag_name, const QXmlAttributes& tag_attributes)
+	{
+		_buffer.clear();
+		
+		return true;
+	};
+
+	/******************************************************/
+    bool endElement( const QString&, const QString&, const QString& tag_name)
+	{
+		bool continue_parsing = true;
+		if (tag_name == "Id")
+		{
+			_id = _buffer;
+			_id = _id.replace('T', QChar(' '));
+			_id.chop(1);
+		}
+		else if (tag_name == "TotalTimeSeconds")
+		{
+			_total_time = _buffer.toDouble();
+		}
+		else if (tag_name == "DistanceMeters")
+		{
+			_total_dist = _buffer.toDouble();
+			continue_parsing = false; // all data found, so quit parsing this file
+		}
+
+		return continue_parsing;
+	};
+
+	/******************************************************/
+	bool characters(const QString& str)
+	{
+		_buffer += str;
+		return true;
+	};
+
+	const QString& id() { return _id;}
+	double totalTime() { return _total_time;}
+	double totalDist() { return _total_dist;}
+
+private:
+
+	QString _buffer;
+
+    QString	_id;
+    double _total_time;
+    double _total_dist;
+};
 
 /******************************************************/
 TcxParser::TcxParser()
-{
-
-}
+{}
 
 /******************************************************/
 TcxParser::~TcxParser()
-{
-
-}
+{}
 
 /******************************************************/
 void TcxParser::parseRideSummary(DataLog& data_log)
@@ -202,20 +263,41 @@ void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 /******************************************************/
 bool TcxParser::parse(const QString& flename, DataLog& data_log, bool parse_summary_only)
 {
-	// Define the file to read
-	QString error_msg;
-	int error_line, error_column;
-	QFile file(flename);
-	bool read_success = _dom_document.setContent(&file, &error_msg, &error_line, &error_column);
-	QDomElement doc = _dom_document.documentElement();
+	bool read_success = false;
 
-	// Extract the data
-	data_log.filename() = flename;
-	if (read_success)
+	// Define the file to read
+	QFile file(flename);
+
+	// Parse differently depending whether summary only is required (fast) or complete contents (slow)
+	if (parse_summary_only)
 	{
-		parseRideSummary(data_log);
-		if (!parse_summary_only)
+		TcxSummaryParser summary_parser;
+		QXmlInputSource source(&file);
+		QXmlSimpleReader reader;
+		reader.setContentHandler(&summary_parser);
+		reader.parse(source);
+
+		if (summary_parser.totalTime() > 0)
 		{
+			data_log.filename() = flename;
+			data_log.date() = summary_parser.id();
+			data_log.totalTime() = summary_parser.totalTime();
+			data_log.totalDist() = summary_parser.totalDist();
+			read_success = true;
+		}
+	}
+	else
+	{
+		QString error_msg;
+		int error_line, error_column;
+		read_success = _dom_document.setContent(&file, &error_msg, &error_line, &error_column);
+		QDomElement doc = _dom_document.documentElement();
+
+		// Extract the data
+		if (read_success)
+		{
+			data_log.filename() = flename;
+			parseRideSummary(data_log);
 			parseRideDetails(data_log);
 			computeAdditionalDetailts(data_log);
 			data_log.computeMaps();
