@@ -15,7 +15,7 @@ class QwtPlotPanner;
 class QButtonGroup;
 class QCheckBox;
 class QRadioButton;
-class QSpinBox;
+class QSlider;
 
 class PlotWindow : public QWidget
 {
@@ -68,7 +68,7 @@ class PlotWindow : public QWidget
 	QCheckBox* _speed_cb;
 	QCheckBox* _alt_cb;
 	QCheckBox* _cadence_cb;
-	QSpinBox* _smoothing_selection;
+	QSlider* _smoothing_selection;
 	
 	QwtCustomPlotPicker* _plot_picker1;
 	QwtPlotPicker* _plot_picker2;

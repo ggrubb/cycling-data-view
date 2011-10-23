@@ -22,7 +22,7 @@
 #include <qtgui/qlabel>
 #include <qtgui/qradiobutton>
 #include <qtgui/qbuttongroup>
-#include <qtgui/qspinbox>
+#include <qtgui/qslider>
 
 #include <iostream>
 #include <sstream>
@@ -308,15 +308,16 @@ PlotWindow::PlotWindow()
 	connect(_cadence_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 
 	// Slider for signal smoothing
-	_smoothing_selection = new QSpinBox();
-	_smoothing_selection->setMaximumWidth(40);
+	_smoothing_selection = new QSlider(Qt::Horizontal);
 	_smoothing_selection->setRange(0,50);
-	_smoothing_selection->setValue(10);
+	_smoothing_selection->setFixedSize(80,15);
+	_smoothing_selection->setValue(5);
+	_smoothing_selection->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed));
 	QLabel* label = new QLabel("Smoothing:");
 	QWidget* smoothing_widget = new QWidget;
-	QHBoxLayout* hlayout1 = new QHBoxLayout(smoothing_widget);
-	hlayout1->addWidget(label);
-	hlayout1->addWidget(_smoothing_selection);
+	QVBoxLayout* vlayout2 = new QVBoxLayout(smoothing_widget);
+	vlayout2->addWidget(label);
+	vlayout2->addWidget(_smoothing_selection);
 	connect(_smoothing_selection, SIGNAL(valueChanged(int)),this,SLOT(signalSmoothingChanged()));
 
 	// Layout the GUI
