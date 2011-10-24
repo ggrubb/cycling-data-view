@@ -27,6 +27,10 @@ class GoogleMap : public QWidget
 	// Enable/disable all the user controls
 	void setEnabled(bool enabled);
 
+public slots:
+	// Stroke the ride path according to user selected parameter
+	void definePathColour();
+
 private slots:
 	// Set marker in google map
 	void setMarkerPosition(int idx);
@@ -48,9 +52,6 @@ private slots:
 
 	// Call when a user completes moving the selected region (to highlight path on the map)
 	void moveAndHoldSelection(int delta_idx);
-
-	// Stroke the ride path according to user selected parameter
-	void definePathColour();
 
  private:
 	 // Create the webpage and put in the given stream

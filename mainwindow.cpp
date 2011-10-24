@@ -75,14 +75,14 @@ MainWindow::~MainWindow()
 /******************************************************/
 void MainWindow::setRide(DataLog* data_log)
 {
+	// Plot 2d curves (important to be called first since it is responsible for signal filtering
+	_plot_window->displayRide(data_log, _google_map, _stats_view);
+
 	// Overlay route in Google maps
 	_google_map->displayRide(data_log);
 
 	// Statistical viewer
 	_stats_view->displayRide(data_log);
-
-	// Plot 2d curves
-	_plot_window->displayRide(data_log, _google_map, _stats_view);
 }
 
 /******************************************************/

@@ -41,11 +41,13 @@ public:
 		_middle_colour = Qt::red;
 	}
 
-	void setColourRange(const QColor start_colour, const QColor middle_colour ,const QColor end_colour)
+	void setColourRange(const QColor start_colour, const QColor middle_colour ,const QColor end_colour, double min, double max)
 	{
 		_start_colour = start_colour;
 		_end_colour = end_colour;
 		_middle_colour = middle_colour;
+		_min_value = min;
+		_max_value = max;
 	}
 
 protected:
@@ -58,11 +60,11 @@ protected:
 		QwtScaleWidget *colour_bar = new QwtScaleWidget(QwtScaleDraw::BottomScale);
 		colour_bar->setColorMap(QwtInterval(0.0, 1.0), &color_map);
 		colour_bar->setColorBarEnabled(true);
-		colour_bar->drawColorBar(painter, QRect(20,0, 340, 15));
+		colour_bar->drawColorBar(painter, QRect(45,0, 340, 15));
 		painter->setPen(Qt::black);
 		painter->setFont(QFont("Helvetica", 8));
-		painter->drawText(0,13,"Min");
-		painter->drawText(365,13,"Max");
+		painter->drawText(0,13,"Min " + QString::number(_min_value,'f',0));
+		painter->drawText(390,13,"Max " + QString::number(_max_value,'f',0));
 		painter->end();
 	}
 
@@ -70,6 +72,8 @@ private:
 	QColor _start_colour;
 	QColor _end_colour;
 	QColor _middle_colour;
+	double _min_value;
+	double _max_value;
 };
 
 /******************************************************/
@@ -234,6 +238,35 @@ void GoogleMap::definePathColour()
 	stream.precision(2); // only need low precision
 	stream.setf(ios::fixed,ios::floatfield);
 	
+	// First determine min and max of signal to colour code
+	double max = 0.0;
+	double min = 0.0;
+	switch (_path_colour_scheme->currentIndex())
+	{
+	case 0: // none
+		break;
+	case 1: // heart rate
+		max = _data_log->maxHeartRate();
+		min = DataProcessing::computeMin(_data_log->heartRateFltd().begin(), _data_log->heartRateFltd().end());
+		break;
+	case 2: // speed
+		max = _data_log->maxSpeed();
+		min = DataProcessing::computeMin(_data_log->speedFltd().begin(), _data_log->speedFltd().end());
+		break;
+	case 3: // gradient
+		max = _data_log->maxGradient();
+		min = DataProcessing::computeMin(_data_log->gradientFltd().begin(), _data_log->gradientFltd().end());
+		break;
+	case 4: // cadence
+		max = _data_log->maxCadence();//DataProcessing::computeNthPercentile(_data_log->cadence().begin(), _data_log->cadence().end(), 0.95);  // large spikes in cadence can exist, so be harsher when choosing max
+		min = DataProcessing::computeMin(_data_log->cadenceFltd().begin(), _data_log->cadenceFltd().end());
+		break;
+	case 5: // power
+		max = _data_log->maxPower();
+		min = DataProcessing::computeMin(_data_log->powerFltd().begin(), _data_log->powerFltd().end());
+		break;
+	}
+
 	double factor;
 	double min_key = 1.0;
 	stream << "var key = [" << endl;
@@ -247,37 +280,36 @@ void GoogleMap::definePathColour()
 			break;
 		case 1: // heart rate
 			factor = 0.9;
-			if (_data_log->maxHeartRate() > 0.0)
-				key = ((_data_log->heartRate(i)/_data_log->maxHeartRate())*(1.0+factor) ) - factor;
+			if (max > 0.0)
+				key = ((_data_log->heartRateFltd(i)/_data_log->maxHeartRate())*(1.0+factor) ) - factor;
 			break;
 		case 2: // speed
 			factor = 0.1;
-			if (_data_log->maxSpeed() > 0.0)
-				key = ((_data_log->speed(i)/_data_log->maxSpeed())*(1.0+factor) ) - factor;
+			if (max > 0.0)
+				key = ((_data_log->speedFltd(i)/_data_log->maxSpeed())*(1.0+factor) ) - factor;
 			break;
 		case 3: // gradient
-			if (_data_log->maxGradient() > 0.0)
-				key = (_data_log->gradient(i)/(_data_log->maxGradient()*0.5 + 0.00001) ) + 0.5;
+			if (max > 0.0)
+				key = (_data_log->gradientFltd(i)/(_data_log->maxGradient()*0.5 + 0.00001) ) + 0.5;
 			break;
 		case 4: // cadence
 			{
 			factor = 0.0;
-			double psuedo_cadence_max = DataProcessing::computeNthPercentile(_data_log->cadence().begin(), _data_log->cadence().end(), 0.95); 
-			if (psuedo_cadence_max > 0.0)
-				key = std::min( _data_log->cadence(i)/psuedo_cadence_max, 1.0);
+			if (max > 0.0)
+				key = std::min( _data_log->cadenceFltd(i)/max, 1.0);
 			}
 			break;
 		case 5: // power
 			factor = 0.7;
-			if (_data_log->maxPower() > 0.0)
-				key = ((_data_log->power(i)/_data_log->maxPower())*(1.0+factor) ) - factor;
+			if (max > 0.0)
+				key = ((_data_log->powerFltd(i)/_data_log->maxPower())*(1.0+factor) ) - factor;
 			break;
 		}
 		key = std::max(key,0.0);
 		key = std::min(key,1.0);
 		stream << key << ", ";
 
-		if (key < min_key) // keep track of the max key value
+		if (key < min_key) // keep track of the min key value
 			min_key = key;
 	}
 
@@ -288,11 +320,11 @@ void GoogleMap::definePathColour()
 	// Draw the colour bar appropriately, depending on the max key value
 	if (min_key < 1.0)
 	{
-		_colour_bar->setColourRange(Qt::green, Qt::yellow, Qt::red);
+		_colour_bar->setColourRange(Qt::green, Qt::yellow, Qt::red, min, max);
 	}
 	else
 	{
-		_colour_bar->setColourRange(Qt::red, Qt::red, Qt::red);
+		_colour_bar->setColourRange(Qt::red, Qt::red, Qt::red, 0.0, 0.0);
 	}
 	_colour_bar->update();
 }

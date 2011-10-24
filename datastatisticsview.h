@@ -17,10 +17,12 @@ class DataStatisticsView : public QWidget
 	void clearTable();
 	void clearTotalsColumn();
 	void clearSelectionColumn();
-public slots:
-	void deleteSelection();
-	void setSelection(int idx_start, int idx_end);
 
+ public slots:
+	void displayCompleteRideStats();
+	void displaySelectedRideStats(int idx_start, int idx_end);
+	void deleteSelection();
+	
  private:
 
 	QTableWidget* _table;

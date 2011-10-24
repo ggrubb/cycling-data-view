@@ -41,8 +41,13 @@ class DataLog
 	double& speed(int idx);
 	double& gradient(int idx);
 	double& power(int idx);
-	double& altMap(int idx);
-	double& altSmooth(int idx);
+
+	double& altFltd(int idx);
+	double& heartRateFltd(int idx);
+	double& cadenceFltd(int idx);
+	double& speedFltd(int idx);
+	double& gradientFltd(int idx);
+	double& powerFltd(int idx);
 
 	std::vector<double>& time() { return _time; }
 	std::vector<double>& ltd() { return _ltd; }
@@ -54,8 +59,13 @@ class DataLog
 	std::vector<double>& speed() { return _speed; }
 	std::vector<double>& gradient() { return _gradient; }
 	std::vector<double>& power() { return _power; }
-	std::vector<double>& altMap() { return _alt_map; }
-	std::vector<double>& altSmooth() { return _alt_smooth; }
+
+	std::vector<double>& altFltd() { return _alt_fltd; }
+	std::vector<double>& heartRateFltd() { return _heart_rate_fltd; }
+	std::vector<double>& cadenceFltd() { return _cadence_fltd; }
+	std::vector<double>& speedFltd() { return _speed_fltd; }
+	std::vector<double>& gradientFltd() { return _gradient_fltd; }
+	std::vector<double>& powerFltd() { return _power_fltd; }
 
 	bool& timeValid() { return _time_valid; }
 	bool& ltdValid() { return _ltd_valid; }
@@ -67,8 +77,13 @@ class DataLog
 	bool& speedValid() { return _speed_valid; }
 	bool& gradientValid() { return _gradient_valid; }
 	bool& powerValid() { return _power_valid; }
-	bool& altMapValid() { return _alt_map_valid; }
-	bool& altSmoothValid() { return _alt_smooth_valid; }
+
+	bool& altFltdValid() { return _alt_fltd_valid; }
+	bool& heartRateFltdValid() { return _heart_rate_fltd_valid; }
+	bool& cadenceFltdValid() { return _cadence_fltd_valid; }
+	bool& speedFltdValid() { return _speed_fltd_valid; }
+	bool& gradientFltdValid() { return _gradient_fltd_valid; }
+	bool& powerFltdValid() { return _power_fltd_valid; }
 
 	// Compute mappings from time to index and dist to index
 	void computeMaps();
@@ -108,8 +123,13 @@ class DataLog
 	std::vector<double> _speed; //kmh
 	std::vector<double> _gradient; //%
 	std::vector<double> _power; //W
-	std::vector<double> _alt_map; //m
-	std::vector<double> _alt_smooth; //m
+
+	std::vector<double> _alt_fltd; //m
+	std::vector<double> _heart_rate_fltd; //bpm
+	std::vector<double> _cadence_fltd; //rpm
+	std::vector<double> _speed_fltd; //kmh
+	std::vector<double> _gradient_fltd; //%
+	std::vector<double> _power_fltd; //W
 
 	// Maps from time to data index, and distance to index
 	QMap<double,int> _time_to_index;
@@ -126,8 +146,13 @@ class DataLog
 	bool _speed_valid;
 	bool _gradient_valid;
 	bool _power_valid;
-	bool _alt_map_valid;
-	bool _alt_smooth_valid;
+
+	bool _alt_fltd_valid;
+	bool _heart_rate_fltd_valid;
+	bool _cadence_fltd_valid;
+	bool _speed_fltd_valid;
+	bool _gradient_fltd_valid;
+	bool _power_fltd_valid;
  };
 
 #endif // DATALOG_H

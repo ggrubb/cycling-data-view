@@ -16,6 +16,7 @@ class QButtonGroup;
 class QCheckBox;
 class QRadioButton;
 class QSlider;
+class QLabel;
 
 class PlotWindow : public QWidget
 {
@@ -39,6 +40,7 @@ class PlotWindow : public QWidget
 	void deleteSelection();
 	void panSelection(int idx_delta);
 	void panAndHoldSelection(int idx_delta);
+	void updateDataView();
 
  private slots:
 	void setMarkerPosition(const QPointF& point);
@@ -53,6 +55,7 @@ class PlotWindow : public QWidget
 
  private:
 	void drawGraphs();
+	void filterCurveData();
 	void setCurveData();
 
 	QwtPlot* _plot;
@@ -69,6 +72,7 @@ class PlotWindow : public QWidget
 	QCheckBox* _alt_cb;
 	QCheckBox* _cadence_cb;
 	QSlider* _smoothing_selection;
+	QLabel* _smoothing_label;
 	
 	QwtCustomPlotPicker* _plot_picker1;
 	QwtPlotPicker* _plot_picker2;
@@ -76,10 +80,6 @@ class PlotWindow : public QWidget
 	QwtPlotPanner* _plot_panner;
 
 	DataLog* _data_log;
-	std::vector<double>* _data_hr_filtered;
-	std::vector<double>* _data_speed_filtered;
-	std::vector<double>* _data_cadence_filtered;
-	std::vector<double>* _data_alt_filtered;
 };
 
 #endif // PLOTWINDOW_H

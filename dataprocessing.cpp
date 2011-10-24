@@ -106,9 +106,15 @@ double DataProcessing::computeMax(
 	std::vector<double>::const_iterator& start,
 	std::vector<double>::const_iterator& end)
 {
-	std::vector<double>::const_iterator max_it;
-	max_it = std::max_element(start, end);
-	return *max_it;
+	return *std::max_element(start, end);
+}
+
+/****************************************/
+double DataProcessing::computeMin(
+	std::vector<double>::const_iterator& start,
+	std::vector<double>::const_iterator& end)
+{
+	return *std::min_element(start, end);
 }
 
 /****************************************/

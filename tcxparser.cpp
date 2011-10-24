@@ -229,9 +229,9 @@ void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 	// Compute grad from smoothed gradient
 	if (data_log.altValid())
 	{
-		DataProcessing::lowPassFilterSignal(data_log.alt(), data_log.altSmooth());
-		data_log.altSmoothValid() = true;
-		DataProcessing::computeGradient(data_log.altSmooth(), data_log.dist(), data_log.gradient());
+		DataProcessing::lowPassFilterSignal(data_log.alt(), data_log.altFltd());
+		data_log.altFltdValid() = true;
+		DataProcessing::computeGradient(data_log.altFltd(), data_log.dist(), data_log.gradient());
 		data_log.gradientValid() = true;
 	}
 	

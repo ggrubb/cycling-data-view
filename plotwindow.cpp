@@ -84,18 +84,9 @@ QwtCustomPlotPicker::QwtCustomPlotPicker(int x_axis, int y_axis, DataLog* data_l
 
 /******************************************************/
 void QwtCustomPlotPicker::setDataLog(
-	DataLog* data_log,
-	std::vector<double>* data_hr_filtered,
-	std::vector<double>* data_speed_filtered,
-	std::vector<double>* data_cadence_filtered,
-	std::vector<double>* data_alt_filtered)
+	DataLog* data_log)
 {
 	_data_log = data_log;
-
-	_data_hr_filtered = data_hr_filtered;
-	_data_speed_filtered = data_speed_filtered;
-	_data_cadence_filtered = data_cadence_filtered;
-	_data_alt_filtered = data_alt_filtered;
 }
 
 /******************************************************/
@@ -144,13 +135,13 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 		}
 		
 		// Using the index, determine the curve values
-		const double hr = (*_data_hr_filtered)[idx];
+		const double hr = _data_log->heartRateFltd(idx);
 		const QPoint pt1_hr(pt1.x(),plot()->transform(QwtPlot::yLeft,hr));
-		const double speed = (*_data_speed_filtered)[idx];
+		const double speed = _data_log->speedFltd(idx);
 		const QPoint pt1_speed(pt1.x(),plot()->transform(QwtPlot::yLeft,speed));
-		const double alt = (*_data_alt_filtered)[idx];
+		const double alt = _data_log->altFltd(idx);
 		const QPoint pt1_alt(pt1.x(),plot()->transform(QwtPlot::yRight,alt));
-		const double cadence = (*_data_cadence_filtered)[idx];
+		const double cadence = _data_log->cadenceFltd(idx);
 		const QPoint pt1_cadence(pt1.x(),plot()->transform(QwtPlot::yLeft,cadence));
 
 		// Draw highlights on all curves
@@ -193,11 +184,6 @@ PlotWindow::PlotWindow()
 {
 	_plot = new QwtPlot();
 	//_plot->setCanvasBackground(QBrush(Qt::black));
-
-	_data_hr_filtered = new std::vector<double>;
-	_data_speed_filtered = new std::vector<double>;
-	_data_cadence_filtered = new std::vector<double>;
-	_data_alt_filtered = new std::vector<double>;
 	
 	// Setup the axis
 	_plot->enableAxis(QwtPlot::yRight,true);
@@ -283,13 +269,13 @@ PlotWindow::PlotWindow()
 	QVBoxLayout* button_group_layout = new QVBoxLayout(axis_selection_widget);
 	_time_axis = new QRadioButton("Time");
 	_dist_axis = new QRadioButton("Distance");
+	_dist_axis->setChecked(true);
 	button_group_layout->addWidget(_time_axis);
 	button_group_layout->addWidget(_dist_axis);
 	
 	_x_axis_measurement = new QButtonGroup(axis_selection_widget);
 	_x_axis_measurement->addButton(_time_axis, 0);
 	_x_axis_measurement->addButton(_dist_axis, 1);
-	_time_axis->setChecked(true);
 	connect(_x_axis_measurement,SIGNAL(buttonClicked(int)), this, SLOT(xAxisUnitsChanged(int)));
 	connect(_x_axis_measurement,SIGNAL(buttonClicked(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
 
@@ -311,12 +297,13 @@ PlotWindow::PlotWindow()
 	_smoothing_selection = new QSlider(Qt::Horizontal);
 	_smoothing_selection->setRange(0,50);
 	_smoothing_selection->setFixedSize(80,15);
-	_smoothing_selection->setValue(5);
+	const int default_smoothing = 5;
+	_smoothing_selection->setValue(default_smoothing);
 	_smoothing_selection->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed));
-	QLabel* label = new QLabel("Smoothing:");
+	_smoothing_label = new QLabel("Smoothing: " + QString::number(default_smoothing));
 	QWidget* smoothing_widget = new QWidget;
 	QVBoxLayout* vlayout2 = new QVBoxLayout(smoothing_widget);
-	vlayout2->addWidget(label);
+	vlayout2->addWidget(_smoothing_label);
 	vlayout2->addWidget(_smoothing_selection);
 	connect(_smoothing_selection, SIGNAL(valueChanged(int)),this,SLOT(signalSmoothingChanged()));
 
@@ -367,6 +354,7 @@ void PlotWindow::setEnabled(bool enabled)
 	_time_axis->setEnabled(enabled);
 	_dist_axis->setEnabled(enabled);
 	_smoothing_selection->setEnabled(enabled);
+	_smoothing_label->setEnabled(enabled);
 	_hr_cb->setEnabled(enabled);
 	_speed_cb->setEnabled(enabled);
 	_alt_cb->setEnabled(enabled);
@@ -377,8 +365,7 @@ void PlotWindow::setEnabled(bool enabled)
 void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStatisticsView* stats_view)
 {
 	_data_log = data_log;
-	_plot_picker1->setDataLog(_data_log,
-		_data_hr_filtered, _data_speed_filtered, _data_cadence_filtered, _data_alt_filtered);
+	_plot_picker1->setDataLog(_data_log);
 
 	drawGraphs();
 	show();
@@ -391,10 +378,12 @@ void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStati
 	connect(this, SIGNAL(deleteSelection()), google_map, SLOT(deleteSelection()));
 	connect(this, SIGNAL(panSelection(int)), google_map, SLOT(moveSelection(int)));
 	connect(this, SIGNAL(panAndHoldSelection(int)), google_map, SLOT(moveAndHoldSelection(int)));
+	connect(this, SIGNAL(updateDataView()), google_map, SLOT(definePathColour()));
 
 	// Connect this window to the statistical viewer
-	connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(setSelection(int,int)));
+	connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(displaySelectedRideStats(int,int)));
 	connect(this, SIGNAL(deleteSelection()), stats_view, SLOT(deleteSelection()));
+	connect(this, SIGNAL(updateDataView()), stats_view, SLOT(displayCompleteRideStats()));
 
 	// Enabled user interface
 	setEnabled(true);
@@ -403,31 +392,26 @@ void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStati
 /******************************************************/
 void PlotWindow::setCurveData()
 {
-	// Smooth the data accordingly
-	DataProcessing::lowPassFilterSignal(_data_log->heartRate(),*_data_hr_filtered,_smoothing_selection->value());
-	DataProcessing::lowPassFilterSignal(_data_log->speed(),*_data_speed_filtered,_smoothing_selection->value());
-	DataProcessing::lowPassFilterSignal(_data_log->cadence(),*_data_cadence_filtered,_smoothing_selection->value());
-	DataProcessing::lowPassFilterSignal(_data_log->alt(),*_data_alt_filtered,_smoothing_selection->value());
-
 	if (_x_axis_measurement->checkedId() == 0) // time
 	{
-		_curve_hr->setRawSamples(&_data_log->time(0), &(*_data_hr_filtered)[0], _data_log->numPoints());
-		_curve_speed->setRawSamples(&_data_log->time(0), &(*_data_speed_filtered)[0], _data_log->numPoints());
-		_curve_cadence->setRawSamples(&_data_log->time(0), &(*_data_cadence_filtered)[0], _data_log->numPoints());
-		_curve_alt->setRawSamples(&_data_log->time(0), &(*_data_alt_filtered)[0], _data_log->numPoints());
+		_curve_hr->setRawSamples(&_data_log->time(0), &_data_log->heartRateFltd(0), _data_log->numPoints());
+		_curve_speed->setRawSamples(&_data_log->time(0), &_data_log->speedFltd(0), _data_log->numPoints());
+		_curve_cadence->setRawSamples(&_data_log->time(0), &_data_log->cadenceFltd(0), _data_log->numPoints());
+		_curve_alt->setRawSamples(&_data_log->time(0), &_data_log->altFltd(0), _data_log->numPoints());
 	}
 	else // distance
 	{
-		_curve_hr->setRawSamples(&_data_log->dist(0), &(*_data_hr_filtered)[0], _data_log->numPoints());
-		_curve_speed->setRawSamples(&_data_log->dist(0), &(*_data_speed_filtered)[0], _data_log->numPoints());
-		_curve_cadence->setRawSamples(&_data_log->dist(0), &(*_data_cadence_filtered)[0], _data_log->numPoints());
-		_curve_alt->setRawSamples(&_data_log->dist(0), &(*_data_alt_filtered)[0], _data_log->numPoints());
+		_curve_hr->setRawSamples(&_data_log->dist(0), &_data_log->heartRateFltd(0), _data_log->numPoints());
+		_curve_speed->setRawSamples(&_data_log->dist(0), &_data_log->speedFltd(0), _data_log->numPoints());
+		_curve_cadence->setRawSamples(&_data_log->dist(0), &_data_log->cadenceFltd(0), _data_log->numPoints());
+		_curve_alt->setRawSamples(&_data_log->dist(0), &_data_log->altFltd(0), _data_log->numPoints());
 	}
 }
 
 /******************************************************/
 void PlotWindow::drawGraphs()
 {
+	filterCurveData();
 	setCurveData();
 	if (_x_axis_measurement->checkedId() == 0) // time
 	{
@@ -547,6 +531,30 @@ void PlotWindow::curveSelectionChanged()
 /******************************************************/
 void PlotWindow::signalSmoothingChanged()
 {
+	// Filter the data
+	filterCurveData();
+
+	// Update the plots
 	setCurveData();
 	_plot->replot();
+	_smoothing_label->setText("Smoothing: " + QString::number(_smoothing_selection->value()));
+
+	// Update other windows viewing this data
+	emit updateDataView();
+}
+
+/******************************************************/
+void PlotWindow::filterCurveData()
+{
+	DataProcessing::lowPassFilterSignal(_data_log->heartRate(),_data_log->heartRateFltd(),_smoothing_selection->value());
+	DataProcessing::lowPassFilterSignal(_data_log->speed(),_data_log->speedFltd(),_smoothing_selection->value());
+	DataProcessing::lowPassFilterSignal(_data_log->cadence(),_data_log->cadenceFltd(),_smoothing_selection->value());
+	DataProcessing::lowPassFilterSignal(_data_log->alt(),_data_log->altFltd(),_smoothing_selection->value());
+	DataProcessing::lowPassFilterSignal(_data_log->gradient(),_data_log->gradientFltd(),_smoothing_selection->value());
+
+	_data_log->heartRateFltdValid() = true;
+	_data_log->speedFltdValid() = true;
+	_data_log->cadenceFltdValid() = true;
+	_data_log->altFltdValid() = true;
+	_data_log->gradientFltdValid() = true;
 }
