@@ -28,8 +28,8 @@
 #include <sstream>
 
 // Define colour of plot curves
-#define HR_COLOUR Qt::darkRed
-#define ALT_COLOUR Qt::darkGreen
+#define HR_COLOUR Qt::darkGreen // old = Qt::darkRed
+#define ALT_COLOUR QColor(170,150,95) // old = QColor(135,180,105)
 #define CADENCE_COLOUR Qt::darkBlue
 #define SPEED_COLOUR Qt::yellow
 
@@ -79,7 +79,7 @@ void QwtCustomPlotZoomer::drawRubberBand(QPainter* painter) const
 QwtCustomPlotPicker::QwtCustomPlotPicker(int x_axis, int y_axis, DataLog* data_log, QwtPlotCanvas* canvas):
 	QwtPlotPicker(x_axis,y_axis,QwtPlotPicker::UserRubberBand, QwtPicker::AlwaysOn, canvas),
 	_data_log(data_log),
-	_x_axis_units(TimeAxis)
+	_x_axis_units(DistAxis)
 {}
 
 /******************************************************/
@@ -200,7 +200,7 @@ PlotWindow::PlotWindow()
 	axis_text.setText("Elevation (m)");
 	_plot->setAxisTitle(QwtPlot::yRight,axis_text);
 
-	axis_text.setText("Time (s)");
+	axis_text.setText("Distance (m)");
 	_plot->setAxisTitle(QwtPlot::xBottom,axis_text);
 
 	// Define the curves to plot
@@ -224,10 +224,11 @@ PlotWindow::PlotWindow()
 	_curve_alt = new QwtPlotCurve("Elevation");
 	_curve_alt->setRenderHint(QwtPlotItem::RenderAntialiased);
 	c = ALT_COLOUR;
-	c.setAlpha(150);
+	//c.setAlpha(150);
 	_curve_alt->setPen(c);
     _curve_alt->setBrush(c);
 	_curve_alt->setYAxis(QwtPlot::yRight);
+	_curve_alt->setBaseline(-100.0); // 
 
 	_curve_alt->attach(_plot);
 	_curve_speed->attach(_plot);
@@ -278,6 +279,7 @@ PlotWindow::PlotWindow()
 	_x_axis_measurement->addButton(_dist_axis, 1);
 	connect(_x_axis_measurement,SIGNAL(buttonClicked(int)), this, SLOT(xAxisUnitsChanged(int)));
 	connect(_x_axis_measurement,SIGNAL(buttonClicked(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
+	std::cout << _x_axis_measurement->checkedId() << std::endl;
 
 	// Checkboxes for graph plots
 	_hr_cb = new QCheckBox("Heart Rate");
@@ -390,6 +392,23 @@ void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStati
 }
 
 /******************************************************/
+void PlotWindow::drawGraphs()
+{
+	filterCurveData();
+	setCurveData();
+	if (_x_axis_measurement->checkedId() == 0) // time
+	{
+		_plot->setAxisScale(QwtPlot::xBottom, 0, _data_log->totalTime());
+	}
+	else // distance
+	{
+		_plot->setAxisScale(QwtPlot::xBottom, 0, _data_log->totalDist());
+	}
+	_plot->replot();
+	_plot_zoomer->setZoomBase();
+}
+
+/******************************************************/
 void PlotWindow::setCurveData()
 {
 	if (_x_axis_measurement->checkedId() == 0) // time
@@ -406,23 +425,6 @@ void PlotWindow::setCurveData()
 		_curve_cadence->setRawSamples(&_data_log->dist(0), &_data_log->cadenceFltd(0), _data_log->numPoints());
 		_curve_alt->setRawSamples(&_data_log->dist(0), &_data_log->altFltd(0), _data_log->numPoints());
 	}
-}
-
-/******************************************************/
-void PlotWindow::drawGraphs()
-{
-	filterCurveData();
-	setCurveData();
-	if (_x_axis_measurement->checkedId() == 0) // time
-	{
-		_plot->setAxisScale(QwtPlot::xBottom, 0, _data_log->totalTime());
-	}
-	else // distance
-	{
-		_plot->setAxisScale(QwtPlot::xBottom, 0, _data_log->totalDist());
-	}
-	_plot->replot();
-	_plot_zoomer->setZoomBase();
 }
 
 /******************************************************/
@@ -511,12 +513,12 @@ void PlotWindow::xAxisUnitsChanged(int idx)
 	if (idx == 0) // time
 		_plot->setAxisTitle(QwtPlot::xBottom,"Time (s)");
 	else // dist
-		_plot->setAxisTitle(QwtPlot::xBottom,"Dist (m)");
+		_plot->setAxisTitle(QwtPlot::xBottom,"Distance (m)");
 	
 	drawGraphs();
 	emit deleteSelection();
-
 }
+
 /******************************************************/
 void PlotWindow::curveSelectionChanged()
 {

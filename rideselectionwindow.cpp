@@ -53,10 +53,18 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 	QStringList filenames;
 	filenames = _log_directory->entryList();
 
+	// Create a small progress bar
 	QProgressBar* load_progress = new QProgressBar();
+	load_progress->setWindowFlags(Qt::SplashScreen);
+	QPalette palette(load_progress->palette());
+	palette.setColor(QPalette::Window, Qt::white);
+	load_progress->setPalette(palette);
+	load_progress->move(50,150);
 	load_progress->setMinimum(0);
 	load_progress->setMaximum(filenames.size());
 	load_progress->show();
+
+	// Load log files in the directory
 	for (int i=0; i < std::min(filenames.size(),99); ++i)
 	{
 		DataLog* data_log = new DataLog;

@@ -34,12 +34,13 @@ class ChromePage : public QWebPage
 class ColourBar : public QWidget
 {
 public:
-	ColourBar(): QWidget()
-	{
-		_start_colour = Qt::red;
-		_end_colour = Qt::red;
-		_middle_colour = Qt::red;
-	}
+	ColourBar(): QWidget(),
+	_start_colour(Qt::red),
+	_end_colour(Qt::red),
+	_middle_colour(Qt::red),
+	_min_value(0.0),
+	_max_value(0.0)
+	{}
 
 	void setColourRange(const QColor start_colour, const QColor middle_colour ,const QColor end_colour, double min, double max)
 	{
@@ -144,6 +145,7 @@ void GoogleMap::displayRide(DataLog* data_log)
 
 		// Enabled user interface
 		setEnabled(true);
+		_path_colour_scheme->setCurrentIndex(0);
 	}
 }
 
