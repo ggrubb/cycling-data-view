@@ -12,6 +12,7 @@ class QwtPlotPicker;
 class QwtCustomPlotZoomer;
 class QwtCustomPlotPicker;
 class QwtPlotPanner;
+class QwtPlotMarker;
 class QButtonGroup;
 class QCheckBox;
 class QRadioButton;
@@ -55,6 +56,8 @@ class PlotWindow : public QWidget
 
  private:
 	void drawGraphs();
+	void drawLaps();
+	void clearLaps();
 	void filterCurveData();
 	void setCurveData();
 
@@ -63,6 +66,8 @@ class PlotWindow : public QWidget
 	QwtPlotCurve* _curve_speed;
 	QwtPlotCurve* _curve_cadence;
 	QwtPlotCurve* _curve_alt;
+
+	std::vector<QwtPlotMarker* > _lap_markers;
 	
 	QButtonGroup* _x_axis_measurement;
 	QRadioButton* _time_axis;

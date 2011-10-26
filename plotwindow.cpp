@@ -14,6 +14,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
 #include <qwt_text.h>
+#include <qwt_plot_marker.h>
 
 #include <qtgui/qcombobox>
 #include <qtgui/qvboxlayout>
@@ -224,11 +225,10 @@ PlotWindow::PlotWindow()
 	_curve_alt = new QwtPlotCurve("Elevation");
 	_curve_alt->setRenderHint(QwtPlotItem::RenderAntialiased);
 	c = ALT_COLOUR;
-	//c.setAlpha(150);
 	_curve_alt->setPen(c);
     _curve_alt->setBrush(c);
 	_curve_alt->setYAxis(QwtPlot::yRight);
-	_curve_alt->setBaseline(-100.0); // 
+	_curve_alt->setBaseline(-100.0); // ensure display is correct even when -ve altitude
 
 	_curve_alt->attach(_plot);
 	_curve_speed->attach(_plot);
@@ -369,7 +369,9 @@ void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStati
 	_data_log = data_log;
 	_plot_picker1->setDataLog(_data_log);
 
+	clearLaps();
 	drawGraphs();
+	drawLaps();
 	show();
 	
 	// Connect this window to the google map
@@ -425,6 +427,44 @@ void PlotWindow::setCurveData()
 		_curve_cadence->setRawSamples(&_data_log->dist(0), &_data_log->cadenceFltd(0), _data_log->numPoints());
 		_curve_alt->setRawSamples(&_data_log->dist(0), &_data_log->altFltd(0), _data_log->numPoints());
 	}
+}
+
+/******************************************************/
+void PlotWindow::drawLaps()
+{
+	if (_data_log->numLaps() > 1)
+	{
+		for (int i=0; i < _data_log->numLaps(); ++i)
+		{
+			QwtPlotMarker* marker = new QwtPlotMarker;
+			marker->setLineStyle(QwtPlotMarker::VLine);
+			marker->setLinePen(QPen(Qt::DotLine));
+			if (_x_axis_measurement->checkedId() == 0) // time
+			{
+				const double time = _data_log->time(_data_log->lap(i).second);
+				marker->setXValue(time);
+			}
+			else // distance
+			{
+				const double dist = _data_log->dist(_data_log->lap(i).second);
+				marker->setXValue(dist);
+			}
+			marker->attach(_plot);
+			marker->show();
+			_lap_markers.push_back(marker);
+		}
+	}
+}
+
+/******************************************************/
+void PlotWindow::clearLaps()
+{
+	for (unsigned int i=0; i < _lap_markers.size(); ++i)
+	{
+		_lap_markers[i]->detach();
+		delete _lap_markers[i];
+	}
+	_lap_markers.resize(0);
 }
 
 /******************************************************/

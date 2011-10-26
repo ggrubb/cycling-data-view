@@ -12,7 +12,6 @@ class DataLog
 	~DataLog();
 
 	void resize(int size);
-	void setNumLaps(int num_laps);
 
 	QString& filename() { return _filename; };
 	QString& date() { return _date; };
@@ -28,8 +27,11 @@ class DataLog
 	double& avgGradient() { return _avg_gradient; };
 	double& avgCadence() { return _avg_cadence; };
 	double& avgPower() { return _avg_power; };
-	int& numPoints() { return _num_points; };
-	int& numLaps() { return _num_laps; };
+	int numPoints() { return _num_points; };
+	int numLaps() { return _lap_indecies.size(); };
+
+	std::pair<int, int>& lap(int lap_index);
+	void addLap(std::pair<int, int>& lap);
 
 	double& time(int idx);
 	double& ltd(int idx);
@@ -110,7 +112,6 @@ class DataLog
 	double _avg_cadence;
 	double _avg_power;
 	int _num_points;
-	int _num_laps;
 
 	// The vectors of data
 	std::vector<double> _time; //sec
@@ -130,6 +131,9 @@ class DataLog
 	std::vector<double> _speed_fltd; //kmh
 	std::vector<double> _gradient_fltd; //%
 	std::vector<double> _power_fltd; //W
+
+	// Lap indexes (first = start index, second = end index)
+	std::vector<std::pair<int, int> > _lap_indecies;
 
 	// Maps from time to data index, and distance to index
 	QMap<double,int> _time_to_index;

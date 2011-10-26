@@ -17,9 +17,10 @@ _max_cadence(0.0),
 _avg_speed(0.0),
 _avg_heart_rate(0.0),
 _avg_gradient(0.0),
-_avg_cadence(0.0)
+_avg_cadence(0.0),
+_lap_indecies()
 {
-	// Initialise members
+	// Initialise arrays of data
 	resize(0);
 }
 
@@ -157,11 +158,6 @@ double& DataLog::powerFltd(int idx)
 	return _power_fltd[idx]; 
 }
 
-/****************************************/
-void DataLog::setNumLaps(int num_laps)
-{
-	_num_laps = num_laps;
-}
 
 /****************************************/
 void DataLog::resize(int size)
@@ -169,7 +165,6 @@ void DataLog::resize(int size)
 	assert(size >= 0);
 
 	_num_points = size;
-	_num_laps = 0;
 	_time.resize(size);
 	_ltd.resize(size);
 	_lgd.resize(size);
@@ -208,6 +203,25 @@ void DataLog::resize(int size)
 	_speed_fltd_valid = false;
 	_gradient_fltd_valid = false;
 	_power_fltd_valid = false;
+}
+
+/****************************************/
+std::pair<int, int>& DataLog::lap(int lap_index)
+{
+	assert(lap_index >= 0);
+	assert(lap_index < _lap_indecies.size());
+
+	return _lap_indecies[lap_index];
+}
+
+/****************************************/
+void DataLog::addLap(std::pair<int, int>& lap)
+{
+	assert(lap.first < lap.second);
+	assert(lap.first >= 0);
+	assert(lap.second < numPoints());
+
+	_lap_indecies.push_back(lap);
 }
 
 /****************************************/
