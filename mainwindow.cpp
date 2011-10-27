@@ -37,7 +37,7 @@ QMainWindow()
 	_data_log = new DataLog();
 	_ride_selector = new RideSelectionWindow();
 	connect(_ride_selector , SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
-
+	connect(_ride_selector , SIGNAL(displayLap(int)),this,SLOT(setLap(int)));
 
 	QWidget* central_widget = new QWidget;
 	QGridLayout* glayout1 = new QGridLayout(central_widget);
@@ -69,13 +69,13 @@ MainWindow::~MainWindow()
 /******************************************************/
  void MainWindow::open()
  {
-	_ride_selector->setLogDirectory("D:/Grant/training logs");
+	_ride_selector->setLogDirectory("D:/Grant/projects/cycling-data-view/Debug/test logs");
  }
 
 /******************************************************/
 void MainWindow::setRide(DataLog* data_log)
 {
-	// Plot 2d curves (important to be called first since it is responsible for signal filtering
+	// Plot 2d curves (important to be called first since it is responsible for signal filtering)
 	_plot_window->displayRide(data_log, _google_map, _stats_view);
 
 	// Overlay route in Google maps
@@ -83,6 +83,19 @@ void MainWindow::setRide(DataLog* data_log)
 
 	// Statistical viewer
 	_stats_view->displayRide(data_log);
+}
+
+/******************************************************/
+void MainWindow::setLap(int lap_index)
+{
+	// Zoom plots to lap
+	_plot_window->displayLap(lap_index);
+
+	// Zoom map to lap
+	_google_map->displayLap(lap_index);
+
+	// Show stats of lap
+	_stats_view->displayLap(lap_index);
 }
 
 /******************************************************/

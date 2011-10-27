@@ -1,6 +1,7 @@
 #ifndef DATAPROCESSING_H
 #define DATAPROCESSING_H
 
+#include <QString.h>
 #include <vector>
 
 namespace DataProcessing
@@ -47,9 +48,9 @@ namespace DataProcessing
 		std::vector<double>::const_iterator& start,
 		std::vector<double>::const_iterator& end);
 
-	// Some functions to convert data
-	std::pair<int,int> minutesFromSeconds(int seconds);
-	double kmFromMeters(double meters);
+	// Some functions to convert data to text
+	const QString minsFromSecs(int seconds);
+	const QString kmFromMeters(double meters);
  };
 
 #endif // DATAPROCESSING_H

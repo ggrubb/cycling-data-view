@@ -29,7 +29,10 @@ class PlotWindow : public QWidget
 	
 	// Display the ride log in plots, and connect curser to google map
 	void displayRide(DataLog* data_log, GoogleMap* google_map, DataStatisticsView* stats_view);
-
+	
+	// Zoom to highlight a lap
+	void displayLap(int lap_index);
+	
 	// Enable/disable all the user controls
 	void setEnabled(bool enabled);
 
@@ -56,8 +59,8 @@ class PlotWindow : public QWidget
 
  private:
 	void drawGraphs();
-	void drawLaps();
-	void clearLaps();
+	void drawLapMarkers();
+	void clearLapMarkers();
 	void filterCurveData();
 	void setCurveData();
 

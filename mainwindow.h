@@ -24,6 +24,7 @@
     void open();
     void about();
 	void setRide(DataLog* data_log);
+	void setLap(int lap_index);
 
  private:
     void createActions();

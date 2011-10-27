@@ -14,9 +14,7 @@ class DataStatisticsView : public QWidget
 	~DataStatisticsView();
 
 	void displayRide(DataLog* data_log);
-	void clearTable();
-	void clearTotalsColumn();
-	void clearSelectionColumn();
+	void displayLap(int lap_index);
 
  public slots:
 	void displayCompleteRideStats();
@@ -24,6 +22,9 @@ class DataStatisticsView : public QWidget
 	void deleteSelection();
 	
  private:
+	void clearTable();
+	void clearTotalsColumn();
+	void clearSelectionColumn();
 
 	QTableWidget* _table;
 	DataLog* _data_log;

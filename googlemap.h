@@ -24,6 +24,9 @@ class GoogleMap : public QWidget
 	// Display the ride route on a google map
 	void displayRide(DataLog* data_log);
 
+	// Zoom to highlight a lap
+	void displayLap(int lap_index);
+
 	// Enable/disable all the user controls
 	void setEnabled(bool enabled);
 

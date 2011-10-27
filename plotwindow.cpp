@@ -369,9 +369,9 @@ void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStati
 	_data_log = data_log;
 	_plot_picker1->setDataLog(_data_log);
 
-	clearLaps();
+	clearLapMarkers();
 	drawGraphs();
-	drawLaps();
+	drawLapMarkers();
 	show();
 	
 	// Connect this window to the google map
@@ -430,7 +430,7 @@ void PlotWindow::setCurveData()
 }
 
 /******************************************************/
-void PlotWindow::drawLaps()
+void PlotWindow::drawLapMarkers()
 {
 	if (_data_log->numLaps() > 1)
 	{
@@ -457,7 +457,7 @@ void PlotWindow::drawLaps()
 }
 
 /******************************************************/
-void PlotWindow::clearLaps()
+void PlotWindow::clearLapMarkers()
 {
 	for (unsigned int i=0; i < _lap_markers.size(); ++i)
 	{
@@ -465,6 +465,12 @@ void PlotWindow::clearLaps()
 		delete _lap_markers[i];
 	}
 	_lap_markers.resize(0);
+}
+
+/******************************************************/
+void PlotWindow::displayLap(int lap_index)
+{
+
 }
 
 /******************************************************/

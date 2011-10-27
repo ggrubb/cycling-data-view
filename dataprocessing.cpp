@@ -150,18 +150,19 @@ double DataProcessing::computeLoss(
 }
 
 /****************************************/
-std::pair<int,int> DataProcessing::minutesFromSeconds(int seconds)
+const QString DataProcessing::minsFromSecs(int seconds)
 {
-	std::pair<int,int> minutes(0,0);
+	int mins  = seconds/60;
+	int secs = seconds%60;
 
-	minutes.first = seconds/60;
-	minutes.second = seconds%60;
-
-	return minutes;
+	if (secs < 10)
+		return QString::number(mins) + ":0" + QString::number(secs);
+	else
+		return QString::number(mins) + ":" + QString::number(secs);
 }
 
 /****************************************/
-double DataProcessing::kmFromMeters(double meters)
+const QString DataProcessing::kmFromMeters(double meters)
 {
-	return meters/1000.0;
+	return QString::number(meters/1000.0,'f',2);
 }

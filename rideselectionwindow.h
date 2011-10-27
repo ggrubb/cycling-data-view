@@ -21,6 +21,7 @@ class RideSelectionWindow : public QWidget
 
  signals:
 	void displayRide(DataLog* data_log);
+	void displayLap(int lap_index);
 
 private slots:
 	void rideSelected(const QModelIndex& index);

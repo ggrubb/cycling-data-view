@@ -68,7 +68,7 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 	for (int i=0; i < std::min(filenames.size(),99); ++i)
 	{
 		DataLog* data_log = new DataLog;
-		const bool parse_summary_only = true;
+		const bool parse_summary_only = false;
 		const QString filename_with_path = _log_directory->path() + "/" + filenames[i];
 		std::cout << "reading: " << filename_with_path.toStdString(); 
 		if (_parser->parse(filename_with_path, *data_log, parse_summary_only))
@@ -91,7 +91,7 @@ void RideSelectionWindow::populateWithRides(const std::vector<DataLog*>& data_lo
 	_model = new QStandardItemModel;
 	
 	QStandardItem *parent_item = _model->invisibleRootItem();
-	for (int i = 0; i < data_logs.size(); ++i) {
+	for (unsigned int i = 0; i < data_logs.size(); ++i) {
 		// Data and time
 		QString date = data_logs[i]->date();
 		date.chop(3); // remove seconds
@@ -99,13 +99,11 @@ void RideSelectionWindow::populateWithRides(const std::vector<DataLog*>& data_lo
 		ride_name->setFlags(ride_name->flags() & ~Qt::ItemIsEditable);
 
 		// Ride time length
-		const std::pair<int,int> minutes = DataProcessing::minutesFromSeconds(data_logs[i]->totalTime());
-		QStandardItem *ride_time = new QStandardItem(QString::number(minutes.first) + ":" + QString::number(minutes.second));
+		QStandardItem *ride_time = new QStandardItem(DataProcessing::minsFromSecs(data_logs[i]->totalTime()));
 		ride_time->setFlags(ride_time->flags() & ~Qt::ItemIsEditable);
 
 		// Ride distance
-		const double dist_km = DataProcessing::kmFromMeters(data_logs[i]->totalDist());
-		QStandardItem *ride_dist = new QStandardItem(QString::number(dist_km,'f',2));
+		QStandardItem *ride_dist = new QStandardItem(DataProcessing::kmFromMeters(data_logs[i]->totalDist()));
 		ride_dist->setFlags(ride_dist->flags() & ~Qt::ItemIsEditable);
 
 		// Index of ride in vector of all rides
@@ -115,23 +113,31 @@ void RideSelectionWindow::populateWithRides(const std::vector<DataLog*>& data_lo
 		ride_list << ride_name << ride_time << ride_dist << ride_index;
 		parent_item->appendRow(ride_list);
 
-		for (int lap = 0; lap < data_logs[i]->numLaps(); ++lap)
+		if (data_logs[i]->numLaps() > 1) // all rides are 1 lap, so only show laps for rides with > 1 lap
 		{
-			QStandardItem *lap_name = new QStandardItem(QString::number(lap));
-			lap_name->setFlags(lap_name->flags() & ~Qt::ItemIsEditable);
+			for (int lap = 0; lap < data_logs[i]->numLaps(); ++lap)
+			{
+				QStandardItem *lap_name = new QStandardItem("Lap " + QString::number(lap+1));
+				lap_name->setFlags(lap_name->flags() & ~Qt::ItemIsEditable);
+				
+				// Compute lap summary info
+				std::pair<int, int> lap_indecies = data_logs[i]->lap(lap);
+				const double time = data_logs[i]->time(lap_indecies.second) - data_logs[i]->time(lap_indecies.first);
+				const double dist = data_logs[i]->dist(lap_indecies.second) - data_logs[i]->dist(lap_indecies.first);
+				
+				QStandardItem *lap_time = new QStandardItem(DataProcessing::minsFromSecs(time));
+				lap_name->setFlags(lap_name->flags() & ~Qt::ItemIsEditable);
 
-			QStandardItem *lap_time = new QStandardItem(QString("%0 min").arg(34));
-			lap_name->setFlags(lap_name->flags() & ~Qt::ItemIsEditable);
+				QStandardItem *lap_dist = new QStandardItem(DataProcessing::kmFromMeters(dist));
+				lap_dist->setFlags(lap_dist->flags() & ~Qt::ItemIsEditable);
 
-			QStandardItem *lap_dist = new QStandardItem(QString("%0 km").arg(5.3));
-			lap_dist->setFlags(lap_dist->flags() & ~Qt::ItemIsEditable);
+				// Index of ride in vector of all rides
+				QStandardItem *lap_index = new QStandardItem(QString::number(lap));
 
-			// Index of ride in vector of all rides
-			QStandardItem *ride_index = new QStandardItem(QString::number(i));
-
-			QList<QStandardItem*> lap_list;
-			lap_list << lap_name << lap_time << lap_dist << ride_index;
-			ride_name->appendRow(lap_list);
+				QList<QStandardItem*> lap_list;
+				lap_list << lap_name << lap_time << lap_dist << lap_index;
+				ride_name->appendRow(lap_list);
+			}
 		}
 	}
 
@@ -143,7 +149,7 @@ void RideSelectionWindow::populateWithRides(const std::vector<DataLog*>& data_lo
 	_model->setHorizontalHeaderItem(2,header2);
 
 	_tree->setModel(_model);
-	_tree->setColumnHidden(3, true); // hide the index column
+	//_tree->setColumnHidden(3, true); // hide the index column
 	_tree->sortByColumn(0,Qt::DescendingOrder);
 	connect(_tree, SIGNAL(clicked(const QModelIndex&)),this,SLOT(rideSelected(const QModelIndex&)));
 	_tree->setCurrentIndex(_model->index(0,0));
@@ -153,13 +159,25 @@ void RideSelectionWindow::populateWithRides(const std::vector<DataLog*>& data_lo
 /******************************************************/
 void RideSelectionWindow::rideSelected(const QModelIndex& index)
 {
-	// Get the item which represents the index
-	QStandardItem* item = _model->item(index.row(),3);
+	if (index.parent() == QModelIndex()) // user selected the entire ride
+	{
+		// Get the item which represents the index
+		QStandardItem* item = _model->item(index.row(),3); // 4th element is data log index (not displayed)
 
-	// Parse complete ride details
-	DataLog* data_log = _data_logs[item->text().toInt()];
-	_parser->parse(data_log->filename(), *data_log);
+		// Parse complete ride details
+		DataLog* data_log = _data_logs[item->text().toInt()];
+		_parser->parse(data_log->filename(), *data_log);
 
-	// Notify to display the selected ride
-	emit displayRide(data_log);
+		// Notify to display the selected ride
+		emit displayRide(data_log);
+	}
+	else // user seletected a lap
+	{
+		// Get the item which represents the index
+		QStandardItem* item = _model->item(index.row(),3); // 4th element is lap index (not displayed)
+
+		std::cout << "idx: " << index.row() <<  "lap: " << item->text().toInt() << std::endl;
+		// Notif to display the selected lap
+		emit displayLap(item->text().toInt());
+	}
 }

@@ -14,7 +14,7 @@ DataStatisticsView::DataStatisticsView()
 
 	QStringList column_headers, row_headers;
 	row_headers 
-		<< "Time (s)" << "Distance (km)" << "Elevation Gain (m)" << "Elevation Loss (m)"  << " "
+		<< "Time (min)" << "Distance (km)" << "Elevation Gain (m)" << "Elevation Loss (m)"  << " "
 		<< "Avg Speed (km/h)" << "Avg Heart Rate (bpm)" << "Avg Gradient (%)" << "Avg Cadence (rpm)" << "Avg Power (W)" << " "
 		<< "Max Speed (km/h)" << "Max Heart Rate (bpm)" << "Max Gradient (%)" << "Max Cadence (rpm)" << "Max Power (W)";
 	column_headers << " Overall " << "Selection";
@@ -48,11 +48,17 @@ void DataStatisticsView::displayRide(DataLog* data_log)
 }
 
 /******************************************************/
+void DataStatisticsView::displayLap(int lap_index)
+{
+	displaySelectedRideStats(_data_log->lap(lap_index).first,_data_log->lap(lap_index).second);
+}
+
+/******************************************************/
 void DataStatisticsView::displayCompleteRideStats()
 {
 	// Compute totals
 	double time = _data_log->totalTime();
-	double dist = _data_log->totalDist()/1000.0;
+	double dist = _data_log->totalDist();
 	double elev_gain = DataProcessing::computeGain(_data_log->altFltd().begin(), _data_log->altFltd().end());
 	double elev_loss = DataProcessing::computeLoss(_data_log->altFltd().begin(), _data_log->altFltd().end());
 
@@ -84,8 +90,8 @@ void DataStatisticsView::displayCompleteRideStats()
 	_data_log->maxPower() = max_power;
 
 	// Set totals column
-	_table->item(0,0)->setText(QString::number(time, 'f', 0));
-	_table->item(1,0)->setText(QString::number(dist, 'f', 2));
+	_table->item(0,0)->setText(DataProcessing::minsFromSecs(time));
+	_table->item(1,0)->setText(DataProcessing::kmFromMeters(dist));
 	_table->item(2,0)->setText(QString::number(elev_gain, 'f', 1));
 	_table->item(3,0)->setText(QString::number(elev_loss, 'f', 1));
 
@@ -149,7 +155,7 @@ void DataStatisticsView::displaySelectedRideStats(int idx_start, int idx_end)
 {
 	// Compute totals
 	double time = _data_log->time(idx_end) - _data_log->time(idx_start);
-	double dist = _data_log->dist(idx_end)/1000.0 - _data_log->dist(idx_start)/1000.0;
+	double dist = _data_log->dist(idx_end) - _data_log->dist(idx_start);
 	double elev_gain = DataProcessing::computeGain(_data_log->altFltd().begin() + idx_start, _data_log->altFltd().begin() + idx_end);
 	double elev_loss = DataProcessing::computeLoss(_data_log->altFltd().begin() + idx_start, _data_log->altFltd().begin() + idx_end);
 	
@@ -168,8 +174,8 @@ void DataStatisticsView::displaySelectedRideStats(int idx_start, int idx_end)
 	double max_power = DataProcessing::computeMax(_data_log->powerFltd().begin() + idx_start, _data_log->powerFltd().begin() + idx_end);
 	
 	// Set selection column
-	_table->item(0,1)->setText(QString::number(time, 'f', 0));
-	_table->item(1,1)->setText(QString::number(dist, 'f', 2));
+	_table->item(0,1)->setText(DataProcessing::minsFromSecs(time));
+	_table->item(1,1)->setText(DataProcessing::kmFromMeters(dist));
 	_table->item(2,1)->setText(QString::number(elev_gain, 'f', 1));
 	_table->item(3,1)->setText(QString::number(elev_loss, 'f', 1));
 

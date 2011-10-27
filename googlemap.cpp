@@ -150,6 +150,12 @@ void GoogleMap::displayRide(DataLog* data_log)
 }
 
 /******************************************************/
+void GoogleMap::displayLap(int lap_index)
+{
+	zoomSelection(_data_log->lap(lap_index).first,_data_log->lap(lap_index).second);
+}
+
+/******************************************************/
 void GoogleMap::setMarkerPosition(int idx)
 {
 	if (idx > 0 && idx < _data_log->numPoints())
