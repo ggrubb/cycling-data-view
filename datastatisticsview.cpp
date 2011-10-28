@@ -41,16 +41,17 @@ DataStatisticsView::~DataStatisticsView()
 /******************************************************/
 void DataStatisticsView::displayRide(DataLog* data_log)
 {
-	_data_log = data_log;
+	if (data_log != _data_log)
+	{
+		_data_log = data_log;
 
-	displayCompleteRideStats();
-	show();
-}
-
-/******************************************************/
-void DataStatisticsView::displayLap(int lap_index)
-{
-	displaySelectedRideStats(_data_log->lap(lap_index).first,_data_log->lap(lap_index).second);
+		displayCompleteRideStats();
+		show();
+	}
+	else
+	{
+		clearSelectionColumn();
+	}
 }
 
 /******************************************************/

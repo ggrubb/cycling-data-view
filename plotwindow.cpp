@@ -279,7 +279,6 @@ PlotWindow::PlotWindow()
 	_x_axis_measurement->addButton(_dist_axis, 1);
 	connect(_x_axis_measurement,SIGNAL(buttonClicked(int)), this, SLOT(xAxisUnitsChanged(int)));
 	connect(_x_axis_measurement,SIGNAL(buttonClicked(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
-	std::cout << _x_axis_measurement->checkedId() << std::endl;
 
 	// Checkboxes for graph plots
 	_hr_cb = new QCheckBox("Heart Rate");
@@ -342,9 +341,7 @@ PlotWindow::PlotWindow()
 
 /******************************************************/
 PlotWindow::~PlotWindow()
-{
-
-}
+{}
 
 /******************************************************/
 void PlotWindow::setEnabled(bool enabled)
@@ -366,31 +363,38 @@ void PlotWindow::setEnabled(bool enabled)
 /******************************************************/
 void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStatisticsView* stats_view)
 {
-	_data_log = data_log;
-	_plot_picker1->setDataLog(_data_log);
+	if (data_log != _data_log)
+	{
+		_data_log = data_log;
+		_plot_picker1->setDataLog(_data_log);
 
-	clearLapMarkers();
-	drawGraphs();
-	drawLapMarkers();
-	show();
-	
-	// Connect this window to the google map
-	connect(this, SIGNAL(setMarkerPosition(int)), google_map, SLOT(setMarkerPosition(int)));
-	connect(this, SIGNAL(beginSelection(int)), google_map, SLOT(beginSelection(int)));
-	connect(this, SIGNAL(endSelection(int)), google_map, SLOT(endSelection(int)));
-	connect(this, SIGNAL(zoomSelection(int,int)), google_map, SLOT(zoomSelection(int,int)));
-	connect(this, SIGNAL(deleteSelection()), google_map, SLOT(deleteSelection()));
-	connect(this, SIGNAL(panSelection(int)), google_map, SLOT(moveSelection(int)));
-	connect(this, SIGNAL(panAndHoldSelection(int)), google_map, SLOT(moveAndHoldSelection(int)));
-	connect(this, SIGNAL(updateDataView()), google_map, SLOT(definePathColour()));
+		clearLapMarkers();
+		drawGraphs();
+		drawLapMarkers();
+		show();
+		
+		// Connect this window to the google map
+		connect(this, SIGNAL(setMarkerPosition(int)), google_map, SLOT(setMarkerPosition(int)));
+		connect(this, SIGNAL(beginSelection(int)), google_map, SLOT(beginSelection(int)));
+		connect(this, SIGNAL(endSelection(int)), google_map, SLOT(endSelection(int)));
+		connect(this, SIGNAL(zoomSelection(int,int)), google_map, SLOT(zoomSelection(int,int)));
+		connect(this, SIGNAL(deleteSelection()), google_map, SLOT(deleteSelection()));
+		connect(this, SIGNAL(panSelection(int)), google_map, SLOT(moveSelection(int)));
+		connect(this, SIGNAL(panAndHoldSelection(int)), google_map, SLOT(moveAndHoldSelection(int)));
+		connect(this, SIGNAL(updateDataView()), google_map, SLOT(definePathColour()));
 
-	// Connect this window to the statistical viewer
-	connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(displaySelectedRideStats(int,int)));
-	connect(this, SIGNAL(deleteSelection()), stats_view, SLOT(deleteSelection()));
-	connect(this, SIGNAL(updateDataView()), stats_view, SLOT(displayCompleteRideStats()));
+		// Connect this window to the statistical viewer
+		connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(displaySelectedRideStats(int,int)));
+		connect(this, SIGNAL(deleteSelection()), stats_view, SLOT(deleteSelection()));
+		connect(this, SIGNAL(updateDataView()), stats_view, SLOT(displayCompleteRideStats()));
 
-	// Enabled user interface
-	setEnabled(true);
+		// Enabled user interface
+		setEnabled(true);
+	}
+	else
+	{
+		_plot_zoomer->zoom(_plot_zoomer->zoomBase());
+	}
 }
 
 /******************************************************/
@@ -470,7 +474,26 @@ void PlotWindow::clearLapMarkers()
 /******************************************************/
 void PlotWindow::displayLap(int lap_index)
 {
+	// Get laps details
+	const std::pair<int, int> lap = _data_log->lap(lap_index);
 
+	// Define zoom rect
+	QRect zoom_rect;
+	zoom_rect.setBottom(200);
+	zoom_rect.setTop(0);
+	if (_x_axis_measurement->checkedId() == 0) // time
+	{
+		zoom_rect.setLeft(_data_log->time(lap.first));
+		zoom_rect.setRight(_data_log->time(lap.second));
+	}
+	else // dist
+	{
+		zoom_rect.setLeft(_data_log->dist(lap.first));
+		zoom_rect.setRight(_data_log->dist(lap.second));
+	}
+
+	// Tell the plot zoomer to zoom on this rect
+	_plot_zoomer->zoom(zoom_rect);
 }
 
 /******************************************************/

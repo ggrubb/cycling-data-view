@@ -88,14 +88,8 @@ void MainWindow::setRide(DataLog* data_log)
 /******************************************************/
 void MainWindow::setLap(int lap_index)
 {
-	// Zoom plots to lap
+	// Zoom plots to lap (this automatically propogates to map and stats)
 	_plot_window->displayLap(lap_index);
-
-	// Zoom map to lap
-	_google_map->displayLap(lap_index);
-
-	// Show stats of lap
-	_stats_view->displayLap(lap_index);
 }
 
 /******************************************************/

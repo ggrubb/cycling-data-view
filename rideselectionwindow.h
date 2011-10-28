@@ -33,6 +33,7 @@ private slots:
 	QStandardItemModel* _model;
 	QDir* _log_directory;
 	std::vector<DataLog*> _data_logs;
+	DataLog* _current_data_log;
 	TcxParser* _parser;
  };
 

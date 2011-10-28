@@ -34,10 +34,12 @@ RideSelectionWindow::RideSelectionWindow()
 	// Setup the data log parser and read directory
 	_parser = new TcxParser();
 	_data_logs.resize(0);
+	_current_data_log = 0;
 	_log_directory = new QDir;
 	QStringList filter;
 	filter << "*.tcx";
 	_log_directory->setNameFilters(filter);
+
 }
 
 /******************************************************/
@@ -165,18 +167,20 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 		QStandardItem* item = _model->item(index.row(),3); // 4th element is data log index (not displayed)
 
 		// Parse complete ride details
-		DataLog* data_log = _data_logs[item->text().toInt()];
-		_parser->parse(data_log->filename(), *data_log);
+		if (_current_data_log != _data_logs[item->text().toInt()])
+		{
+			_current_data_log = _data_logs[item->text().toInt()];
+			_parser->parse(_current_data_log->filename(), *_current_data_log);
+		}
 
 		// Notify to display the selected ride
-		emit displayRide(data_log);
+		emit displayRide(_current_data_log);
 	}
 	else // user seletected a lap
 	{
 		// Get the item which represents the index
-		QStandardItem* item = _model->item(index.row(),3); // 4th element is lap index (not displayed)
+		QStandardItem* item = _model->item(index.parent().row())->child(index.row(),3); // 4th element is lap index (not displayed)
 
-		std::cout << "idx: " << index.row() <<  "lap: " << item->text().toInt() << std::endl;
 		// Notif to display the selected lap
 		emit displayLap(item->text().toInt());
 	}

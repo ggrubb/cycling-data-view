@@ -132,27 +132,28 @@ void GoogleMap::setEnabled(bool enabled)
 /******************************************************/
 void GoogleMap::displayRide(DataLog* data_log)
 {
-	_data_log = data_log;
-
-	if (_data_log->lgdValid() && _data_log->ltdValid())
+	if (data_log != _data_log)
 	{
-		// Create the google map web page
-		ostringstream page;
-		createPage(page);
-		_view->setHtml(QString::fromStdString(page.str()));
+		_data_log = data_log;
 
-		show();
+		if (_data_log->lgdValid() && _data_log->ltdValid())
+		{
+			// Create the google map web page
+			ostringstream page;
+			createPage(page);
+			_view->setHtml(QString::fromStdString(page.str()));
 
-		// Enabled user interface
-		setEnabled(true);
-		_path_colour_scheme->setCurrentIndex(0);
+			show();
+
+			// Enabled user interface
+			setEnabled(true);
+			_path_colour_scheme->setCurrentIndex(0);
+		}
 	}
-}
-
-/******************************************************/
-void GoogleMap::displayLap(int lap_index)
-{
-	zoomSelection(_data_log->lap(lap_index).first,_data_log->lap(lap_index).second);
+	else
+	{
+		deleteSelection();
+	}
 }
 
 /******************************************************/

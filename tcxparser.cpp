@@ -83,6 +83,7 @@ void TcxParser::parseRideSummary(DataLog& data_log)
 {
 	QDomElement doc = _dom_document.documentElement();
 
+	QDomElement id  = doc.firstChild().firstChild().firstChildElement("Id");
 	QDomElement lap = doc.firstChild().firstChild().firstChildElement("Lap");
 	QDomElement	total_time_seconds = lap.firstChildElement("TotalTimeSeconds");
 	QDomElement	distance_meters = lap.firstChildElement("DistanceMeters");
@@ -93,7 +94,7 @@ void TcxParser::parseRideSummary(DataLog& data_log)
 	QDomNode	avg_speed = lap.firstChildElement("Extensions").firstChild().firstChild();
 	QDomElement	avg_cadence = lap.firstChildElement("Cadence");
 
-	QString date = lap.attributes().item(0).nodeValue().replace('T', QChar(' '));
+	QString date = id.firstChild().nodeValue().replace('T', QChar(' '));
 	date.chop(1);
 	data_log.date() = date;
 	data_log.totalTime() = total_time_seconds.firstChild().nodeValue().toFloat();

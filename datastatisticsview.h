@@ -14,7 +14,6 @@ class DataStatisticsView : public QWidget
 	~DataStatisticsView();
 
 	void displayRide(DataLog* data_log);
-	void displayLap(int lap_index);
 
  public slots:
 	void displayCompleteRideStats();
