@@ -181,10 +181,25 @@ void QwtCustomPlotPicker::xAxisUnitsChanged(int units)
 }
 
 /******************************************************/
-PlotWindow::PlotWindow()
+PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
 {
+	// Create the plot
 	_plot = new QwtPlot();
-	//_plot->setCanvasBackground(QBrush(Qt::black));
+	
+	// Connect this window to the google map
+	connect(this, SIGNAL(setMarkerPosition(int)), google_map, SLOT(setMarkerPosition(int)));
+	connect(this, SIGNAL(beginSelection(int)), google_map, SLOT(beginSelection(int)));
+	connect(this, SIGNAL(endSelection(int)), google_map, SLOT(endSelection(int)));
+	connect(this, SIGNAL(zoomSelection(int,int)), google_map, SLOT(zoomSelection(int,int)));
+	connect(this, SIGNAL(deleteSelection()), google_map, SLOT(deleteSelection()));
+	connect(this, SIGNAL(panSelection(int)), google_map, SLOT(moveSelection(int)));
+	connect(this, SIGNAL(panAndHoldSelection(int)), google_map, SLOT(moveAndHoldSelection(int)));
+	connect(this, SIGNAL(updateDataView()), google_map, SLOT(definePathColour()));
+
+	// Connect this window to the statistical viewer
+	connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(displaySelectedRideStats(int,int)));
+	connect(this, SIGNAL(deleteSelection()), stats_view, SLOT(deleteSelection()));
+	connect(this, SIGNAL(updateDataView()), stats_view, SLOT(displayCompleteRideStats()));
 	
 	// Setup the axis
 	_plot->enableAxis(QwtPlot::yRight,true);
@@ -361,38 +376,26 @@ void PlotWindow::setEnabled(bool enabled)
 }
 
 /******************************************************/
-void PlotWindow::displayRide(DataLog* data_log, GoogleMap* google_map, DataStatisticsView* stats_view)
+void PlotWindow::displayRide(DataLog* data_log)
 {
 	if (data_log != _data_log)
 	{
+		// Set the data
 		_data_log = data_log;
 		_plot_picker1->setDataLog(_data_log);
 
+		// Show the data
 		clearLapMarkers();
 		drawGraphs();
 		drawLapMarkers();
 		show();
-		
-		// Connect this window to the google map
-		connect(this, SIGNAL(setMarkerPosition(int)), google_map, SLOT(setMarkerPosition(int)));
-		connect(this, SIGNAL(beginSelection(int)), google_map, SLOT(beginSelection(int)));
-		connect(this, SIGNAL(endSelection(int)), google_map, SLOT(endSelection(int)));
-		connect(this, SIGNAL(zoomSelection(int,int)), google_map, SLOT(zoomSelection(int,int)));
-		connect(this, SIGNAL(deleteSelection()), google_map, SLOT(deleteSelection()));
-		connect(this, SIGNAL(panSelection(int)), google_map, SLOT(moveSelection(int)));
-		connect(this, SIGNAL(panAndHoldSelection(int)), google_map, SLOT(moveAndHoldSelection(int)));
-		connect(this, SIGNAL(updateDataView()), google_map, SLOT(definePathColour()));
-
-		// Connect this window to the statistical viewer
-		connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(displaySelectedRideStats(int,int)));
-		connect(this, SIGNAL(deleteSelection()), stats_view, SLOT(deleteSelection()));
-		connect(this, SIGNAL(updateDataView()), stats_view, SLOT(displayCompleteRideStats()));
 
 		// Enabled user interface
 		setEnabled(true);
 	}
 	else
 	{
+		// Return to base zoom
 		_plot_zoomer->zoom(_plot_zoomer->zoomBase());
 	}
 }

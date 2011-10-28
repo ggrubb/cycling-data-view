@@ -24,11 +24,12 @@ class PlotWindow : public QWidget
 	Q_OBJECT
 
  public:
-	PlotWindow();
+	// Create plot and connect to google map and stats viewer
+	PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view);
 	~PlotWindow();
 	
-	// Display the ride log in plots, and connect curser to google map
-	void displayRide(DataLog* data_log, GoogleMap* google_map, DataStatisticsView* stats_view);
+	// Display the ride log in plots
+	void displayRide(DataLog* data_log);
 	
 	// Zoom to highlight a lap
 	void displayLap(int lap_index);

@@ -32,9 +32,9 @@ QMainWindow()
 	createMenus();
 
 	_google_map = new GoogleMap();
-	_plot_window = new PlotWindow();
 	_stats_view = new DataStatisticsView();
-	_data_log = new DataLog();
+	_plot_window = new PlotWindow(_google_map, _stats_view);
+
 	_ride_selector = new RideSelectionWindow();
 	connect(_ride_selector , SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
 	connect(_ride_selector , SIGNAL(displayLap(int)),this,SLOT(setLap(int)));
@@ -62,7 +62,6 @@ MainWindow::~MainWindow()
 	delete _google_map;
 	delete _plot_window;
 	delete _stats_view;
-	delete _data_log;
 	delete _ride_selector;
 }
 
@@ -76,7 +75,7 @@ MainWindow::~MainWindow()
 void MainWindow::setRide(DataLog* data_log)
 {
 	// Plot 2d curves (important to be called first since it is responsible for signal filtering)
-	_plot_window->displayRide(data_log, _google_map, _stats_view);
+	_plot_window->displayRide(data_log);
 
 	// Overlay route in Google maps
 	_google_map->displayRide(data_log);

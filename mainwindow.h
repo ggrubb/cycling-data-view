@@ -39,7 +39,6 @@
 
 	GoogleMap* _google_map;
 	PlotWindow* _plot_window;
-	DataLog* _data_log;
 	DataStatisticsView* _stats_view;
 	RideSelectionWindow* _ride_selector;
  };
