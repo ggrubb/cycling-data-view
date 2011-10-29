@@ -43,7 +43,11 @@ QwtCustomPlotZoomer::QwtCustomPlotZoomer(int x_axis, int y_axis, QwtPlotCanvas* 
 bool QwtCustomPlotZoomer::accept(QPolygon& p) const
 {
 	if ( p.count() < 2 )
-		return true;
+		return false;
+
+	// Reject zooms which are too small
+	if (abs(p[0].x() - p[1].x()) < 10)
+		return false;
 
 	// Set the zoom rect to be top to bottm, irrespective of what the user selects in y axis
 	p[0].setY(0);

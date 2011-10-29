@@ -19,9 +19,9 @@ class QwtCustomPlotPicker : public QwtPlotPicker
 		QwtCustomPlotPicker(int x_axis, int y_axis, DataLog* data_log, QwtPlotCanvas* canvas);
 
 		// Set the data log for this picker
-		void setDataLog(
-			DataLog* data_log);
+		void setDataLog(DataLog* data_log);
 
+	protected:
 		// Surpress default tracker drawing
 		void drawTracker(QPainter* painter) const;
 
