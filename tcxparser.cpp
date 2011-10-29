@@ -150,13 +150,13 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 					tmp_s.chop(1);
 					QStringList time_strings = tmp_s.split(':');
 					data_log.time(track_point_idx) = time_strings.at(0).toInt()*3600 + time_strings.at(1).toInt()*60 + time_strings.at(2).toInt();
-					data_log.speed(track_point_idx) = track_point.firstChildElement("Extensions").firstChild().firstChild().nodeValue().toDouble();//.toFloat();
-					data_log.lgd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LongitudeDegrees").firstChild().nodeValue().toDouble();//.toFloat();
-					data_log.ltd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LatitudeDegrees").firstChild().nodeValue().toDouble();//.toFloat();
-					data_log.heartRate(track_point_idx) = track_point.firstChildElement("HeartRateBpm").firstChild().firstChild().nodeValue().toDouble();//.toFloat();
-					data_log.dist(track_point_idx) = track_point.firstChildElement("DistanceMeters").firstChild().nodeValue().toDouble();//.toFloat();
-					data_log.cadence(track_point_idx) = track_point.firstChildElement("Cadence").firstChild().nodeValue().toDouble();//.toFloat();
-					data_log.alt(track_point_idx) = track_point.firstChildElement("AltitudeMeters").firstChild().nodeValue().toDouble();//.toFloat();
+					data_log.speed(track_point_idx) = track_point.firstChildElement("Extensions").firstChild().firstChild().nodeValue().toDouble();
+					data_log.lgd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LongitudeDegrees").firstChild().nodeValue().toDouble();
+					data_log.ltd(track_point_idx) = track_point.firstChildElement("Position").firstChildElement("LatitudeDegrees").firstChild().nodeValue().toDouble();
+					data_log.heartRate(track_point_idx) = track_point.firstChildElement("HeartRateBpm").firstChild().firstChild().nodeValue().toDouble();
+					data_log.dist(track_point_idx) = track_point.firstChildElement("DistanceMeters").firstChild().nodeValue().toDouble();
+					data_log.cadence(track_point_idx) = track_point.firstChildElement("Cadence").firstChild().nodeValue().toDouble();
+					data_log.alt(track_point_idx) = track_point.firstChildElement("AltitudeMeters").firstChild().nodeValue().toDouble();
 				}
 				track_point = track_point.nextSibling();
 
@@ -164,10 +164,35 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 				// Here we check this, and don't increment counter if the trackpoint was empty
 				bool valid_track_point = true;
 				if (data_log.lgd(track_point_idx) == 0 && data_log.ltd(track_point_idx) == 0 && 
-					data_log.dist(track_point_idx) == 0 && data_log.alt(track_point_idx) == 0)
+					data_log.dist(track_point_idx) == 0)
 				{
 					valid_track_point = false;
 					num_empty_track_points++;
+				}
+
+				// Sometimes the xml contains a track point with no GPS. Here we check this and re-use
+				// the previous GPS if the dropout was only one sample.
+				if (data_log.lgd(track_point_idx) == 0 && data_log.ltd(track_point_idx) == 0 && 
+					data_log.dist(track_point_idx) != 0)
+				{
+					if (track_point_idx > 0) 
+					{
+						if (data_log.lgd(track_point_idx-1) != 0 && data_log.ltd(track_point_idx-1) != 0) // recover by using prev pos
+						{
+							data_log.lgd(track_point_idx) = data_log.lgd(track_point_idx-1);
+							data_log.ltd(track_point_idx) = data_log.ltd(track_point_idx-1);
+						}
+						else // give up on this point
+						{
+							valid_track_point = false;
+							num_empty_track_points++;
+						}
+					}
+					else // give up on this point
+					{
+						valid_track_point = false;
+						num_empty_track_points++;
+					}
 				}
 
 				if (valid_track_point)
