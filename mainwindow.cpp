@@ -68,7 +68,7 @@ MainWindow::~MainWindow()
 /******************************************************/
  void MainWindow::open()
  {
-	_ride_selector->setLogDirectory("D:/Grant/projects/cycling-data-view/Debug/test logs");
+	_ride_selector->setLogDirectory("D:/Grant/projects/cycling-data-view/Debug/test logs2");
  }
 
 /******************************************************/

@@ -2,12 +2,15 @@
 #include "datalog.h"
 #include "tcxparser.h"
 #include "dataprocessing.h"
+#include "logdirectorysummary.h"
 
 #include <QTreeView.h>
 #include <QStandardItemModel.h>
 #include <QDir.h>
 #include <QProgressBar.h>
 #include <iostream>
+
+#define LOG_SUMMARY_FILENAME "logsummary.xml"
 
 /******************************************************/
 RideSelectionWindow::RideSelectionWindow()
@@ -31,14 +34,11 @@ RideSelectionWindow::RideSelectionWindow()
 	_tree->setFixedSize(300,290);
 	_tree->show();
 
-	// Setup the data log parser and read directory
+	// Create parser and setup log directory summary
 	_parser = new TcxParser();
 	_data_logs.resize(0);
 	_current_data_log = 0;
-	_log_directory = new QDir;
-	QStringList filter;
-	filter << "*.tcx";
-	_log_directory->setNameFilters(filter);
+	_log_dir_summary = 0;
 
 }
 
@@ -51,9 +51,25 @@ RideSelectionWindow::~RideSelectionWindow()
 /******************************************************/
 void RideSelectionWindow::setLogDirectory(const QString& path)
 {
-	_log_directory->setPath(path);
-	QStringList filenames;
-	filenames = _log_directory->entryList();
+	// Read tcx files from specified directory
+	QDir log_directory;
+	QStringList filter;
+	filter << "*.tcx";
+	log_directory.setNameFilters(filter);
+	log_directory.setPath(path);
+	QStringList filenames = log_directory.entryList();
+
+	// Try to load log summary file if it exists
+	_log_dir_summary = new LogDirectorySummary(path);
+	_log_dir_summary->readFromFile(path + "/" LOG_SUMMARY_FILENAME);
+
+	// Compare files in directory with those in summary and remove if already in summary
+	for (int j=0; j < _log_dir_summary->numLogs(); ++j)
+	{
+		QString filename_without_path = _log_dir_summary->log(j)._filename;
+		filename_without_path.remove(QString(path + "/"));
+		filenames.removeAll(filename_without_path);
+	}
 
 	// Create a small progress bar
 	QProgressBar* load_progress = new QProgressBar();
@@ -66,46 +82,49 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 	load_progress->setMaximum(filenames.size());
 	load_progress->show();
 
-	// Load log files in the directory
-	for (int i=0; i < std::min(filenames.size(),99); ++i)
+	// Load new log files in the directory
+	for (int i=0; i < filenames.size(); ++i)
 	{
 		DataLog* data_log = new DataLog;
 		const bool parse_summary_only = false;
-		const QString filename_with_path = _log_directory->path() + "/" + filenames[i];
-		std::cout << "reading: " << filename_with_path.toStdString(); 
+		const QString filename_with_path = log_directory.path() + "/" + filenames[i];
+		std::cout << "reading: " << filename_with_path.toStdString()<< std::endl; 
 		if (_parser->parse(filename_with_path, *data_log, parse_summary_only))
 		{
 			_data_logs.push_back(data_log);
-			std::cout << " success!";
+			_current_data_log = data_log;
 		}
-		std::cout << std::endl;
 		load_progress->setValue(i);
 	}
-	load_progress->hide();
 	delete load_progress;
 
-	populateWithRides(_data_logs);
+	// Add the newly read rides to the summary
+	_log_dir_summary->addLogsToSummary(_data_logs);
+	_log_dir_summary->writeToFile(log_directory.path() + "/" LOG_SUMMARY_FILENAME);
+
+	populateTableWithRides();
 }
 
 /******************************************************/
-void RideSelectionWindow::populateWithRides(const std::vector<DataLog*>& data_logs)
+void RideSelectionWindow::populateTableWithRides()
 {
 	_model = new QStandardItemModel;
 	
 	QStandardItem *parent_item = _model->invisibleRootItem();
-	for (unsigned int i = 0; i < data_logs.size(); ++i) {
+	for (int i = 0; i < _log_dir_summary->numLogs(); ++i) 
+	{
 		// Data and time
-		QString date = data_logs[i]->date();
+		QString date = _log_dir_summary->log(i)._date;
 		date.chop(3); // remove seconds
 		QStandardItem *ride_name = new QStandardItem(date);
 		ride_name->setFlags(ride_name->flags() & ~Qt::ItemIsEditable);
 
 		// Ride time length
-		QStandardItem *ride_time = new QStandardItem(DataProcessing::minsFromSecs(data_logs[i]->totalTime()));
+		QStandardItem *ride_time = new QStandardItem(DataProcessing::minsFromSecs(_log_dir_summary->log(i)._time));
 		ride_time->setFlags(ride_time->flags() & ~Qt::ItemIsEditable);
 
 		// Ride distance
-		QStandardItem *ride_dist = new QStandardItem(DataProcessing::kmFromMeters(data_logs[i]->totalDist()));
+		QStandardItem *ride_dist = new QStandardItem(DataProcessing::kmFromMeters(_log_dir_summary->log(i)._dist));
 		ride_dist->setFlags(ride_dist->flags() & ~Qt::ItemIsEditable);
 
 		// Index of ride in vector of all rides
@@ -115,17 +134,16 @@ void RideSelectionWindow::populateWithRides(const std::vector<DataLog*>& data_lo
 		ride_list << ride_name << ride_time << ride_dist << ride_index;
 		parent_item->appendRow(ride_list);
 
-		if (data_logs[i]->numLaps() > 1) // all rides are 1 lap, so only show laps for rides with > 1 lap
+		if (_log_dir_summary->log(i)._laps.size() > 1) // all rides are 1 lap, so only show laps for rides with > 1 lap
 		{
-			for (int lap = 0; lap < data_logs[i]->numLaps(); ++lap)
+			for (int lap = 0; lap < _log_dir_summary->log(i)._laps.size(); ++lap)
 			{
 				QStandardItem *lap_name = new QStandardItem("Lap " + QString::number(lap+1));
 				lap_name->setFlags(lap_name->flags() & ~Qt::ItemIsEditable);
 				
 				// Compute lap summary info
-				std::pair<int, int> lap_indecies = data_logs[i]->lap(lap);
-				const double time = data_logs[i]->time(lap_indecies.second) - data_logs[i]->time(lap_indecies.first);
-				const double dist = data_logs[i]->dist(lap_indecies.second) - data_logs[i]->dist(lap_indecies.first);
+				const double time = _log_dir_summary->log(i)._laps[lap]._time;
+				const double dist = _log_dir_summary->log(i)._laps[lap]._dist;
 				
 				QStandardItem *lap_time = new QStandardItem(DataProcessing::minsFromSecs(time));
 				lap_name->setFlags(lap_name->flags() & ~Qt::ItemIsEditable);
@@ -151,10 +169,10 @@ void RideSelectionWindow::populateWithRides(const std::vector<DataLog*>& data_lo
 	_model->setHorizontalHeaderItem(2,header2);
 
 	_tree->setModel(_model);
-	//_tree->setColumnHidden(3, true); // hide the index column
 	_tree->sortByColumn(0,Qt::DescendingOrder);
 	connect(_tree, SIGNAL(clicked(const QModelIndex&)),this,SLOT(rideSelected(const QModelIndex&)));
 	_tree->setCurrentIndex(_model->index(0,0));
+	
 	rideSelected(_tree->currentIndex());
 }
 
@@ -167,10 +185,15 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 		QStandardItem* item = _model->item(index.row(),3); // 4th element is data log index (not displayed)
 
 		// Parse complete ride details
-		if (_current_data_log != _data_logs[item->text().toInt()])
+		if (_current_data_log == 0)
 		{
-			_current_data_log = _data_logs[item->text().toInt()];
-			_parser->parse(_current_data_log->filename(), *_current_data_log);
+			_current_data_log = new DataLog;
+			_parser->parse(_log_dir_summary->log(item->text().toInt())._filename, *_current_data_log);
+		}
+		else if (_current_data_log->filename() != _log_dir_summary->log(item->text().toInt())._filename)
+		{
+			_current_data_log = new DataLog;
+			_parser->parse(_log_dir_summary->log(item->text().toInt())._filename, *_current_data_log);
 		}
 
 		// Notify to display the selected ride
@@ -179,9 +202,23 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 	else // user seletected a lap
 	{
 		// Get the item which represents the index
-		QStandardItem* item = _model->item(index.parent().row())->child(index.row(),3); // 4th element is lap index (not displayed)
+		QStandardItem* ride_item = _model->item(index.parent().row(),3); // 4th element is data log index (not displayed)
+
+		if (_current_data_log == 0)
+		{
+			_current_data_log = new DataLog;
+			_parser->parse(_log_dir_summary->log(ride_item->text().toInt())._filename, *_current_data_log);
+		}
+		else if (_current_data_log->filename() != _log_dir_summary->log(ride_item->text().toInt())._filename)
+		{
+			_current_data_log = new DataLog;
+			_parser->parse(_log_dir_summary->log(ride_item->text().toInt())._filename, *_current_data_log);
+		}
+
+		// Get the item which represents the index
+		QStandardItem* lap_item = _model->item(index.parent().row())->child(index.row(),3); // 4th element is lap index (not displayed)
 
 		// Notif to display the selected lap
-		emit displayLap(item->text().toInt());
+		emit displayLap(lap_item->text().toInt());
 	}
 }

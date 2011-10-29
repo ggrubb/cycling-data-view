@@ -12,7 +12,7 @@ class TcxParser
 	~TcxParser();
 
 	// Parses data from .tcx in filename. Returns true if file was parsed successfully
-	bool parse(const QString& flename, DataLog& data_log, bool parse_summary_only = false);
+	bool parse(const QString& filename, DataLog& data_log, bool parse_summary_only = false);
 
  private:
 	void setDataValidFlags(DataLog& data_log);

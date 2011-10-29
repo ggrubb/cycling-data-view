@@ -7,6 +7,12 @@
 
 class DataLog
  {
+	 enum Status
+	 {
+		Summary = 0,
+		Complete = 1
+	 };
+
  public:
 	DataLog();
 	~DataLog();
@@ -95,6 +101,8 @@ class DataLog
 	int indexFromDist(double dist);
 
  private:
+	// Status of the log (summary, complete, etc)
+	Status _status;
 
 	// Summary data
 	QString _filename;

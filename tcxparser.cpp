@@ -302,12 +302,12 @@ void TcxParser::computeAdditionalDetailts(DataLog& data_log)
 }
 
 /******************************************************/
-bool TcxParser::parse(const QString& flename, DataLog& data_log, bool parse_summary_only)
+bool TcxParser::parse(const QString& filename, DataLog& data_log, bool parse_summary_only)
 {
 	bool read_success = false;
 
 	// Define the file to read
-	QFile file(flename);
+	QFile file(filename);
 
 	// Parse differently depending whether summary only is required (fast) or complete contents (slow)
 	if (parse_summary_only)
@@ -320,7 +320,7 @@ bool TcxParser::parse(const QString& flename, DataLog& data_log, bool parse_summ
 
 		if (summary_parser.totalTime() > 0)
 		{
-			data_log.filename() = flename;
+			data_log.filename() = filename;
 			data_log.date() = summary_parser.id();
 			data_log.totalTime() = summary_parser.totalTime();
 			data_log.totalDist() = summary_parser.totalDist();
@@ -332,12 +332,11 @@ bool TcxParser::parse(const QString& flename, DataLog& data_log, bool parse_summ
 		QString error_msg;
 		int error_line, error_column;
 		read_success = _dom_document.setContent(&file, &error_msg, &error_line, &error_column);
-		QDomElement doc = _dom_document.documentElement();
-
+		
 		// Extract the data
 		if (read_success)
 		{
-			data_log.filename() = flename;
+			data_log.filename() = filename;
 			parseRideSummary(data_log);
 			parseRideDetails(data_log);
 			computeAdditionalDetailts(data_log);

@@ -5,10 +5,10 @@
 
 class QTreeView;
 class QStandardItemModel;
-class QDir;
 class TcxParser;
 class DataLog;
 class QModelIndex;
+class LogDirectorySummary;
 
 class RideSelectionWindow : public QWidget
  {
@@ -27,14 +27,16 @@ private slots:
 	void rideSelected(const QModelIndex& index);
 
  private:
-	void populateWithRides(const std::vector<DataLog*>& data_logs);
+	void populateTableWithRides();
 
 	QTreeView* _tree;
 	QStandardItemModel* _model;
-	QDir* _log_directory;
-	std::vector<DataLog*> _data_logs;
-	DataLog* _current_data_log;
+	
 	TcxParser* _parser;
+
+	std::vector<DataLog*> _data_logs; // cached logs currently loaded
+	DataLog* _current_data_log;
+	LogDirectorySummary* _log_dir_summary;
  };
 
 #endif // RIDESELECTIONWINDOW_H

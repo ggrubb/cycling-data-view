@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\logdirectorysummary.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\mainwindow.cpp"
 				>
 			</File>
@@ -214,6 +218,10 @@
 			</File>
 			<File
 				RelativePath=".\tcxparser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\user.cpp"
 				>
 			</File>
 		</Filter>
@@ -281,6 +289,10 @@
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\logdirectorysummary.h"
+				>
 			</File>
 			<File
 				RelativePath=".\mainwindow.h"
@@ -384,6 +396,10 @@
 			</File>
 			<File
 				RelativePath=".\tcxparser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\user.h"
 				>
 			</File>
 		</Filter>
