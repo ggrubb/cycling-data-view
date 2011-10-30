@@ -36,7 +36,6 @@ RideSelectionWindow::RideSelectionWindow()
 
 	// Create parser and setup log directory summary
 	_parser = new TcxParser();
-	_data_logs.resize(0);
 	_current_data_log = 0;
 	_log_dir_summary = 0;
 
@@ -83,15 +82,15 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 	load_progress->show();
 
 	// Load new log files in the directory
+	std::vector<DataLog*> data_logs;
 	for (int i=0; i < filenames.size(); ++i)
 	{
 		DataLog* data_log = new DataLog;
-		const bool parse_summary_only = false;
 		const QString filename_with_path = log_directory.path() + "/" + filenames[i];
 		std::cout << "reading: " << filename_with_path.toStdString()<< std::endl; 
-		if (_parser->parse(filename_with_path, *data_log, parse_summary_only))
+		if (_parser->parse(filename_with_path, *data_log))
 		{
-			_data_logs.push_back(data_log);
+			data_logs.push_back(data_log);
 			_current_data_log = data_log;
 		}
 		load_progress->setValue(i);
@@ -99,7 +98,7 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 	delete load_progress;
 
 	// Add the newly read rides to the summary
-	_log_dir_summary->addLogsToSummary(_data_logs);
+	_log_dir_summary->addLogsToSummary(data_logs);
 	_log_dir_summary->writeToFile(log_directory.path() + "/" LOG_SUMMARY_FILENAME);
 
 	populateTableWithRides();
@@ -208,11 +207,17 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 		{
 			_current_data_log = new DataLog;
 			_parser->parse(_log_dir_summary->log(ride_item->text().toInt())._filename, *_current_data_log);
+			
+			// Notify to display the selected ride
+			emit displayRide(_current_data_log);
 		}
 		else if (_current_data_log->filename() != _log_dir_summary->log(ride_item->text().toInt())._filename)
 		{
 			_current_data_log = new DataLog;
 			_parser->parse(_log_dir_summary->log(ride_item->text().toInt())._filename, *_current_data_log);
+		
+			// Notify to display the selected ride
+			emit displayRide(_current_data_log);
 		}
 
 		// Get the item which represents the index

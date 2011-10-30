@@ -34,7 +34,6 @@ private slots:
 	
 	TcxParser* _parser;
 
-	std::vector<DataLog*> _data_logs; // cached logs currently loaded
 	DataLog* _current_data_log;
 	LogDirectorySummary* _log_dir_summary;
  };
