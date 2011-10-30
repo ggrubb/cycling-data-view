@@ -15,6 +15,7 @@ class User
 		 int hr_zone3,
 		 int hr_zone4,
 		 int hr_zone5);
+	User();
 	~User();
 
 	const QString& name() const;
@@ -26,6 +27,9 @@ class User
 	int zone3() const;
 	int zone4() const;
 	int zone5() const;
+
+	void readFromFile(const QString& filename);
+	void writeToFile(const QString& filename) const;
 
  private:
 	 QString _name;

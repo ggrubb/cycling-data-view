@@ -4,6 +4,7 @@
 #include "plotwindow.h"
 #include "datastatisticsview.h"
 #include "rideselectionwindow.h"
+#include "user.h"
 #include "aboutwindow.h"
 
 #include <stdio.h>
@@ -21,8 +22,11 @@
 #include <qtgui/qgridlayout>
 #include <qtgui/qdesktopwidget>
 #include <qtgui/qbitmap>
+#include <qtgui/qlistwidget>
+#include <qtgui/qinputdialog>
 
 #define VERSION_INFO "Version 1.0 (Nov 2011)\n Copyright 2011\n grant.grubb@gmail.com"
+#define USER_DIRECTORY "/users/"
 
 /******************************************************/
 MainWindow::MainWindow():
@@ -30,6 +34,8 @@ QMainWindow()
  {
 	createActions();
 	createMenus();
+
+	_current_user = new User();
 
 	_google_map = new GoogleMap();
 	_stats_view = new DataStatisticsView();
@@ -63,13 +69,52 @@ MainWindow::~MainWindow()
 	delete _plot_window;
 	delete _stats_view;
 	delete _ride_selector;
+	delete _current_user;
 }
 
 /******************************************************/
- void MainWindow::open()
- {
-	_ride_selector->setLogDirectory("D:/Grant/projects/cycling-data-view/Debug/test logs2");
- }
+void MainWindow::setUser()
+{
+	QDir directory;
+	QStringList filter;
+	filter << "*.usr";
+	directory.setNameFilters(filter);
+	directory.setPath(QDir::currentPath() + USER_DIRECTORY);
+	QStringList user_filenames = directory.entryList();
+
+	if (user_filenames.length() > 0)
+	{
+		// Load the users from file
+		std::vector<User*> users;
+		QStringList user_names;
+		for (int i = 0; i < user_filenames.length(); ++i)
+		{
+			User* user = new User;
+			user->readFromFile(QDir::currentPath() + USER_DIRECTORY + user_filenames[i]);
+			users.push_back(user);
+
+			user_names.append(user->name());
+		}
+
+		// Prompt to select a user
+		QString	user_name = QInputDialog::getItem(this, tr("User Selection"), tr("Select User:"), user_names, 0, false, 0, 0);
+		
+		// Set the selected user
+		_current_user = users[user_names.indexOf(user_name)];
+		_ride_selector->setLogDirectory(_current_user->logDirectory());
+	}
+	else
+	{
+		// Say the user needs to add a user
+	}
+}
+
+/******************************************************/
+void MainWindow::addUser()
+{
+	User user("Grant","D:/Grant/projects/cycling-data-view/Debug/test logs2",64.0,8.5, 140, 155,170,180, 190);
+	user.writeToFile("grant.usr");
+}
 
 /******************************************************/
 void MainWindow::setRide(DataLog* data_log)
@@ -109,50 +154,30 @@ void MainWindow::setLap(int lap_index)
 	about->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::SplashScreen);
 	about->show();
 	about->showVersionInfo(tr(VERSION_INFO));
-
-	// Define the file to read
-	//QString filename("05_04_2011 17_42_07_history.tcx");
-	
-	//// Do some OpenCV tests
-	//cv::Mat img_orig = cv::imread("img.png");
-	//std::vector<uchar> buf;
-	//std::vector<int> params(2); 
-	//params[0] = CV_IMWRITE_JPEG_QUALITY;
-	//params[1] = 50;
-	//imencode(".jpg", img_orig, buf, params);
-	//
-	//// Display the data in some way
-	////QMessageBox::about(this, tr("Debug print"), tr("Document read ") + QString::number(read_success) + " " + QString::number(overview_data._total_time));
-	//buf[100] = 0;
-	//buf[150] = 0;
-
-	//cv::Mat buf_m(buf);
-	//cv::Mat img_decd = cv::imdecode(buf_m, 1);
-	//params[0]= CV_IMWRITE_PNG_COMPRESSION;
-	//params[1] = 0;
-	//cv::imwrite("img_out.png",img_decd, params);
  }
 
 /******************************************************/
  void MainWindow::createActions()
  {
-     _open_act = new QAction(tr("&Open..."), this);
-     _open_act->setShortcut(tr("Ctrl+O"));
-     connect(_open_act, SIGNAL(triggered()), this, SLOT(open()));
+     _set_act = new QAction(tr("Select..."), this);
+     connect(_set_act, SIGNAL(triggered()), this, SLOT(setUser()));
 
-     _exit_act = new QAction(tr("E&xit"), this);
-     _exit_act->setShortcut(tr("Ctrl+Q"));
+	 _add_act = new QAction(tr("Add..."), this);
+     connect(_add_act, SIGNAL(triggered()), this, SLOT(addUser()));
+
+     _exit_act = new QAction(tr("Exit"), this);
      connect(_exit_act, SIGNAL(triggered()), this, SLOT(close()));
 
-     _about_act = new QAction(tr("&About"), this);
+     _about_act = new QAction(tr("About"), this);
      connect(_about_act, SIGNAL(triggered()), this, SLOT(about()));
  }
 
 /******************************************************/
  void MainWindow::createMenus()
  {
-     _file_menu = new QMenu(tr("&File"), this);
-     _file_menu->addAction(_open_act);
+     _file_menu = new QMenu(tr("&User"), this);
+     _file_menu->addAction(_set_act);
+     _file_menu->addAction(_add_act);
      _file_menu->addSeparator();
      _file_menu->addAction(_exit_act);
 
