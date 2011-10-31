@@ -25,9 +25,10 @@
     void setUser();
     void addUser();
     void about();
+	void setRider(User* user);
 	void setRide(DataLog* data_log);
 	void setLap(int lap_index);
-
+	
  private:
     void createActions();
     void createMenus();

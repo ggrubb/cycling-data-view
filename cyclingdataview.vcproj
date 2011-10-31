@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\adduserwindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\cyclingdataview.cpp"
 				>
 			</File>
@@ -233,6 +237,30 @@
 			<File
 				RelativePath=".\aboutwindow.h"
 				>
+			</File>
+			<File
+				RelativePath=".\adduserwindow.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\datalog.h"
@@ -408,6 +436,10 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\moc_adduserwindow.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\moc_datastatisticsview.cpp"
 				>

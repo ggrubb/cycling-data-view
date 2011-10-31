@@ -1,8 +1,6 @@
 #ifndef GOOGLEMAP_H
 #define GOOGLEMAP_H
 
-//#include "datalog.h"
-
 #include <qtxml/qdomdocument>
 #include <qtgui/qwidget>
 #include <qtcore/qpoint>

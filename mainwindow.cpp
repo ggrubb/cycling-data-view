@@ -6,6 +6,7 @@
 #include "rideselectionwindow.h"
 #include "user.h"
 #include "aboutwindow.h"
+#include "adduserwindow.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -26,7 +27,7 @@
 #include <qtgui/qinputdialog>
 
 #define VERSION_INFO "Version 1.0 (Nov 2011)\n Copyright 2011\n grant.grubb@gmail.com"
-#define USER_DIRECTORY "/users/"
+#define USER_DIRECTORY "/riders/"
 
 /******************************************************/
 MainWindow::MainWindow():
@@ -53,7 +54,7 @@ QMainWindow()
 	glayout1->addWidget(_google_map,1,1);
 
 	setCentralWidget(central_widget);
-	setWindowTitle(tr("RideViewer"));
+	setWindowTitle("RideViewer");
 	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
 	
 	// Set to full screen size
@@ -77,7 +78,7 @@ void MainWindow::setUser()
 {
 	QDir directory;
 	QStringList filter;
-	filter << "*.usr";
+	filter << "*.rider";
 	directory.setNameFilters(filter);
 	directory.setPath(QDir::currentPath() + USER_DIRECTORY);
 	QStringList user_filenames = directory.entryList();
@@ -97,11 +98,10 @@ void MainWindow::setUser()
 		}
 
 		// Prompt to select a user
-		QString	user_name = QInputDialog::getItem(this, tr("User Selection"), tr("Select User:"), user_names, 0, false, 0, 0);
+		QString	user_name = QInputDialog::getItem(this, tr("Rider Selection"), tr("Select Rider:"), user_names, 0, false, 0, 0);
 		
 		// Set the selected user
-		_current_user = users[user_names.indexOf(user_name)];
-		_ride_selector->setLogDirectory(_current_user->logDirectory());
+		setRider(users[user_names.indexOf(user_name)]);
 	}
 	else
 	{
@@ -112,8 +112,18 @@ void MainWindow::setUser()
 /******************************************************/
 void MainWindow::addUser()
 {
-	User user("Grant","D:/Grant/projects/cycling-data-view/Debug/test logs2",64.0,8.5, 140, 155,170,180, 190);
-	user.writeToFile("grant.usr");
+	AddUserWindow* add_user_window = new AddUserWindow();
+	connect(add_user_window, SIGNAL(riderSelected(User*)), this, SLOT(setRider(User*)));
+}
+
+/******************************************************/
+void MainWindow::setRider(User* user)
+{
+	user->writeToFile(QString(".") + USER_DIRECTORY + user->name() + QString(".rider"));
+	setWindowTitle(QString("RideViewer") + QString(": ") + user->name());
+	
+	_current_user = user;
+	_ride_selector->setLogDirectory(_current_user->logDirectory());
 }
 
 /******************************************************/
@@ -175,7 +185,7 @@ void MainWindow::setLap(int lap_index)
 /******************************************************/
  void MainWindow::createMenus()
  {
-     _file_menu = new QMenu(tr("&User"), this);
+     _file_menu = new QMenu(tr("&Rider"), this);
      _file_menu->addAction(_set_act);
      _file_menu->addAction(_add_act);
      _file_menu->addSeparator();
