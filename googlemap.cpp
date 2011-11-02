@@ -376,12 +376,25 @@ void GoogleMap::createPage(std::ostringstream& page)
 		
 		// Global variables
 		<< "var map;" << endl
-		<< "var marker;" << endl
-		<< "marker = new google.maps.Marker();" << endl
 		<< "var selected_path;" << endl
 		<< "var colours = [\"00FF00\", \"19FF00\", \"32FF00\", \"4CFF00\", \"66FF00\", \"7FFF00\", \"99FF00\", \"B2FF00\", \"CCFF00\", \"E5FF00\", \"FFFF00\", \"FFE500\", \"FFCC00\", \"FFB200\", \"FF9900\", \"FF7F00\", \"FF6600\", \"FF4C00\", \"FF3300\", \"FF1900\", \"FF0000\"];" << endl // colour table, from green to red in 20 steps
 		<< "var ride_path = new Array();" << endl
 		<< "var ride_bounds = new google.maps.LatLngBounds();" << endl
+
+		// Global variables - define a marker to represent the current position
+		<< "var marker_image = new google.maps.MarkerImage(" << endl
+		<< "'" << QDir::currentPath().toStdString() << "/resources/marker_image.png'," << endl
+		<< "new google.maps.Size(50,50)," << endl
+		<< "new google.maps.Point(0,0)," << endl
+		<< "new google.maps.Point(25,50) );" << endl
+
+		<< "var marker_shadow = new google.maps.MarkerImage(" << endl
+		<< "'" << QDir::currentPath().toStdString() << "/resources/marker_shadow.png'," << endl
+		<< "new google.maps.Size(78,50)," << endl
+		<< "new google.maps.Point(0,0)," << endl
+		<< "new google.maps.Point(25,50) );" << endl
+
+		<< "var marker = new google.maps.Marker({icon: marker_image, shadow: marker_shadow});" << endl
 
 		// Function initialise
 		<< "function initialize() {" << endl
