@@ -15,35 +15,6 @@ TcxParser::~TcxParser()
 {}
 
 /******************************************************/
-void TcxParser::parseRideSummary(DataLog& data_log)
-{
-	QDomElement doc = _dom_document.documentElement();
-
-	QDomElement id  = doc.firstChild().firstChild().firstChildElement("Id");
-	QDomElement lap = doc.firstChild().firstChild().firstChildElement("Lap");
-	QDomElement	total_time_seconds = lap.firstChildElement("TotalTimeSeconds");
-	QDomElement	distance_meters = lap.firstChildElement("DistanceMeters");
-	QDomElement	max_speed = lap.firstChildElement("MaximumSpeed");
-	QDomNode	max_heart_rate = lap.firstChildElement("MaximumHeartRateBpm").firstChild();
-	QDomNode	max_cadence = lap.firstChildElement("Extensions").firstChild().firstChild().nextSibling();
-	QDomNode	avg_heart_rate = lap.firstChildElement("AverageHeartRateBpm").firstChild();
-	QDomNode	avg_speed = lap.firstChildElement("Extensions").firstChild().firstChild();
-	QDomElement	avg_cadence = lap.firstChildElement("Cadence");
-
-	QString date = id.firstChild().nodeValue().replace('T', QChar(' '));
-	date.chop(1);
-	data_log.date() = date;
-	data_log.totalTime() = total_time_seconds.firstChild().nodeValue().toFloat();
-	data_log.totalDist() = distance_meters.firstChild().nodeValue().toFloat();
-	data_log.avgCadence() = avg_cadence.firstChild().nodeValue().toFloat();
-	data_log.avgHeartRate() = avg_heart_rate.firstChild().nodeValue().toFloat();
-	data_log.avgSpeed() = avg_speed.firstChild().nodeValue().toFloat();
-	data_log.maxSpeed() = max_speed.firstChild().nodeValue().toFloat();
-	data_log.maxHeartRate() = max_heart_rate.firstChild().nodeValue().toFloat();
-	data_log.maxCadence() = 0;
-}
-
-/******************************************************/
 void TcxParser::parseRideDetails(DataLog& data_log)
 {
 	QDomElement doc = _dom_document.documentElement();
@@ -253,7 +224,6 @@ bool TcxParser::parse(const QString& filename, DataLog& data_log)
 	if (read_success)
 	{
 		data_log.filename() = filename;
-		parseRideSummary(data_log);
 		parseRideDetails(data_log);
 		computeAdditionalDetailts(data_log);
 		data_log.computeMaps();
