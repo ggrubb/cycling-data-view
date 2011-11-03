@@ -26,7 +26,7 @@
 #include <qtgui/qlistwidget>
 #include <qtgui/qinputdialog>
 
-#define VERSION_INFO "Version 1.0 (Nov 2011)\n Copyright 2011\n grant.grubb@gmail.com"
+#define VERSION_INFO "Version 1.0 (Nov 2011)\n\n www.rideviewer.com\n grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
 
 /******************************************************/
@@ -157,8 +157,8 @@ void MainWindow::setLap(int lap_index)
 	QFont about_font;
 	about_font.setFamily("Arial");
 	about_font.setBold(true);
-	about_font.setPixelSize(9);
-	about_font.setStretch(125);
+	about_font.setPixelSize(8);
+	//about_font.setStretch(125);
 	 
 	about->setFont(about_font);
 	about->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::SplashScreen);
@@ -175,6 +175,9 @@ void MainWindow::setLap(int lap_index)
 	 _add_act = new QAction(tr("Add..."), this);
      connect(_add_act, SIGNAL(triggered()), this, SLOT(addUser()));
 
+	 _edit_act = new QAction(tr("Edit..."), this);
+     connect(_edit_act, SIGNAL(triggered()), this, SLOT(addUser()));
+
      _exit_act = new QAction(tr("Exit"), this);
      connect(_exit_act, SIGNAL(triggered()), this, SLOT(close()));
 
@@ -188,6 +191,7 @@ void MainWindow::setLap(int lap_index)
      _file_menu = new QMenu(tr("&Rider"), this);
      _file_menu->addAction(_set_act);
      _file_menu->addAction(_add_act);
+     _file_menu->addAction(_edit_act);
      _file_menu->addSeparator();
      _file_menu->addAction(_exit_act);
 

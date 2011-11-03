@@ -35,6 +35,7 @@
 
     QAction* _set_act;
     QAction* _add_act;
+    QAction* _edit_act;
     QAction* _exit_act;
     QAction* _about_act;
 
