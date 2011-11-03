@@ -380,8 +380,9 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "var colours = [\"00FF00\", \"19FF00\", \"32FF00\", \"4CFF00\", \"66FF00\", \"7FFF00\", \"99FF00\", \"B2FF00\", \"CCFF00\", \"E5FF00\", \"FFFF00\", \"FFE500\", \"FFCC00\", \"FFB200\", \"FF9900\", \"FF7F00\", \"FF6600\", \"FF4C00\", \"FF3300\", \"FF1900\", \"FF0000\"];" << endl // colour table, from green to red in 20 steps
 		<< "var ride_path = new Array();" << endl
 		<< "var ride_bounds = new google.maps.LatLngBounds();" << endl
+		<< "var ride_coords;" << endl
 
-		// Global variables - define a marker to represent the current position
+		// Global variables - define marker images
 		<< "var marker_image = new google.maps.MarkerImage(" << endl
 		<< "'" << QDir::currentPath().toStdString() << "/resources/marker_image.png'," << endl
 		<< "new google.maps.Size(50,50)," << endl
@@ -394,13 +395,39 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "new google.maps.Point(0,0)," << endl
 		<< "new google.maps.Point(25,50) );" << endl
 
+		<< "var start_image = new google.maps.MarkerImage(" << endl
+		<< "'" << QDir::currentPath().toStdString() << "/resources/start_image.png'," << endl
+		<< "new google.maps.Size(50,50)," << endl
+		<< "new google.maps.Point(0,0)," << endl
+		<< "new google.maps.Point(50,50) );" << endl
+
+		<< "var start_shadow = new google.maps.MarkerImage(" << endl
+		<< "'" << QDir::currentPath().toStdString() << "/resources/start_shadow.png'," << endl
+		<< "new google.maps.Size(78,50)," << endl
+		<< "new google.maps.Point(0,0)," << endl
+		<< "new google.maps.Point(50,50) );" << endl
+
+		<< "var finish_image = new google.maps.MarkerImage(" << endl
+		<< "'" << QDir::currentPath().toStdString() << "/resources/finish_image.png'," << endl
+		<< "new google.maps.Size(50,50)," << endl
+		<< "new google.maps.Point(0,0)," << endl
+		<< "new google.maps.Point(0,50) );" << endl
+
+		<< "var finish_shadow = new google.maps.MarkerImage(" << endl
+		<< "'" << QDir::currentPath().toStdString() << "/resources/finish_shadow.png'," << endl
+		<< "new google.maps.Size(78,50)," << endl
+		<< "new google.maps.Point(0,0)," << endl
+		<< "new google.maps.Point(0,50) );" << endl
+
 		<< "var marker = new google.maps.Marker({icon: marker_image, shadow: marker_shadow});" << endl
+		<< "var start_marker = new google.maps.Marker({icon: start_image, shadow: start_shadow});" << endl
+		<< "var finish_marker = new google.maps.Marker({icon: finish_image, shadow: finish_shadow});" << endl
 
 		// Function initialise
 		<< "function initialize() {" << endl
 		<< "selected_path = new google.maps.Polyline({strokeColor: \"#000000\",strokeOpacity: 1.0, strokeWeight: 8, zIndex: 1});" << endl
 		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeId: google.maps.MapTypeId.ROADMAP});" << endl
-		<< "var ride_coords = [" << defineCoords(0, _data_log->numPoints()) << "];" << endl // create a path from GPS coords
+		<< "ride_coords = [" << defineCoords(0, _data_log->numPoints()) << "];" << endl // create a path from GPS coords
 		<< "for (i=0;i<ride_coords.length-1;i++) {" << endl
 		<< "path = [ride_coords[i], ride_coords[i+1]];" << endl
 		<< "ride_path[i] = new google.maps.Polyline({path: path, strokeColor: \"#FF0000\", strokeOpacity: 1.0, strokeWeight: 3, zIndex: 2, map: map });" << endl
@@ -409,6 +436,10 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "ride_bounds.extend(ride_coords[i]);" << endl
 		<< "}" << endl
 		<< "map.fitBounds(ride_bounds);" << endl
+		<< "start_marker.setMap(map);" << endl
+		<< "finish_marker.setMap(map);" << endl
+		<< "start_marker.setPosition(ride_coords[0]);" << endl
+		<< "finish_marker.setPosition(ride_coords[ride_coords.length-1]);" << endl
 		<< "}" << endl
 
 		// Function setMarker
@@ -416,11 +447,6 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "var lat_lng = new google.maps.LatLng(ltd ,lgd);" << endl
 		<< "marker.setPosition(lat_lng);" << endl
 		<< "marker.setMap(map);" << endl
-		<< "}" << endl
-
-		// Function deleteMarker
-		<< "function deleteMarker() { " << endl
-		<< "marker.setMap(null);" << endl
 		<< "}" << endl
 
 		// Function setSelectionPath
@@ -434,12 +460,16 @@ void GoogleMap::createPage(std::ostringstream& page)
 		<< "}" << endl
 		<< "map.fitBounds(path_bounds);" << endl
 		<< "}" << endl
+		<< "start_marker.setPosition(coords[0]);" << endl
+		<< "finish_marker.setPosition(coords[coords.length-1]);" << endl
 		<< "}" << endl
 
 		// Function deleteSelectionPath
 		<< "function deleteSelectionPath() {" << endl
 		<< "selected_path.setMap(null);" << endl
 		<< "map.fitBounds(ride_bounds);" << endl
+		<< "start_marker.setPosition(ride_coords[0]);" << endl
+		<< "finish_marker.setPosition(ride_coords[ride_coords.length-1]);" << endl
 		<< "}" << endl
 
 		// Function to stroke ride path (ie colour it) according to key vector (0 <= key[i] <= 1)
