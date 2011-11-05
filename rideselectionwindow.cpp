@@ -31,7 +31,7 @@ RideSelectionWindow::RideSelectionWindow()
 	_tree->setColumnWidth(0,123);
 	_tree->setColumnWidth(1,60);
 	_tree->setColumnWidth(2,60);
-	_tree->setFixedSize(300,290);
+	_tree->setFixedSize(270,290);
 	_tree->show();
 
 	// Create parser and setup log directory summary

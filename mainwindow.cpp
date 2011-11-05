@@ -50,7 +50,7 @@ QMainWindow()
 	QGridLayout* glayout1 = new QGridLayout(central_widget);
 	glayout1->addWidget(_ride_selector,0,0);
 	glayout1->addWidget(_plot_window,0,1);
-	glayout1->addWidget(_stats_view,1,0);
+	glayout1->addWidget(_stats_view,1,0, Qt::AlignLeft | Qt::AlignTop);
 	glayout1->addWidget(_google_map,1,1);
 
 	setCentralWidget(central_widget);

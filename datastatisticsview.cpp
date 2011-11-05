@@ -9,25 +9,29 @@
 /******************************************************/
 DataStatisticsView::DataStatisticsView()
 {
-	_table = new QTableWidget(16,2,this);
+	_table = new QTableWidget(19,2,this);
 	_table->setSelectionMode(QAbstractItemView::NoSelection);
+	_table->setAlternatingRowColors(true);
 
 	QStringList column_headers, row_headers;
 	row_headers 
-		<< "Time (min)" << "Distance (km)" << "Elevation Gain (m)" << "Elevation Loss (m)"  << " "
-		<< "Avg Speed (km/h)" << "Avg Heart Rate (bpm)" << "Avg Gradient (%)" << "Avg Cadence (rpm)" << "Avg Power (W)" << " "
-		<< "Max Speed (km/h)" << "Max Heart Rate (bpm)" << "Max Gradient (%)" << "Max Cadence (rpm)" << "Max Power (W)";
+		<< "Time - min" << "Distance - km" << "Elevation Gain - m" << "Elevation Loss - m"
+		<< "Mean Speed - km/h" << "Mean Heart Rate - bpm" << "Mean Gradient - %" << "Mean Cadence - rpm" << "Mean Power - W"
+		<< "Max Speed - km/h" << "Max Heart Rate - bpm" << "Max Gradient - %" << "Max Cadence - rpm" << "Max Power - W"
+		<< "Time HR Zone1 - min" << "Time HR Zone2 - min" << "Time HR Zone3 - min" << "Time HR Zone4 - min" << "Time HR Zone5 - min";
 	column_headers << " Overall " << "Selection";
 	_table->setVerticalHeaderLabels(row_headers);
 	_table->setHorizontalHeaderLabels(column_headers);
-	_table->resizeRowsToContents();
-	_table->setRowHeight(4,2); // seperator row
-	_table->setRowHeight(10,2); // seperator row
+	for (int r = 0; r < _table->rowCount(); ++r)
+	{
+		_table->verticalHeaderItem(r)->setSizeHint(QSize(136,16));
+		_table->setRowHeight(r,16);
+	}
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	layout->addWidget(_table);
 	setLayout(layout);
-	setMaximumSize(270,340);
+	setFixedSize(270,345);
 	
 	clearTable();
 }
@@ -96,17 +100,17 @@ void DataStatisticsView::displayCompleteRideStats()
 	_table->item(2,0)->setText(QString::number(elev_gain, 'f', 1));
 	_table->item(3,0)->setText(QString::number(elev_loss, 'f', 1));
 
-	_table->item(5,0)->setText(QString::number(avg_speed, 'f', 1));
-	_table->item(6,0)->setText(QString::number(avg_hr, 'f', 1));
-	_table->item(7,0)->setText(QString::number(avg_grad, 'f', 2));
-	_table->item(8,0)->setText(QString::number(avg_cadence, 'f', 1));
-	_table->item(9,0)->setText(QString::number(avg_power, 'f', 1));
+	_table->item(4,0)->setText(QString::number(avg_speed, 'f', 1));
+	_table->item(5,0)->setText(QString::number(avg_hr, 'f', 1));
+	_table->item(6,0)->setText(QString::number(avg_grad, 'f', 2));
+	_table->item(7,0)->setText(QString::number(avg_cadence, 'f', 1));
+	_table->item(8,0)->setText(QString::number(avg_power, 'f', 1));
 	
-	_table->item(11,0)->setText(QString::number(max_speed, 'f', 1));
-	_table->item(12,0)->setText(QString::number(max_hr, 'f', 0));
-	_table->item(13,0)->setText(QString::number(max_gradient, 'f', 2));
-	_table->item(14,0)->setText(QString::number(max_cadence, 'f', 0));
-	_table->item(15,0)->setText(QString::number(max_power, 'f', 2));
+	_table->item(9,0)->setText(QString::number(max_speed, 'f', 1));
+	_table->item(10,0)->setText(QString::number(max_hr, 'f', 0));
+	_table->item(11,0)->setText(QString::number(max_gradient, 'f', 2));
+	_table->item(12,0)->setText(QString::number(max_cadence, 'f', 0));
+	_table->item(13,0)->setText(QString::number(max_power, 'f', 2));
 }
 
 /******************************************************/
@@ -122,12 +126,9 @@ void DataStatisticsView::clearTotalsColumn()
 {
 	for (int r = 0; r < _table->rowCount(); ++r)
 	{
-		if (r != 4 && r != 10)
-		{
-			QTableWidgetItem *item = new QTableWidgetItem("-");
-			item->setTextAlignment(Qt::AlignCenter);
-			_table->setItem(r,0,item);
-		}
+		QTableWidgetItem *item = new QTableWidgetItem("-");
+		item->setTextAlignment(Qt::AlignCenter);
+		_table->setItem(r,0,item);
 	}
 }
 
@@ -136,12 +137,9 @@ void DataStatisticsView::clearSelectionColumn()
 {
 	for (int r = 0; r < _table->rowCount(); ++r)
 	{
-		if (r != 4 && r != 10)
-		{
-			QTableWidgetItem *item = new QTableWidgetItem("-");
-			item->setTextAlignment(Qt::AlignCenter);
-			_table->setItem(r,1,item);
-		}
+		QTableWidgetItem *item = new QTableWidgetItem("-");
+		item->setTextAlignment(Qt::AlignCenter);
+		_table->setItem(r,1,item);
 	}
 }
 
@@ -180,15 +178,15 @@ void DataStatisticsView::displaySelectedRideStats(int idx_start, int idx_end)
 	_table->item(2,1)->setText(QString::number(elev_gain, 'f', 1));
 	_table->item(3,1)->setText(QString::number(elev_loss, 'f', 1));
 
-	_table->item(5,1)->setText(QString::number(avg_speed, 'f', 1));
-	_table->item(6,1)->setText(QString::number(avg_hr, 'f', 1));
-	_table->item(7,1)->setText(QString::number(avg_grad, 'f', 2));
-	_table->item(8,1)->setText(QString::number(avg_cadence, 'f', 1));
-	_table->item(9,1)->setText(QString::number(avg_power, 'f', 1));
+	_table->item(4,1)->setText(QString::number(avg_speed, 'f', 1));
+	_table->item(5,1)->setText(QString::number(avg_hr, 'f', 1));
+	_table->item(6,1)->setText(QString::number(avg_grad, 'f', 2));
+	_table->item(7,1)->setText(QString::number(avg_cadence, 'f', 1));
+	_table->item(8,1)->setText(QString::number(avg_power, 'f', 1));
 
-	_table->item(11,1)->setText(QString::number(max_speed, 'f', 1));
-	_table->item(12,1)->setText(QString::number(max_hr, 'f', 0));
-	_table->item(13,1)->setText(QString::number(max_gradient, 'f', 2));
-	_table->item(14,1)->setText(QString::number(max_cadence, 'f', 0));
-	_table->item(15,1)->setText(QString::number(max_power, 'f', 2));
+	_table->item(9,1)->setText(QString::number(max_speed, 'f', 1));
+	_table->item(10,1)->setText(QString::number(max_hr, 'f', 0));
+	_table->item(11,1)->setText(QString::number(max_gradient, 'f', 2));
+	_table->item(12,1)->setText(QString::number(max_cadence, 'f', 0));
+	_table->item(13,1)->setText(QString::number(max_power, 'f', 2));
 }
