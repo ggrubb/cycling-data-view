@@ -11,6 +11,27 @@ void DataProcessing::computePower()
 }
 
 /****************************************/
+double DataProcessing::computeTimeInHRZone(
+	const std::vector<double>& hr,
+	const std::vector<double>& time,
+	double min_hr,
+	double max_hr)
+{
+	assert(hr.size() == time.size());
+	assert(hr.size() > 1);
+
+	double time_in_zone = 0.0;
+	for (unsigned int i=1; i < hr.size(); ++i)
+	{
+		if (hr[i] >= min_hr && hr[i] < max_hr)
+		{
+			time_in_zone += time[i] - time[i-1];
+		}
+	}
+	return time_in_zone;
+}
+
+/****************************************/
 void DataProcessing::lowPassFilterSignal(
 	const std::vector<double>& signal,
 	std::vector<double>& filtered,

@@ -8,6 +8,17 @@ namespace DataProcessing
 {
 	void computePower();
 
+	double computeTimeInHRZone(
+		const std::vector<double>& hr,
+		const std::vector<double>& time,
+		double min_hr,
+		double max_hr);
+
+	void lowPassFilterSignal(
+		const std::vector<double>& signal,
+		std::vector<double>& filtered,
+		int window_size = 10);
+
 	void computeGradient(
 		const std::vector<double>& alt,
 		const std::vector<double>& dist,
@@ -17,11 +28,6 @@ namespace DataProcessing
 		const std::vector<double>& time,
 		const std::vector<double>& dist,
 		std::vector<double>& speed);
-
-	void lowPassFilterSignal(
-		const std::vector<double>& signal,
-		std::vector<double>& filtered,
-		int window_size = 10);
 
 	double computeAverage(
 		std::vector<double>::const_iterator& start,

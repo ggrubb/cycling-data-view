@@ -136,7 +136,7 @@ void MainWindow::setRide(DataLog* data_log)
 	_google_map->displayRide(data_log);
 
 	// Statistical viewer
-	_stats_view->displayRide(data_log);
+	_stats_view->displayRide(data_log, _current_user);
 }
 
 /******************************************************/

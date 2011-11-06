@@ -5,6 +5,7 @@
 
 class QTableWidget;
 class DataLog;
+class User;
 
 class DataStatisticsView : public QWidget
  {
@@ -13,7 +14,7 @@ class DataStatisticsView : public QWidget
 	DataStatisticsView();
 	~DataStatisticsView();
 
-	void displayRide(DataLog* data_log);
+	void displayRide(DataLog* data_log, User* user);
 
  public slots:
 	void displayCompleteRideStats();
@@ -27,6 +28,7 @@ class DataStatisticsView : public QWidget
 
 	QTableWidget* _table;
 	DataLog* _data_log;
+	User* _user;
  };
 
 #endif // DATASTATISTICSVIEW_H

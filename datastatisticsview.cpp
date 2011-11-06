@@ -1,10 +1,12 @@
 #include "datastatisticsview.h"
 #include "dataprocessing.h"
 #include "datalog.h"
+#include "user.h"
 
 #include <qtgui/qtablewidget>
 #include <qtgui/qvboxlayout>
 #include <iostream>
+#include <cassert>
 
 /******************************************************/
 DataStatisticsView::DataStatisticsView()
@@ -43,8 +45,10 @@ DataStatisticsView::~DataStatisticsView()
 }
 
 /******************************************************/
-void DataStatisticsView::displayRide(DataLog* data_log)
+void DataStatisticsView::displayRide(DataLog* data_log, User* user)
 {
+	_user = user;
+
 	if (data_log != _data_log)
 	{
 		_data_log = data_log;
@@ -61,6 +65,9 @@ void DataStatisticsView::displayRide(DataLog* data_log)
 /******************************************************/
 void DataStatisticsView::displayCompleteRideStats()
 {
+	assert(_user);
+	assert(_data_log);
+
 	// Compute totals
 	double time = _data_log->totalTime();
 	double dist = _data_log->totalDist();
@@ -81,6 +88,18 @@ void DataStatisticsView::displayCompleteRideStats()
 	double max_cadence = DataProcessing::computeMax(_data_log->cadenceFltd().begin(), _data_log->cadenceFltd().end());
 	double max_power = DataProcessing::computeMax(_data_log->powerFltd().begin(), _data_log->powerFltd().end());
 	
+	// Compute HR zone times
+	double hr_zone1 = DataProcessing::computeTimeInHRZone(
+		_data_log->heartRate(), _data_log->time(), _user->zone1(), _user->zone2());
+	double hr_zone2 = DataProcessing::computeTimeInHRZone(
+		_data_log->heartRate(), _data_log->time(), _user->zone2(), _user->zone3());
+	double hr_zone3 = DataProcessing::computeTimeInHRZone(
+		_data_log->heartRate(), _data_log->time(), _user->zone3(), _user->zone4());
+	double hr_zone4 = DataProcessing::computeTimeInHRZone(
+		_data_log->heartRate(), _data_log->time(), _user->zone4(), _user->zone5());
+	double hr_zone5 = DataProcessing::computeTimeInHRZone(
+		_data_log->heartRate(), _data_log->time(), _user->zone5(), 1000.0);
+
 	// Update the data log with these stats
 	_data_log->avgSpeed() = avg_speed;
 	_data_log->avgHeartRate() = avg_hr;
@@ -111,6 +130,12 @@ void DataStatisticsView::displayCompleteRideStats()
 	_table->item(11,0)->setText(QString::number(max_gradient, 'f', 2));
 	_table->item(12,0)->setText(QString::number(max_cadence, 'f', 0));
 	_table->item(13,0)->setText(QString::number(max_power, 'f', 2));
+
+	_table->item(14,0)->setText(DataProcessing::minsFromSecs(hr_zone1));
+	_table->item(15,0)->setText(DataProcessing::minsFromSecs(hr_zone2));
+	_table->item(16,0)->setText(DataProcessing::minsFromSecs(hr_zone3));
+	_table->item(17,0)->setText(DataProcessing::minsFromSecs(hr_zone4));
+	_table->item(18,0)->setText(DataProcessing::minsFromSecs(hr_zone5));
 }
 
 /******************************************************/
@@ -152,6 +177,9 @@ void DataStatisticsView::deleteSelection()
 /******************************************************/
 void DataStatisticsView::displaySelectedRideStats(int idx_start, int idx_end)
 {
+	assert(_user);
+	assert(_data_log);
+
 	// Compute totals
 	double time = _data_log->time(idx_end) - _data_log->time(idx_start);
 	double dist = _data_log->dist(idx_end) - _data_log->dist(idx_start);
