@@ -304,14 +304,20 @@ PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
 	_speed_cb = new QCheckBox("Speed");
 	_alt_cb = new QCheckBox("Elevation");
 	_cadence_cb = new QCheckBox("Cadence");
+	_laps_cb = new QCheckBox("Laps");
+	_hr_zones_cb = new QCheckBox("HR Zones");
 	_hr_cb->setChecked(true);
 	_speed_cb->setChecked(true);
 	_alt_cb->setChecked(true);
 	_cadence_cb->setChecked(true);
+	_laps_cb->setChecked(true);
+	_hr_zones_cb->setChecked(false);
 	connect(_hr_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	connect(_speed_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	connect(_alt_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	connect(_cadence_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_laps_cb, SIGNAL(stateChanged(int)),this,SLOT(lapSelectionChanged()));
+	connect(_hr_zones_cb, SIGNAL(stateChanged(int)),this,SLOT(hrZoneSelectionChanged()));
 
 	// Slider for signal smoothing
 	_smoothing_selection = new QSlider(Qt::Horizontal);
@@ -346,6 +352,8 @@ PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
 	vlayout1->addWidget(_cadence_cb);
 	vlayout1->addWidget(axis_selection_widget);
 	vlayout1->addWidget(smoothing_widget);
+	vlayout1->addWidget(_laps_cb);
+	vlayout1->addWidget(_hr_zones_cb);
 	vlayout1->addStretch();
 
 	QHBoxLayout* hlayout2 = new QHBoxLayout(this);
@@ -377,6 +385,8 @@ void PlotWindow::setEnabled(bool enabled)
 	_speed_cb->setEnabled(enabled);
 	_alt_cb->setEnabled(enabled);
 	_cadence_cb->setEnabled(enabled);
+	_laps_cb->setEnabled(enabled);
+	_hr_zones_cb->setEnabled(enabled);
 }
 
 /******************************************************/
@@ -389,13 +399,24 @@ void PlotWindow::displayRide(DataLog* data_log)
 		_plot_picker1->setDataLog(_data_log);
 
 		// Show the data
-		clearLapMarkers();
 		drawGraphs();
-		drawLapMarkers();
-		show();
+
+		// Display markers
+		clearLapMarkers();
+		if (_data_log->numLaps() > 1)
+		{
+			_laps_cb->setChecked(true);
+			drawLapMarkers();
+		}
+		else
+		{
+			_laps_cb->setChecked(false);
+		}
 
 		// Enabled user interface
 		setEnabled(true);
+
+		show();
 	}
 	else
 	{
@@ -604,6 +625,22 @@ void PlotWindow::curveSelectionChanged()
 	if (_speed_cb->isChecked()) _curve_speed->show(); else _curve_speed->hide();
 
 	_plot->replot();
+}
+
+/******************************************************/
+void PlotWindow::lapSelectionChanged()
+{
+	if (_laps_cb->isChecked())
+		drawLapMarkers();
+	else
+		clearLapMarkers();
+	_plot->replot();
+}
+
+/******************************************************/
+void PlotWindow::hrZoneSelectionChanged()
+{
+
 }
 
 /******************************************************/

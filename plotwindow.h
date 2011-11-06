@@ -56,6 +56,8 @@ class PlotWindow : public QWidget
 	void panAndHoldSelection(int x, int y);
 	void xAxisUnitsChanged(int idx);
 	void curveSelectionChanged();
+	void lapSelectionChanged();
+	void hrZoneSelectionChanged();
 	void signalSmoothingChanged();
 
  private:
@@ -82,6 +84,8 @@ class PlotWindow : public QWidget
 	QCheckBox* _cadence_cb;
 	QSlider* _smoothing_selection;
 	QLabel* _smoothing_label;
+	QCheckBox* _hr_zones_cb;
+	QCheckBox* _laps_cb;
 	
 	QwtCustomPlotPicker* _plot_picker1;
 	QwtPlotPicker* _plot_picker2;
