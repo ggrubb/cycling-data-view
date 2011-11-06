@@ -28,6 +28,7 @@ private slots:
 
  private:
 	void populateTableWithRides();
+	void formatTreeView();
 
 	QTreeView* _tree;
 	QStandardItemModel* _model;

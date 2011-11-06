@@ -8,6 +8,7 @@
 #include <QStandardItemModel.h>
 #include <QDir.h>
 #include <QProgressBar.h>
+#include <QBoxLayout.h>
 #include <iostream>
 
 #define LOG_SUMMARY_FILENAME "logsummary.xml"
@@ -19,7 +20,7 @@ RideSelectionWindow::RideSelectionWindow()
 	QStandardItemModel* model = new QStandardItemModel;
 	QStandardItem* header0 = new QStandardItem(QString("Date"));
 	QStandardItem* header1 = new QStandardItem(QString("Time (min)"));
-	QStandardItem* header2 = new QStandardItem(QString("Distance (km)"));
+	QStandardItem* header2 = new QStandardItem(QString("Length (km)"));
 	model->setHorizontalHeaderItem(0,header0);
 	model->setHorizontalHeaderItem(1,header1);
 	model->setHorizontalHeaderItem(2,header2);
@@ -27,12 +28,13 @@ RideSelectionWindow::RideSelectionWindow()
 	// Create and show the tree view
 	_tree = new QTreeView(this);
 	_tree->setModel(model);
-	_tree->setAlternatingRowColors(true);
-	_tree->setColumnWidth(0,123);
-	_tree->setColumnWidth(1,60);
-	_tree->setColumnWidth(2,60);
-	_tree->setFixedSize(270,290);
+	formatTreeView();
 	_tree->show();
+
+	QVBoxLayout* layout = new QVBoxLayout();
+	layout->addWidget(_tree);
+	setLayout(layout);
+	setFixedSize(270,290);
 
 	// Create parser and setup log directory summary
 	_parser = new TcxParser();
@@ -44,7 +46,18 @@ RideSelectionWindow::RideSelectionWindow()
 /******************************************************/
 RideSelectionWindow::~RideSelectionWindow()
 {
-	
+
+}
+
+/******************************************************/
+void RideSelectionWindow::formatTreeView()
+{
+	_tree->setAlternatingRowColors(true);
+	_tree->setColumnHidden(3,true);
+	_tree->setColumnWidth(0,123);
+	_tree->setColumnWidth(1,60);
+	_tree->setColumnWidth(2,60);
+	_tree->sortByColumn(0,Qt::DescendingOrder);
 }
 
 /******************************************************/
@@ -162,13 +175,14 @@ void RideSelectionWindow::populateTableWithRides()
 
 	QStandardItem* header0 = new QStandardItem(QString("Date"));
 	QStandardItem* header1 = new QStandardItem(QString("Time (min)"));
-	QStandardItem* header2 = new QStandardItem(QString("Distance (km)"));
+	QStandardItem* header2 = new QStandardItem(QString("Length (km)"));
 	_model->setHorizontalHeaderItem(0,header0);
 	_model->setHorizontalHeaderItem(1,header1);
 	_model->setHorizontalHeaderItem(2,header2);
 
 	_tree->setModel(_model);
-	_tree->sortByColumn(0,Qt::DescendingOrder);
+	formatTreeView();
+	
 	connect(_tree, SIGNAL(clicked(const QModelIndex&)),this,SLOT(rideSelected(const QModelIndex&)));
 	_tree->setCurrentIndex(_model->index(0,0));
 	
