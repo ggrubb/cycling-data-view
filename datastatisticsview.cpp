@@ -200,6 +200,15 @@ void DataStatisticsView::displaySelectedRideStats(int idx_start, int idx_end)
 	double max_cadence = DataProcessing::computeMax(_data_log->cadenceFltd().begin() + idx_start, _data_log->cadenceFltd().begin() + idx_end);
 	double max_power = DataProcessing::computeMax(_data_log->powerFltd().begin() + idx_start, _data_log->powerFltd().begin() + idx_end);
 	
+	// Compute HR zone times
+	std::vector<double> sub_heart_rate(_data_log->heartRate().begin() + idx_start, _data_log->heartRate().begin() + idx_end);
+	std::vector<double> sub_time(_data_log->time().begin() + idx_start, _data_log->time().begin() + idx_end);
+	double hr_zone1 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone1(), _user->zone2());
+	double hr_zone2 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone2(), _user->zone3());
+	double hr_zone3 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone3(), _user->zone4());
+	double hr_zone4 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone4(), _user->zone5());
+	double hr_zone5 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone5(), 1000.0);
+
 	// Set selection column
 	_table->item(0,1)->setText(DataProcessing::minsFromSecs(time));
 	_table->item(1,1)->setText(DataProcessing::kmFromMeters(dist));
@@ -217,4 +226,10 @@ void DataStatisticsView::displaySelectedRideStats(int idx_start, int idx_end)
 	_table->item(11,1)->setText(QString::number(max_gradient, 'f', 2));
 	_table->item(12,1)->setText(QString::number(max_cadence, 'f', 0));
 	_table->item(13,1)->setText(QString::number(max_power, 'f', 2));
+
+	_table->item(14,1)->setText(DataProcessing::minsFromSecs(hr_zone1));
+	_table->item(15,1)->setText(DataProcessing::minsFromSecs(hr_zone2));
+	_table->item(16,1)->setText(DataProcessing::minsFromSecs(hr_zone3));
+	_table->item(17,1)->setText(DataProcessing::minsFromSecs(hr_zone4));
+	_table->item(18,1)->setText(DataProcessing::minsFromSecs(hr_zone5));
 }

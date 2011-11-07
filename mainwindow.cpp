@@ -130,7 +130,7 @@ void MainWindow::setRider(User* user)
 void MainWindow::setRide(DataLog* data_log)
 {
 	// Plot 2d curves (important to be called first since it is responsible for signal filtering)
-	_plot_window->displayRide(data_log);
+	_plot_window->displayRide(data_log, _current_user);
 
 	// Overlay route in Google maps
 	_google_map->displayRide(data_log);

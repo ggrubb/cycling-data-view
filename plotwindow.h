@@ -6,6 +6,7 @@
 #include <qwt_plot_curve.h>
 
 class DataLog;
+class User;
 class GoogleMap;
 class DataStatisticsView;
 class QwtPlotPicker;
@@ -29,7 +30,7 @@ class PlotWindow : public QWidget
 	~PlotWindow();
 	
 	// Display the ride log in plots
-	void displayRide(DataLog* data_log);
+	void displayRide(DataLog* data_log, User* user);
 	
 	// Zoom to highlight a lap
 	void displayLap(int lap_index);
@@ -62,10 +63,14 @@ class PlotWindow : public QWidget
 
  private:
 	void drawGraphs();
-	void drawLapMarkers();
-	void clearLapMarkers();
 	void filterCurveData();
 	void setCurveData();
+
+	void drawLapMarkers();
+	void clearLapMarkers();
+
+	void drawHRZoneMarkers();
+	void clearHRZoneMarkers();
 
 	QwtPlot* _plot;
 	QwtPlotCurve* _curve_hr;
@@ -74,6 +79,7 @@ class PlotWindow : public QWidget
 	QwtPlotCurve* _curve_alt;
 
 	std::vector<QwtPlotMarker* > _lap_markers;
+	std::vector<QwtPlotMarker* > _hr_zone_markers;
 	
 	QButtonGroup* _x_axis_measurement;
 	QRadioButton* _time_axis;
@@ -93,6 +99,7 @@ class PlotWindow : public QWidget
 	QwtPlotPanner* _plot_panner;
 
 	DataLog* _data_log;
+	User* _user;
 };
 
 #endif // PLOTWINDOW_H

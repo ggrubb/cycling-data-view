@@ -1,5 +1,6 @@
 #include "plotwindow.h"
 #include "datalog.h"
+#include "user.h"
 #include "googlemap.h"
 #include "datastatisticsview.h"
 #include "dataprocessing.h"
@@ -25,6 +26,7 @@
 #include <qtgui/qbuttongroup>
 #include <qtgui/qslider>
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 
@@ -189,6 +191,21 @@ PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
 {
 	// Create the plot
 	_plot = new QwtPlot();
+
+	// Create vertial and horizonal markers (laps and HR zones)
+	_hr_zone_markers.resize(5);
+	for (unsigned int i=0; i < _hr_zone_markers.size(); ++i)
+	{
+		QwtPlotMarker* marker = new QwtPlotMarker;
+		marker->setLineStyle(QwtPlotMarker::HLine);
+		marker->setLinePen(QPen(Qt::DotLine));
+		marker->attach(_plot);
+		marker->hide();
+		marker->setLabel(QwtText("HR Zone" + QString::number(i+1)));
+		marker->setLabelAlignment(Qt::AlignLeft | Qt::AlignTop);
+		_hr_zone_markers[i] = marker;
+	}
+	_lap_markers.resize(0);
 	
 	// Connect this window to the google map
 	connect(this, SIGNAL(setMarkerPosition(int)), google_map, SLOT(setMarkerPosition(int)));
@@ -390,8 +407,10 @@ void PlotWindow::setEnabled(bool enabled)
 }
 
 /******************************************************/
-void PlotWindow::displayRide(DataLog* data_log)
+void PlotWindow::displayRide(DataLog* data_log, User* user)
 {
+	_user = user;
+
 	if (data_log != _data_log)
 	{
 		// Set the data
@@ -497,6 +516,30 @@ void PlotWindow::clearLapMarkers()
 		delete _lap_markers[i];
 	}
 	_lap_markers.resize(0);
+}
+
+/******************************************************/
+void PlotWindow::drawHRZoneMarkers()
+{
+	assert(_user);
+	
+	_hr_zone_markers[0]->setYValue(_user->zone1());
+	_hr_zone_markers[1]->setYValue(_user->zone2());
+	_hr_zone_markers[2]->setYValue(_user->zone3());
+	_hr_zone_markers[3]->setYValue(_user->zone4());
+	_hr_zone_markers[4]->setYValue(_user->zone5());
+
+	for (unsigned int i=0; i < _hr_zone_markers.size(); ++i)
+		_hr_zone_markers[i]->show();
+}
+
+/******************************************************/
+void PlotWindow::clearHRZoneMarkers()
+{
+	for (unsigned int i=0; i < _hr_zone_markers.size(); ++i)
+	{
+		_hr_zone_markers[i]->hide();
+	}
 }
 
 /******************************************************/
@@ -613,6 +656,11 @@ void PlotWindow::xAxisUnitsChanged(int idx)
 		_plot->setAxisTitle(QwtPlot::xBottom,"Distance (m)");
 	
 	drawGraphs();
+	if (_laps_cb->isChecked()) // we need to resent the lap markers
+	{
+		clearLapMarkers();
+		drawLapMarkers();
+	}
 	emit deleteSelection();
 }
 
@@ -640,7 +688,11 @@ void PlotWindow::lapSelectionChanged()
 /******************************************************/
 void PlotWindow::hrZoneSelectionChanged()
 {
-
+	if (_hr_zones_cb->isChecked())
+		drawHRZoneMarkers();
+	else
+		clearHRZoneMarkers();
+	_plot->replot();
 }
 
 /******************************************************/
