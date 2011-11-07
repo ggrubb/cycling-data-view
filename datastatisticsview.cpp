@@ -5,6 +5,7 @@
 
 #include <qtgui/qtablewidget>
 #include <qtgui/qvboxlayout>
+#include <qtgui/qlabel>
 #include <iostream>
 #include <cassert>
 
@@ -30,7 +31,12 @@ DataStatisticsView::DataStatisticsView()
 		_table->setRowHeight(r,16);
 	}
 
+	QLabel* label = new QLabel;
+	label->setTextFormat(Qt::RichText);
+	label->setText("<b>Ride Statistics</b>");
+
 	QVBoxLayout* layout = new QVBoxLayout();
+	layout->addWidget(label);
 	layout->addWidget(_table);
 	setLayout(layout);
 	setFixedSize(270,345);

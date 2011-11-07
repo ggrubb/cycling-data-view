@@ -201,7 +201,12 @@ PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
 		marker->setLinePen(QPen(Qt::DotLine));
 		marker->attach(_plot);
 		marker->hide();
-		marker->setLabel(QwtText("HR Zone" + QString::number(i+1)));
+		QwtText text("HR Zone" + QString::number(i+1));
+		QFont font;
+		font.setPointSize(7);
+		text.setFont(font);
+		text.setColor(QColor(100,100,100));
+		marker->setLabel(text);
 		marker->setLabelAlignment(Qt::AlignLeft | Qt::AlignTop);
 		_hr_zone_markers[i] = marker;
 	}

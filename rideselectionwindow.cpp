@@ -9,6 +9,7 @@
 #include <QDir.h>
 #include <QProgressBar.h>
 #include <QBoxLayout.h>
+#include <QLabel.h>
 #include <iostream>
 
 #define LOG_SUMMARY_FILENAME "logsummary.xml"
@@ -31,7 +32,12 @@ RideSelectionWindow::RideSelectionWindow()
 	formatTreeView();
 	_tree->show();
 
+	QLabel* label = new QLabel;
+	label->setTextFormat(Qt::RichText);
+	label->setText("<b>Ride Selector</b>");
+
 	QVBoxLayout* layout = new QVBoxLayout();
+	layout->addWidget(label);
 	layout->addWidget(_tree);
 	setLayout(layout);
 	setFixedSize(270,290);
