@@ -39,7 +39,7 @@ DataStatisticsView::DataStatisticsView()
 	layout->addWidget(label);
 	layout->addWidget(_table);
 	setLayout(layout);
-	setFixedSize(270,345);
+	setFixedSize(270,365);
 	
 	clearTable();
 }

@@ -87,13 +87,13 @@ GoogleMap::GoogleMap()
 
 	// Selection for path colour scheme
 	_path_colour_scheme = new QComboBox();
-	_path_colour_scheme->setMaximumWidth(90);
+	_path_colour_scheme->setMaximumWidth(120);
 	_path_colour_scheme->insertItem(0,"None");
-	_path_colour_scheme->insertItem(1,"Heart Rate");
-	_path_colour_scheme->insertItem(2,"Speed");
-	_path_colour_scheme->insertItem(3,"Gradient");
-	_path_colour_scheme->insertItem(4,"Cadence");
-	_path_colour_scheme->insertItem(5,"Power");
+	_path_colour_scheme->insertItem(1,"Heart Rate (bpm)");
+	_path_colour_scheme->insertItem(2,"Speed (km/h)");
+	_path_colour_scheme->insertItem(3,"Gradient (%)");
+	_path_colour_scheme->insertItem(4,"Cadence (rpm)");
+	_path_colour_scheme->insertItem(5,"Power (W)");
 	connect(_path_colour_scheme,SIGNAL(currentIndexChanged(int)), this, SLOT(definePathColour()));
 
 	QLabel* label = new QLabel("Path coloured to: ");
@@ -397,27 +397,27 @@ void GoogleMap::createPage(std::ostringstream& page)
 
 		<< "var start_image = new google.maps.MarkerImage(" << endl
 		<< "'" << QDir::currentPath().toStdString() << "/resources/start_image.png'," << endl
-		<< "new google.maps.Size(50,50)," << endl
+		<< "new google.maps.Size(25,25)," << endl
 		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(50,50) );" << endl
+		<< "new google.maps.Point(25,25) );" << endl
 
 		<< "var start_shadow = new google.maps.MarkerImage(" << endl
 		<< "'" << QDir::currentPath().toStdString() << "/resources/start_shadow.png'," << endl
-		<< "new google.maps.Size(78,50)," << endl
+		<< "new google.maps.Size(41,25)," << endl
 		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(50,50) );" << endl
+		<< "new google.maps.Point(25,25) );" << endl
 
 		<< "var finish_image = new google.maps.MarkerImage(" << endl
 		<< "'" << QDir::currentPath().toStdString() << "/resources/finish_image.png'," << endl
-		<< "new google.maps.Size(50,50)," << endl
+		<< "new google.maps.Size(25,25)," << endl
 		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(0,50) );" << endl
+		<< "new google.maps.Point(0,25) );" << endl
 
 		<< "var finish_shadow = new google.maps.MarkerImage(" << endl
 		<< "'" << QDir::currentPath().toStdString() << "/resources/finish_shadow.png'," << endl
-		<< "new google.maps.Size(78,50)," << endl
+		<< "new google.maps.Size(41,25)," << endl
 		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(0,50) );" << endl
+		<< "new google.maps.Point(0,25) );" << endl
 
 		<< "var marker = new google.maps.Marker({icon: marker_image, shadow: marker_shadow});" << endl
 		<< "var start_marker = new google.maps.Marker({icon: start_image, shadow: start_shadow});" << endl
