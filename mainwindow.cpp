@@ -7,6 +7,7 @@
 #include "user.h"
 #include "aboutwindow.h"
 #include "adduserwindow.h"
+#include "logdirectorysummary.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -158,7 +159,6 @@ void MainWindow::setLap(int lap_index)
 	about_font.setFamily("Arial");
 	about_font.setBold(true);
 	about_font.setPixelSize(8);
-	//about_font.setStretch(125);
 	 
 	about->setFont(about_font);
 	about->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::SplashScreen);
@@ -167,37 +167,59 @@ void MainWindow::setLap(int lap_index)
  }
 
 /******************************************************/
- void MainWindow::createActions()
- {
-     _set_act = new QAction(tr("Select..."), this);
-     connect(_set_act, SIGNAL(triggered()), this, SLOT(setUser()));
+void MainWindow::totals()
+{
+	LogDirectorySummary log_dir_summary(_current_user->logDirectory());
+	log_dir_summary.readFromFile();
 
-	 _add_act = new QAction(tr("Add..."), this);
-     connect(_add_act, SIGNAL(triggered()), this, SLOT(addUser()));
-
-	 _edit_act = new QAction(tr("Edit..."), this);
-     connect(_edit_act, SIGNAL(triggered()), this, SLOT(addUser()));
-
-     _exit_act = new QAction(tr("Exit"), this);
-     connect(_exit_act, SIGNAL(triggered()), this, SLOT(close()));
-
-     _about_act = new QAction(tr("About"), this);
-     connect(_about_act, SIGNAL(triggered()), this, SLOT(about()));
- }
+	std::vector<double> ride_time;
+	std::vector<double> ride_dist;
+	std::vector<int> time;
+	for (unsigned int i=0; i < log_dir_summary.numLogs(); ++i)
+	{
+		QDate date = QDate::fromString(log_dir_summary.log(i)._date,Qt::ISODate);
+	}
+}
 
 /******************************************************/
- void MainWindow::createMenus()
- {
-     _file_menu = new QMenu(tr("&Rider"), this);
-     _file_menu->addAction(_set_act);
-     _file_menu->addAction(_add_act);
-     _file_menu->addAction(_edit_act);
-     _file_menu->addSeparator();
-     _file_menu->addAction(_exit_act);
+void MainWindow::createActions()
+{
+	_set_act = new QAction(tr("Select..."), this);
+	connect(_set_act, SIGNAL(triggered()), this, SLOT(setUser()));
 
-     _help_menu = new QMenu(tr("&Help"), this);
-     _help_menu->addAction(_about_act);
+	_add_act = new QAction(tr("Add..."), this);
+	connect(_add_act, SIGNAL(triggered()), this, SLOT(addUser()));
 
-     menuBar()->addMenu(_file_menu);
-     menuBar()->addMenu(_help_menu);
- }
+	_edit_act = new QAction(tr("Edit..."), this);
+	connect(_edit_act, SIGNAL(triggered()), this, SLOT(addUser()));
+
+	_totals_act = new QAction(tr("Totals"), this);
+	connect(_totals_act, SIGNAL(triggered()), this, SLOT(totals()));
+
+	_exit_act = new QAction(tr("Exit"), this);
+	connect(_exit_act, SIGNAL(triggered()), this, SLOT(close()));
+
+	_about_act = new QAction(tr("About"), this);
+	connect(_about_act, SIGNAL(triggered()), this, SLOT(about()));
+}
+
+/******************************************************/
+void MainWindow::createMenus()
+{
+	_file_menu = new QMenu(tr("&Rider"), this);
+	_file_menu->addAction(_set_act);
+	_file_menu->addAction(_add_act);
+	_file_menu->addAction(_edit_act);
+	_file_menu->addSeparator();
+	_file_menu->addAction(_exit_act);
+
+	_view_menu = new QMenu(tr("&View"), this);
+	_view_menu->addAction(_totals_act);
+
+	_help_menu = new QMenu(tr("&Help"), this);
+	_help_menu->addAction(_about_act);
+
+	menuBar()->addMenu(_file_menu);
+	menuBar()->addMenu(_view_menu);
+	menuBar()->addMenu(_help_menu);
+}

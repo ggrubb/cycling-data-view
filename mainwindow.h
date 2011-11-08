@@ -24,6 +24,7 @@
  private slots:
     void setUser();
     void addUser();
+    void totals();
     void about();
 	void setRider(User* user);
 	void setRide(DataLog* data_log);
@@ -36,10 +37,12 @@
     QAction* _set_act;
     QAction* _add_act;
     QAction* _edit_act;
+    QAction* _totals_act;
     QAction* _exit_act;
     QAction* _about_act;
 
     QMenu* _file_menu;
+    QMenu* _view_menu;
     QMenu* _help_menu;
 
 	GoogleMap* _google_map;
