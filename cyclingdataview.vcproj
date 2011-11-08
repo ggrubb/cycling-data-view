@@ -172,24 +172,56 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			Name="Generated Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\aboutwindow.cpp"
+				RelativePath=".\moc_adduserwindow.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\adduserwindow.cpp"
+				RelativePath=".\moc_datastatisticsview.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\cyclingdataview.cpp"
+				RelativePath=".\moc_googlemap.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\moc_mainwindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\moc_plotwindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\moc_qwtcustomplotpicker.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\moc_rideselectionwindow.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			>
+			<File
+				RelativePath=".\cycledataview.rc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Layer 1 - Data"
+			>
 			<File
 				RelativePath=".\datalog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\datalog.h"
 				>
 			</File>
 			<File
@@ -197,11 +229,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\datastatisticsview.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\googlemap.cpp"
+				RelativePath=".\dataprocessing.h"
 				>
 			</File>
 			<File
@@ -209,15 +237,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mainwindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\plotwindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\rideselectionwindow.cpp"
+				RelativePath=".\logdirectorysummary.h"
 				>
 			</File>
 			<File
@@ -225,17 +245,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tcxparser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\user.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\user.h"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			Name="Layer 2 - Windows"
 			>
 			<File
+				RelativePath=".\aboutwindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\aboutwindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\adduserwindow.cpp"
 				>
 			</File>
 			<File
@@ -263,11 +297,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\datalog.h"
+				RelativePath=".\cyclingdataview.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\dataprocessing.h"
+				RelativePath=".\datastatisticsview.cpp"
 				>
 			</File>
 			<File
@@ -295,6 +329,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\googlemap.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\googlemap.h"
 				>
 				<FileConfiguration
@@ -319,7 +357,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\logdirectorysummary.h"
+				RelativePath=".\mainwindow.cpp"
 				>
 			</File>
 			<File
@@ -345,6 +383,10 @@
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\plotwindow.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\plotwindow.h"
@@ -399,6 +441,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\rideselectionwindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\rideselectionwindow.h"
 				>
 				<FileConfiguration
@@ -421,56 +467,6 @@
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\tcxparser.h"
-				>
-			</File>
-			<File
-				RelativePath=".\user.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Generated Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
-			<File
-				RelativePath=".\moc_adduserwindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\moc_datastatisticsview.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\moc_googlemap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\moc_mainwindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\moc_plotwindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\moc_qwtcustomplotpicker.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\moc_rideselectionwindow.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			>
-			<File
-				RelativePath=".\cycledataview.rc"
-				>
 			</File>
 		</Filter>
 	</Files>
