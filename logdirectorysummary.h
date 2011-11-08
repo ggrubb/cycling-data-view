@@ -35,8 +35,8 @@ class LogDirectorySummary
 	int numLogs() const;
 	void addLog(const LogSummary& log_summary);
 
-	void readFromFile(const QString& filename);
-	void writeToFile(const QString& filename) const;
+	void readFromFile();
+	void writeToFile() const;
 	void addLogsToSummary(const std::vector<DataLog*> data_logs);
  private:
 

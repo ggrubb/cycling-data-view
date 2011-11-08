@@ -6,6 +6,8 @@
 #include <qtxml/qdomdocument>
 #include <QFile.h>
 
+#define LOG_SUMMARY_FILENAME "logsummary.xml"
+
 /****************************************/
 LogDirectorySummary::LogDirectorySummary(const QString& log_directory):
 _log_directory(log_directory)
@@ -43,8 +45,10 @@ void LogDirectorySummary::addLog(const LogSummary& log_summary)
 }
 
 /****************************************/
-void LogDirectorySummary::readFromFile(const QString& filename)
+void LogDirectorySummary::readFromFile()
 {
+	const QString filename = _log_directory + "/" LOG_SUMMARY_FILENAME;
+
 	QDomDocument dom_document;
 	QString error_msg;
 	int error_line, error_column;
@@ -82,8 +86,10 @@ void LogDirectorySummary::readFromFile(const QString& filename)
 }
 
 /****************************************/
-void LogDirectorySummary::writeToFile(const QString& filename) const
+void LogDirectorySummary::writeToFile() const
 {
+	const QString filename = _log_directory + "/" LOG_SUMMARY_FILENAME;
+
 	QDomDocument dom_document;
 	QDomElement doc = dom_document.createElement("LogSummary");
 	dom_document.appendChild(doc);

@@ -12,8 +12,6 @@
 #include <QLabel.h>
 #include <iostream>
 
-#define LOG_SUMMARY_FILENAME "logsummary.xml"
-
 /******************************************************/
 RideSelectionWindow::RideSelectionWindow()
 {
@@ -79,7 +77,7 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 
 	// Try to load log summary file if it exists
 	_log_dir_summary = new LogDirectorySummary(path);
-	_log_dir_summary->readFromFile(path + "/" LOG_SUMMARY_FILENAME);
+	_log_dir_summary->readFromFile();
 
 	// Compare files in directory with those in summary and remove if already in summary
 	for (int j=0; j < _log_dir_summary->numLogs(); ++j)
@@ -118,7 +116,7 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 
 	// Add the newly read rides to the summary
 	_log_dir_summary->addLogsToSummary(data_logs);
-	_log_dir_summary->writeToFile(log_directory.path() + "/" LOG_SUMMARY_FILENAME);
+	_log_dir_summary->writeToFile();
 
 	populateTableWithRides();
 }
