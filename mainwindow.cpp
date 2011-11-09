@@ -8,6 +8,7 @@
 #include "aboutwindow.h"
 #include "adduserwindow.h"
 #include "logdirectorysummary.h"
+#include "totalswindow.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -169,16 +170,8 @@ void MainWindow::setLap(int lap_index)
 /******************************************************/
 void MainWindow::totals()
 {
-	LogDirectorySummary log_dir_summary(_current_user->logDirectory());
-	log_dir_summary.readFromFile();
-
-	std::vector<double> ride_time;
-	std::vector<double> ride_dist;
-	std::vector<int> time;
-	for (unsigned int i=0; i < log_dir_summary.numLogs(); ++i)
-	{
-		QDate date = QDate::fromString(log_dir_summary.log(i)._date,Qt::ISODate);
-	}
+	TotalsWindow* totals_window = new TotalsWindow(_current_user);
+	totals_window->show();
 }
 
 /******************************************************/
