@@ -2,8 +2,11 @@
 #define TOTALSWINDOW_H
  
 #include <Qwidget.h>
+#include <QMap.h>
 
 class User;
+class QwtPlotCurve;
+class QwtPlot;
 
 class TotalsWindow : public QWidget
 {
@@ -15,6 +18,21 @@ public:
 private:
 	User* _user;
 
+	QwtPlotCurve* _histogram_yearly_time;
+	QwtPlotCurve* _histogram_yearly_dist;
+	QwtPlotCurve* _histogram_monthly_time;
+	QwtPlotCurve* _histogram_monthly_dist;
+	QwtPlotCurve* _histogram_weekly_time;
+	QwtPlotCurve* _histogram_weekly_dist;
+
+	QwtPlot* _plot;
+
+	QMap<int, double> _yearly_time; // year as int
+	QMap<int, double> _yearly_dist; // year as int
+	QMap<std::pair<int,int>, double> _monthly_time; // month as pair<year,month>
+	QMap<std::pair<int,int>, double> _monthly_dist; // month as pair<year,month>
+	QMap<std::pair<int,int>, double> _weekly_time; // week as pair<year, week num>
+	QMap<std::pair<int,int>, double> _weekly_dist; // week as pair<year, week num>
 };
  
 #endif // TOTALSWINDOW_H
