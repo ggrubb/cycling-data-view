@@ -28,7 +28,7 @@
 #include <qtgui/qlistwidget>
 #include <qtgui/qinputdialog>
 
-#define VERSION_INFO "Version 1.0 (Nov 2011)\n\n www.rideviewer.com\n grant.grubb@gmail.com"
+#define VERSION_INFO "Version 1.0 (Nov 2011)\n http://code.google.com/p/cycling-data-view/ \n grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
 
 /******************************************************/
@@ -154,7 +154,7 @@ void MainWindow::setLap(int lap_index)
 	 // Create and display about window
 	QPixmap about_image("resources/about_screen.png"); 
 	AboutWindow* about = new AboutWindow(about_image);
-	about->setMessageRect(QRect::QRect(200, 80, 150, 50), Qt::AlignRight); // setting the message position
+	about->setMessageRect(QRect::QRect(100, 80, 250, 50), Qt::AlignRight); // setting the message position
 	 
 	QFont about_font;
 	about_font.setFamily("Arial");
