@@ -33,6 +33,12 @@ QWidget()
 	_hr_zone4_input->setRange(50,250);
 	_hr_zone5_input->setRange(50,250);
 
+	_hr_zone1_input->setValue(120);
+	_hr_zone2_input->setValue(140);
+	_hr_zone3_input->setValue(160);
+	_hr_zone4_input->setValue(170);
+	_hr_zone5_input->setValue(180);
+
 	QLabel* name_label = new QLabel("Name:");
 	QLabel* log_directory_label = new QLabel("Logfile Directory:");
 	QLabel* weight_label = new QLabel("Weight (kg):");
