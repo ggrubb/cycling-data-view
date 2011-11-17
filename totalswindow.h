@@ -7,6 +7,8 @@
 class User;
 class QwtPlotCurve;
 class QwtPlot;
+class QCheckBox;
+class QComboBox;
 
 class TotalsWindow : public QWidget
 {
@@ -15,7 +17,13 @@ public:
 	TotalsWindow(User* user);
 	~TotalsWindow();
 
+private slots:
+	void updateCurves();
+
 private:
+	void computeHistogramData();
+	void computePlotCurves();
+
 	User* _user;
 
 	QwtPlotCurve* _histogram_yearly_time;
@@ -33,6 +41,10 @@ private:
 	QMap<std::pair<int,int>, double> _monthly_dist; // month as pair<year,month>
 	QMap<std::pair<int,int>, double> _weekly_time; // week as pair<year, week num>
 	QMap<std::pair<int,int>, double> _weekly_dist; // week as pair<year, week num>
+
+	QCheckBox* _dist_cb;
+	QCheckBox* _time_cb;
+	QComboBox* _time_group_selector;
 };
  
 #endif // TOTALSWINDOW_H
