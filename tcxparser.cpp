@@ -15,18 +15,23 @@ TcxParser::~TcxParser()
 {}
 
 /******************************************************/
-void TcxParser::parseRideDetails(DataLog& data_log)
+bool TcxParser::parseRideDetails(DataLog& data_log)
 {
 	QDomElement doc = _dom_document.documentElement();
 
-	QDomNode lap = doc.firstChild().firstChild().firstChildElement("Lap");
-	
+	// Get date
+	QDomElement id  = doc.firstChild().firstChild().firstChildElement("Id");
+	QString date = id.firstChild().nodeValue().replace('T', QChar(' '));
+	date.chop(1);
+	data_log.date() = date;
+
+	// Loop over all laps
 	int track_point_idx = 0;
 	int total_track_points = 0;
 	int num_empty_track_points = 0;
-
 	int lap_start_idx = 0;
 	int lap_end_idx = 0;
+	QDomNode lap = doc.firstChild().firstChild().firstChildElement("Lap");
 	while (!lap.isNull())
 	{
 		QDomNode track = lap.firstChildElement("Track");
@@ -130,6 +135,11 @@ void TcxParser::parseRideDetails(DataLog& data_log)
 
 	// Set flags to indicate vailidity of data read
 	setDataValidFlags(data_log);
+
+	if (data_log.numPoints() > 0)
+		return true;
+	else
+		return false;
 }
 
 /******************************************************/
@@ -224,9 +234,12 @@ bool TcxParser::parse(const QString& filename, DataLog& data_log)
 	if (read_success)
 	{
 		data_log.filename() = filename;
-		parseRideDetails(data_log);
-		computeAdditionalDetailts(data_log);
-		data_log.computeMaps();
+		read_success = parseRideDetails(data_log);
+		if (read_success)
+		{
+			computeAdditionalDetailts(data_log);
+			data_log.computeMaps();
+		}
 	}
 
 	return read_success;

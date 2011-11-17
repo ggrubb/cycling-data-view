@@ -16,7 +16,7 @@ class TcxParser
 
  private:
 	void setDataValidFlags(DataLog& data_log);
-	void parseRideDetails(DataLog& data_log);
+	bool parseRideDetails(DataLog& data_log);
 	void computeAdditionalDetailts(DataLog& data_log);
 
 	QDomDocument _dom_document;
