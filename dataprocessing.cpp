@@ -185,5 +185,5 @@ const QString DataProcessing::minsFromSecs(int seconds)
 /****************************************/
 const QString DataProcessing::kmFromMeters(double meters)
 {
-	return QString::number(meters/1000.0,'f',2);
+	return QString::number(meters/1000.0,'f',1);
 }

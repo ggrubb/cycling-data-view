@@ -19,7 +19,7 @@ RideSelectionWindow::RideSelectionWindow()
 	QStandardItemModel* model = new QStandardItemModel;
 	QStandardItem* header0 = new QStandardItem(QString("Date"));
 	QStandardItem* header1 = new QStandardItem(QString("Time (min)"));
-	QStandardItem* header2 = new QStandardItem(QString("Length (km)"));
+	QStandardItem* header2 = new QStandardItem(QString("Dist (km)"));
 	model->setHorizontalHeaderItem(0,header0);
 	model->setHorizontalHeaderItem(1,header1);
 	model->setHorizontalHeaderItem(2,header2);
@@ -62,6 +62,7 @@ void RideSelectionWindow::formatTreeView()
 	_tree->setColumnWidth(1,60);
 	_tree->setColumnWidth(2,60);
 	_tree->sortByColumn(0,Qt::DescendingOrder);
+	_tree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 /******************************************************/
@@ -179,7 +180,7 @@ void RideSelectionWindow::populateTableWithRides()
 
 	QStandardItem* header0 = new QStandardItem(QString("Date"));
 	QStandardItem* header1 = new QStandardItem(QString("Time (min)"));
-	QStandardItem* header2 = new QStandardItem(QString("Length (km)"));
+	QStandardItem* header2 = new QStandardItem(QString("Dist (km)"));
 	_model->setHorizontalHeaderItem(0,header0);
 	_model->setHorizontalHeaderItem(1,header1);
 	_model->setHorizontalHeaderItem(2,header2);
