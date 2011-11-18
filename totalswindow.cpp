@@ -5,6 +5,7 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_series_data.h>
+#include <qwt_scale_draw.h>
 
 #include <QDateTime.h>
 #include <QIcon.h>
@@ -16,6 +17,33 @@
 
 #define TIME_COLOUR Qt::darkBlue
 #define DIST_COLOUR Qt::darkRed
+
+
+/******************************************************/
+class DateScaleDraw: public QwtScaleDraw
+{
+public:
+	DateScaleDraw(QString& fmt):
+	  format(fmt)
+	  {}
+ 
+    virtual QwtText label(double v) const
+    {
+		QDateTime t = QDateTime::fromTime_t((int)v);
+		if (!format.compare("week"))
+		{
+			int year;
+			int week = t.date().weekNumber(&year);
+			return QString::number(year) + "." + QString::number(week);
+		}
+		else
+		{
+			return t.toString(format);
+		}
+    }
+private:
+	const QString format;
+};
 
 /******************************************************/
 TotalsWindow::TotalsWindow(User* user):
@@ -96,8 +124,7 @@ QWidget()
 	show();
 
 	computeHistogramData();
-	computePlotCurves();
-	_plot->replot();
+	updateCurves();
 }
  
 /******************************************************/
@@ -168,24 +195,60 @@ void TotalsWindow::computeHistogramData()
 }
 
 /******************************************************/
-void TotalsWindow::computePlotCurves()
-{
-	QVector<std::pair<int,int> > tmp = QVector<std::pair<int,int> >::fromList(_monthly_time.keys());
-	QVector<double> time_data(tmp.size());
-	for (int i=0; i < tmp.size(); ++i)
-	{
-		time_data[i] = tmp[i].second;
-	}
-
-	QVector<double> y_data1 = QVector<double>::fromList(_monthly_time.values());
-	_histogram_monthly_time->setSamples(time_data, y_data1);
-
-	QVector<double> y_data2 = QVector<double>::fromList(_monthly_dist.values());
-	_histogram_monthly_dist->setSamples(time_data, y_data2);
-}
-
-/******************************************************/
 void TotalsWindow::updateCurves()
 {
+	if (_time_group_selector->currentIndex() == 0) // weekly
+	{
+		_plot->setAxisScaleDraw(QwtPlot::xBottom, new DateScaleDraw(tr("week")));
+		QVector<std::pair<int,int> > tmp = QVector<std::pair<int,int> >::fromList(_weekly_time.keys());
+		QVector<double> time_data(tmp.size());
+		for (int i=0; i < tmp.size(); ++i)
+		{
+			time_data[i] = tmp[i].second;
+		}
 
+		QVector<double> y_data1 = QVector<double>::fromList(_weekly_time.values());
+		_histogram_weekly_time->setSamples(time_data, y_data1);
+
+		QVector<double> y_data2 = QVector<double>::fromList(_weekly_dist.values());
+		_histogram_weekly_dist->setSamples(time_data, y_data2);
+	}
+	else if (_time_group_selector->currentIndex() == 1) // monthly
+	{
+		_plot->setAxisScaleDraw(QwtPlot::xBottom, new DateScaleDraw(tr("M")));
+		
+		QVector<std::pair<int,int> > tmp = QVector<std::pair<int,int> >::fromList(_monthly_time.keys());
+		QVector<double> time_data(tmp.size());
+		for (int i=0; i < tmp.size(); ++i)
+		{
+			QDateTime date_time(QDate(tmp[i].first, tmp[i].second, 15));
+			time_data[i] = date_time.toTime_t();
+		}
+
+		QVector<double> y_data1 = QVector<double>::fromList(_monthly_time.values());
+		_histogram_monthly_time->setSamples(time_data, y_data1);
+
+		QVector<double> y_data2 = QVector<double>::fromList(_monthly_dist.values());
+		_histogram_monthly_dist->setSamples(time_data, y_data2);
+	}
+	else // year
+	{
+		_plot->setAxisScaleDraw(QwtPlot::xBottom, new DateScaleDraw(tr("yyyy")));
+		
+		QVector<int> tmp = QVector<int>::fromList(_yearly_time.keys());
+		QVector<double> time_data(tmp.size());
+		for (int i=0; i < tmp.size(); ++i)
+		{
+			QDateTime date_time(QDate(tmp[i], 6, 15));
+			time_data[i] = date_time.toTime_t();
+		}
+
+		QVector<double> y_data1 = QVector<double>::fromList(_yearly_time.values());
+		_histogram_yearly_time->setSamples(time_data, y_data1);
+
+		QVector<double> y_data2 = QVector<double>::fromList(_yearly_dist.values());
+		_histogram_yearly_dist->setSamples(time_data, y_data2);
+	}
+
+	_plot->replot();
 }

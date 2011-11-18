@@ -22,7 +22,6 @@ private slots:
 
 private:
 	void computeHistogramData();
-	void computePlotCurves();
 
 	User* _user;
 
