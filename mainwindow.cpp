@@ -109,10 +109,12 @@ void MainWindow::setUser()
 		}
 
 		// Prompt to select a user
-		QString	user_name = QInputDialog::getItem(this, tr("Rider Selection"), tr("Select Rider:"), user_names, 0, false, 0, 0);
+		bool ok;
+		QString	user_name = QInputDialog::getItem(this, tr("Rider Selection"), tr("Select Rider:"), user_names, 0, false, &ok, 0);
 		
 		// Set the selected user
-		setRider(users[user_names.indexOf(user_name)]);
+		if (ok)
+			setRider(users[user_names.indexOf(user_name)]);
 	}
 	else
 	{
@@ -163,17 +165,17 @@ void MainWindow::setLap(int lap_index)
 	 // Create and display about window
 	QPixmap about_image("resources/about_screen.png"); 
 	AboutWindow* about = new AboutWindow(about_image);
-	about->setMessageRect(QRect::QRect(100, 80, 250, 50), Qt::AlignRight); // setting the message position
+	about->setMessageRect(QRect::QRect(10, 80, 250, 50), Qt::AlignLeft); // setting the message position
 	 
 	QFont about_font;
 	about_font.setFamily("Arial");
+	about_font.setPixelSize(10);
 	about_font.setBold(true);
-	about_font.setPixelSize(8);
 	 
-	about->setFont(about_font);
 	about->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::SplashScreen);
-	about->show();
+	about->setFont(about_font);
 	about->showVersionInfo(tr(VERSION_INFO));
+	about->show();
  }
 
 /******************************************************/
