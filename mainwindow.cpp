@@ -67,12 +67,21 @@ QMainWindow()
 
 /******************************************************/
 MainWindow::~MainWindow()
+{}
+
+/******************************************************/
+void MainWindow::closeEvent(QCloseEvent* event) 
 {
 	delete _google_map;
 	delete _plot_window;
 	delete _stats_view;
 	delete _ride_selector;
 	delete _current_user;
+	if (_totals_window)
+	{
+		_totals_window->close();
+		delete _totals_window;
+	}
 }
 
 /******************************************************/
@@ -170,8 +179,8 @@ void MainWindow::setLap(int lap_index)
 /******************************************************/
 void MainWindow::totals()
 {
-	TotalsWindow* totals_window = new TotalsWindow(_current_user);
-	totals_window->show();
+	_totals_window = new TotalsWindow(_current_user);
+	_totals_window->show();
 }
 
 /******************************************************/

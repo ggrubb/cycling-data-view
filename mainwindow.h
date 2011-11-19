@@ -12,6 +12,7 @@
  class DataStatisticsView;
  class RideSelectionWindow;
  class User;
+ class TotalsWindow;
 
  class MainWindow : public QMainWindow
  {
@@ -20,6 +21,8 @@
  public:
     MainWindow();
     ~MainWindow();
+ protected:
+	virtual void closeEvent(QCloseEvent* event);
 
  private slots:
     void setUser();
@@ -49,6 +52,7 @@
 	PlotWindow* _plot_window;
 	DataStatisticsView* _stats_view;
 	RideSelectionWindow* _ride_selector;
+	TotalsWindow* _totals_window;
 
 	User* _current_user;
  };

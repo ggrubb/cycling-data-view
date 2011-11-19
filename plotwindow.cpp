@@ -54,6 +54,8 @@ public:
 		{
 			return DataProcessing::kmFromMeters(v);
 		}
+		else
+			return QString("error");
     }
 
 private:
@@ -359,6 +361,17 @@ PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
 	_cadence_cb->setChecked(true);
 	_laps_cb->setChecked(true);
 	_hr_zones_cb->setChecked(false);
+
+	QPalette plt;
+	plt.setColor(QPalette::WindowText, HR_COLOUR);
+	_hr_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, SPEED_COLOUR);
+	_speed_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, ALT_COLOUR);
+	_alt_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, CADENCE_COLOUR);
+	_cadence_cb->setPalette(plt);
+
 	connect(_hr_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	connect(_speed_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	connect(_alt_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
@@ -381,16 +394,6 @@ PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
 	connect(_smoothing_selection, SIGNAL(valueChanged(int)),this,SLOT(signalSmoothingChanged()));
 
 	// Layout the GUI
-	QPalette plt;
-	plt.setColor(QPalette::WindowText, HR_COLOUR);
-	_hr_cb->setPalette(plt);
-	plt.setColor(QPalette::WindowText, SPEED_COLOUR);
-	_speed_cb->setPalette(plt);
-	plt.setColor(QPalette::WindowText, ALT_COLOUR);
-	_alt_cb->setPalette(plt);
-	plt.setColor(QPalette::WindowText, CADENCE_COLOUR);
-	_cadence_cb->setPalette(plt);
-
 	QWidget* plot_options_widget = new QWidget;
 	QVBoxLayout* vlayout1 = new QVBoxLayout(plot_options_widget);
 	vlayout1->addWidget(_hr_cb);
