@@ -13,6 +13,7 @@ int main( int argc, char ** argv )
 	QSplashScreen splash(pixmap);
 	splash.show();
 	Sleep(2000);
+	splash.hide();
 
     MainWindow* mw = new MainWindow();
     mw->show();
