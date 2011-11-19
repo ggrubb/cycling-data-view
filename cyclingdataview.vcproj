@@ -87,7 +87,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qjpegd4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qicod4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\rideviewer256x256.ico $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\about_screen.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\marker_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\marker_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\start_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\start_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\finish_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\finish_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;"
+				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qjpegd4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qicod4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\rideviewer256x256.ico $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\about_screen.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\splash_screen.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\marker_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\marker_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\start_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\start_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\finish_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\finish_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -164,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qjpegd4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qicod4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\rideviewer256x256.ico $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\about_screen.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\marker_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\marker_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\start_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\start_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\finish_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\finish_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;"
+				CommandLine="mkdir $(OutDir)\imageformats&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qjpegd4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;copy D:\Software\Qt\4.7.2\plugins\imageformats\qicod4.dll $(OutDir)\imageformats\.&#x0D;&#x0A;mkdir $(OutDir)\resources&#x0D;&#x0A;copy .\resources\rideviewer_head128x128.ico $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\rideviewer256x256.ico $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\about_screen.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\splash_screen.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\marker_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\marker_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\start_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\start_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\finish_image.png $(OutDir)\resources\.&#x0D;&#x0A;copy .\resources\finish_shadow.png $(OutDir)\resources\.&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -261,10 +261,6 @@
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\cyclingdataview.cpp"
-				>
 			</File>
 			<File
 				RelativePath=".\datastatisticsview.cpp"
@@ -447,7 +443,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -457,7 +453,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -500,6 +496,14 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="Application"
+			>
+			<File
+				RelativePath=".\cyclingdataview.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
