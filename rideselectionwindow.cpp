@@ -7,7 +7,7 @@
 #include <QTreeView.h>
 #include <QStandardItemModel.h>
 #include <QDir.h>
-#include <QProgressBar.h>
+#include <QProgressDialog.h>
 #include <QBoxLayout.h>
 #include <QLabel.h>
 #include <iostream>
@@ -89,15 +89,10 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 	}
 
 	// Create a small progress bar
-	QProgressBar* load_progress = new QProgressBar();
-	load_progress->setWindowFlags(Qt::SplashScreen);
-	QPalette palette(load_progress->palette());
-	palette.setColor(QPalette::Window, Qt::white);
-	load_progress->setPalette(palette);
-	load_progress->move(50,150);
-	load_progress->setMinimum(0);
-	load_progress->setMaximum(filenames.size());
-	load_progress->show();
+	QProgressDialog load_progress("Loading logs...", "Cancel load", 0, filenames.size()-1, this);
+	load_progress.setWindowModality(Qt::WindowModal);
+	load_progress.setMinimumDuration(0); //msec
+	load_progress.setWindowTitle("RideViewer");
 
 	// Load new log files in the directory
 	std::vector<DataLog*> data_logs;
@@ -105,15 +100,16 @@ void RideSelectionWindow::setLogDirectory(const QString& path)
 	{
 		DataLog* data_log = new DataLog;
 		const QString filename_with_path = log_directory.path() + "/" + filenames[i];
-		std::cout << "reading: " << filename_with_path.toStdString()<< std::endl; 
 		if (_parser->parse(filename_with_path, *data_log))
 		{
 			data_logs.push_back(data_log);
 			_current_data_log = data_log;
 		}
-		load_progress->setValue(i);
+		load_progress.setValue(i);
+		load_progress.setLabelText(filename_with_path);
+		if (load_progress.wasCanceled())
+			break;
 	}
-	delete load_progress;
 
 	// Add the newly read rides to the summary
 	_log_dir_summary->addLogsToSummary(data_logs);
@@ -153,7 +149,7 @@ void RideSelectionWindow::populateTableWithRides()
 
 		if (_log_dir_summary->log(i)._laps.size() > 1) // all rides are 1 lap, so only show laps for rides with > 1 lap
 		{
-			for (int lap = 0; lap < _log_dir_summary->log(i)._laps.size(); ++lap)
+			for (unsigned int lap = 0; lap < _log_dir_summary->log(i)._laps.size(); ++lap)
 			{
 				QStandardItem *lap_name = new QStandardItem("Lap " + QString::number(lap+1));
 				lap_name->setFlags(lap_name->flags() & ~Qt::ItemIsEditable);
