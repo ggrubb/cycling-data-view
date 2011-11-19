@@ -37,6 +37,30 @@
 #define SPEED_COLOUR Qt::yellow
 
 /******************************************************/
+class XAxisScaleDraw: public QwtScaleDraw
+{
+public:
+	XAxisScaleDraw(QString& type):
+	  _type(type)
+	  {}
+ 
+    virtual QwtText label(double v) const
+    {
+		if (_type.compare("time")==0)
+		{
+			return DataProcessing::minsFromSecs(v);
+		}
+		else if (_type.compare("dist")==0)
+		{
+			return DataProcessing::kmFromMeters(v);
+		}
+    }
+
+private:
+	const QString _type;
+};
+
+/******************************************************/
 QwtCustomPlotZoomer::QwtCustomPlotZoomer(int x_axis, int y_axis, QwtPlotCanvas* canvas, bool do_replot):
 	QwtPlotZoomer(x_axis,y_axis,canvas,do_replot)
 {}
@@ -242,7 +266,7 @@ PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
 	axis_text.setText("Elevation (m)");
 	_plot->setAxisTitle(QwtPlot::yRight,axis_text);
 
-	axis_text.setText("Distance (m)");
+	axis_text.setText("Distance (km)");
 	_plot->setAxisTitle(QwtPlot::xBottom,axis_text);
 
 	// Define the curves to plot
@@ -312,6 +336,7 @@ PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
 	_time_axis = new QRadioButton("Time");
 	_dist_axis = new QRadioButton("Distance");
 	_dist_axis->setChecked(true);
+	_plot->setAxisScaleDraw(QwtPlot::xBottom, new XAxisScaleDraw(tr("dist")));
 	button_group_layout->addWidget(_time_axis);
 	button_group_layout->addWidget(_dist_axis);
 	
@@ -656,9 +681,15 @@ void PlotWindow::panAndHoldSelection(int x, int y)
 void PlotWindow::xAxisUnitsChanged(int idx)
 {
 	if (idx == 0) // time
-		_plot->setAxisTitle(QwtPlot::xBottom,"Time (s)");
+	{
+		_plot->setAxisScaleDraw(QwtPlot::xBottom, new XAxisScaleDraw(tr("time")));
+		_plot->setAxisTitle(QwtPlot::xBottom,"Time (min)");
+	}
 	else // dist
-		_plot->setAxisTitle(QwtPlot::xBottom,"Distance (m)");
+	{
+		_plot->setAxisScaleDraw(QwtPlot::xBottom, new XAxisScaleDraw(tr("dist")));
+		_plot->setAxisTitle(QwtPlot::xBottom,"Distance (km)");
+	}
 	
 	drawGraphs();
 	if (_laps_cb->isChecked()) // we need to resent the lap markers
