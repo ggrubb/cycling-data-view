@@ -24,8 +24,6 @@ void AboutWindow::showVersionInfo(const QString& message, const QColor& color)
 {
 	_message = message;
 	_color = color;
-	QFont font("Arial", 10, 2);
-	setFont(font);
 	showMessage(_message, _alignement, _color);
 }
  
