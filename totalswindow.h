@@ -18,10 +18,11 @@ public:
 	~TotalsWindow();
 
 private slots:
-	void updateCurves();
+	void updatePlot();
 
 private:
 	void computeHistogramData();
+	void computeCurves();
 
 	User* _user;
 
