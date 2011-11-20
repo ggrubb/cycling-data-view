@@ -28,7 +28,7 @@
 #include <qtgui/qlistwidget>
 #include <qtgui/qinputdialog>
 
-#define VERSION_INFO "Version 1.0 (Nov 2011)\n http://code.google.com/p/cycling-data-view/ \n grant.grubb@gmail.com"
+#define VERSION_INFO "Version 1.0 (Nov 2011)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
 
 /******************************************************/
@@ -60,9 +60,10 @@ QMainWindow()
 	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
 	
 	// Set to full screen size
-	QSize size = qApp->desktop()->size();
-	resize(size.boundedTo(QSize(1280,700)));
-	move(0,0);
+	showMaximized();
+	//QSize size = qApp->desktop()->size();
+	//resize(size.boundedTo(QSize(1280,700)));
+	//move(0,0);
  }
 
 /******************************************************/
@@ -165,7 +166,7 @@ void MainWindow::setLap(int lap_index)
 	 // Create and display about window
 	QPixmap about_image("resources/about_screen.png"); 
 	AboutWindow* about = new AboutWindow(about_image);
-	about->setMessageRect(QRect::QRect(10, 80, 250, 50), Qt::AlignLeft); // setting the message position
+	about->setMessageRect(QRect::QRect(10, 60, 250, 50), Qt::AlignLeft); // setting the message position
 	 
 	QFont about_font;
 	about_font.setFamily("Arial");
