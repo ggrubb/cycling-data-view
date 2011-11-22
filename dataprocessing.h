@@ -56,7 +56,7 @@ namespace DataProcessing
 
 	// Some functions to convert data to text
 	const QString minsFromSecs(int seconds);
-	const QString kmFromMeters(double meters);
+	const QString kmFromMeters(double meters, int prec=1);
  };
 
 #endif // DATAPROCESSING_H

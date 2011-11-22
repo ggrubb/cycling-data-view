@@ -158,12 +158,12 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 		int idx;
 		if (_x_axis_units == TimeAxis)
 		{
-			painter->drawText(QPoint(pt1.x()+5, 10), "time: " + QString::number(x_val,'g',4));
+			painter->drawText(QPoint(pt1.x()+5, 10), "time: " + DataProcessing::minsFromSecs(x_val));
 			idx = _data_log->indexFromTime(x_val);
 		}
 		else if (_x_axis_units == DistAxis)
 		{
-			painter->drawText(QPoint(pt1.x()+5, 10), "dist: " + QString::number(x_val,'g',5));
+			painter->drawText(QPoint(pt1.x()+5, 10), "dist: " + DataProcessing::kmFromMeters(x_val,2));
 			idx = _data_log->indexFromDist(x_val);
 		}
 		
