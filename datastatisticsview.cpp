@@ -31,12 +31,12 @@ DataStatisticsView::DataStatisticsView()
 		_table->setRowHeight(r,16);
 	}
 
-	QLabel* label = new QLabel;
-	label->setTextFormat(Qt::RichText);
-	label->setText("<b>Ride Statistics</b>");
+	_head_label = new QLabel;
+	_head_label->setTextFormat(Qt::RichText);
+	_head_label->setText("<b>Ride Statistics</b>");
 
 	QVBoxLayout* layout = new QVBoxLayout();
-	layout->addWidget(label);
+	layout->addWidget(_head_label);
 	layout->addWidget(_table);
 	setLayout(layout);
 	setFixedSize(270,365);
@@ -59,6 +59,7 @@ void DataStatisticsView::displayRide(DataLog* data_log, User* user)
 	{
 		_data_log = data_log;
 
+		_head_label->setText("<b>Ride Statistics: " + _data_log->date() + "</b>");
 		displayCompleteRideStats();
 		show();
 	}

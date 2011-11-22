@@ -3,6 +3,7 @@
 #include "tcxparser.h"
 #include "dataprocessing.h"
 #include "logdirectorysummary.h"
+#include "user.h"
 
 #include <QTreeView.h>
 #include <QStandardItemModel.h>
@@ -30,12 +31,12 @@ RideSelectionWindow::RideSelectionWindow()
 	formatTreeView();
 	_tree->show();
 
-	QLabel* label = new QLabel;
-	label->setTextFormat(Qt::RichText);
-	label->setText("<b>Ride Selector</b>");
+	_head_label = new QLabel;
+	_head_label->setTextFormat(Qt::RichText);
+	_head_label->setText("<b>Ride Selector</b>");
 
 	QVBoxLayout* layout = new QVBoxLayout();
-	layout->addWidget(label);
+	layout->addWidget(_head_label);
 	layout->addWidget(_tree);
 	setLayout(layout);
 	setFixedSize(270,290);
@@ -66,8 +67,11 @@ void RideSelectionWindow::formatTreeView()
 }
 
 /******************************************************/
-void RideSelectionWindow::setLogDirectory(const QString& path)
+void RideSelectionWindow::setUser(User* user)
 {
+	const QString path = user->logDirectory();
+	_head_label->setText("<b>Ride Selector" + QString(": ") + user->name() + "</b>");
+
 	// Read tcx files from specified directory
 	QDir log_directory;
 	QStringList filter;

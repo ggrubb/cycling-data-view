@@ -5,9 +5,11 @@
 
 class QTreeView;
 class QStandardItemModel;
+class QModelIndex;
+class QLabel;
 class TcxParser;
 class DataLog;
-class QModelIndex;
+class User;
 class LogDirectorySummary;
 
 class RideSelectionWindow : public QWidget
@@ -17,7 +19,7 @@ class RideSelectionWindow : public QWidget
 	RideSelectionWindow();
 	~RideSelectionWindow();
 
-	void setLogDirectory(const QString& path);
+	void setUser(User* user);
 
  signals:
 	void displayRide(DataLog* data_log);
@@ -32,6 +34,7 @@ private slots:
 
 	QTreeView* _tree;
 	QStandardItemModel* _model;
+	QLabel* _head_label;
 	
 	TcxParser* _parser;
 

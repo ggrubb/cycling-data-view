@@ -61,9 +61,6 @@ QMainWindow()
 	
 	// Set to full screen size
 	showMaximized();
-	//QSize size = qApp->desktop()->size();
-	//resize(size.boundedTo(QSize(1280,700)));
-	//move(0,0);
  }
 
 /******************************************************/
@@ -134,10 +131,10 @@ void MainWindow::addUser()
 void MainWindow::setRider(User* user)
 {
 	user->writeToFile(QString(".") + USER_DIRECTORY + user->name() + QString(".rider"));
-	setWindowTitle(QString("RideViewer") + QString(": ") + user->name());
+	//setWindowTitle(QString("RideViewer") + QString(": ") + user->name());
 	
 	_current_user = user;
-	_ride_selector->setLogDirectory(_current_user->logDirectory());
+	_ride_selector->setUser(_current_user);
 }
 
 /******************************************************/

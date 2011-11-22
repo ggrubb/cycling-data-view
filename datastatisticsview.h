@@ -4,6 +4,7 @@
 #include <qtgui/qwidget>
 
 class QTableWidget;
+class QLabel;
 class DataLog;
 class User;
 
@@ -27,6 +28,7 @@ class DataStatisticsView : public QWidget
 	void clearSelectionColumn();
 
 	QTableWidget* _table;
+	QLabel* _head_label;
 	DataLog* _data_log;
 	User* _user;
  };
