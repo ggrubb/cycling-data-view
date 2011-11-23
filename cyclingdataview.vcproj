@@ -235,34 +235,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\adduserwindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\adduserwindow.h"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
-						Outputs="moc_$(InputName).cpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
-						Outputs="moc_$(InputName).cpp"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\datastatisticsview.cpp"
 				>
 			</File>
@@ -431,6 +403,34 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\specifyuserwindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\specifyuserwindow.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\totalswindow.cpp"
 				>
 			</File>
@@ -464,10 +464,6 @@
 				UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 				>
 				<File
-					RelativePath=".\moc_adduserwindow.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\moc_datastatisticsview.cpp"
 					>
 				</File>
@@ -489,6 +485,10 @@
 				</File>
 				<File
 					RelativePath=".\moc_rideselectionwindow.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\moc_specifyuserwindow.cpp"
 					>
 				</File>
 				<File

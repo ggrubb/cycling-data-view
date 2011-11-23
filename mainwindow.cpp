@@ -6,7 +6,7 @@
 #include "rideselectionwindow.h"
 #include "user.h"
 #include "aboutwindow.h"
-#include "adduserwindow.h"
+#include "specifyuserwindow.h"
 #include "logdirectorysummary.h"
 #include "totalswindow.h"
 
@@ -124,16 +124,16 @@ void MainWindow::setUser()
 /******************************************************/
 void MainWindow::addUser()
 {
-	AddUserWindow* add_user_window = new AddUserWindow();
-	connect(add_user_window, SIGNAL(riderSelected(User*)), this, SLOT(setUser(User*)));
+	SpecifyUserWindow* add_user_window = new SpecifyUserWindow();
+	connect(add_user_window, SIGNAL(userSelected(User*)), this, SLOT(setUser(User*)));
 }
 
 /******************************************************/
 void MainWindow::editUser()
 {
-	AddUserWindow* edit_user_window = new AddUserWindow();
+	SpecifyUserWindow* edit_user_window = new SpecifyUserWindow();
 	edit_user_window->setUser(_current_user);
-	connect(edit_user_window, SIGNAL(riderSelected(User*)), this, SLOT(setUser(User*)));
+	connect(edit_user_window, SIGNAL(userSelected(User*)), this, SLOT(setUser(User*)));
 }
 
 /******************************************************/

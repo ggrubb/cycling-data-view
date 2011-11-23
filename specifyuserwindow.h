@@ -1,5 +1,5 @@
-#ifndef ADDUSERWINDOW_H
-#define ADDUSERWINDOW_H
+#ifndef SPECIFYUSERWINDOW_H
+#define SPECIFYUSERWINDOW_H
  
 #include <Qwidget.h>
 
@@ -10,17 +10,17 @@ class QDoubleSpinBox;
 class QSpinBox;
 class User;
 
-class AddUserWindow : public QWidget
+class SpecifyUserWindow : public QWidget
 {
 	Q_OBJECT
 public:
-	AddUserWindow();
-	~AddUserWindow();
+	SpecifyUserWindow();
+	~SpecifyUserWindow();
 
 	void setUser(User* user);
 
 signals:
-	void riderSelected(User* user);
+	void userSelected(User* user);
 
 private slots:
 	void selectDirectory();
@@ -39,4 +39,4 @@ private:
 	QSpinBox* _hr_zone5_input;
 };
  
-#endif // ADDUSERWINDOW_H
+#endif // SPECIFYUSERWINDOW_H

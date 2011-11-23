@@ -1,4 +1,4 @@
-#include "adduserwindow.h"
+#include "specifyuserwindow.h"
 #include "user.h"
  
 #include <QLineEdit.h>
@@ -10,7 +10,7 @@
 #include <QGridLayout.h>
 
 /******************************************************/
-AddUserWindow::AddUserWindow():
+SpecifyUserWindow::SpecifyUserWindow():
 QWidget()
 {
 	setWindowTitle(tr("Specify Rider"));
@@ -95,7 +95,7 @@ QWidget()
 }
  
 /******************************************************/
-AddUserWindow::~AddUserWindow()
+SpecifyUserWindow::~SpecifyUserWindow()
 {
 	delete _name_input;
 	delete _log_directory_input;
@@ -109,7 +109,7 @@ AddUserWindow::~AddUserWindow()
 }
 
 /******************************************************/
-void AddUserWindow::setUser(User* user)
+void SpecifyUserWindow::setUser(User* user)
 {
 	_name_input->setText(user->name());
 	_log_directory_input->setText(user->logDirectory());
@@ -123,7 +123,7 @@ void AddUserWindow::setUser(User* user)
 }
 
 /******************************************************/
-void AddUserWindow::selectDirectory()
+void SpecifyUserWindow::selectDirectory()
 {
 	QString dir = QFileDialog::getExistingDirectory(this, "Select Directory", QDir::homePath(), QFileDialog::ShowDirsOnly);
 	_log_directory_input->setText(dir);
@@ -131,7 +131,7 @@ void AddUserWindow::selectDirectory()
 }
 
 /******************************************************/
-void AddUserWindow::createRider()
+void SpecifyUserWindow::createRider()
 {
 	User* new_user = new User(
 		_name_input->text(),
@@ -144,14 +144,14 @@ void AddUserWindow::createRider()
 		_hr_zone4_input->value(),
 		_hr_zone5_input->value());
 
-	emit riderSelected(new_user);
+	emit userSelected(new_user);
 
-	this->~AddUserWindow();
+	this->~SpecifyUserWindow();
 }
 
 /******************************************************/
-void AddUserWindow::cancel()
+void SpecifyUserWindow::cancel()
 {
-	this->~AddUserWindow();
+	this->~SpecifyUserWindow();
 }
  
