@@ -1,7 +1,7 @@
 #ifndef RIDESELECTIONWINDOW_H
 #define RIDESELECTIONWINDOW_H
 
-#include <qtgui/qwidget>
+#include <QWidget.h>
 
 class QTreeView;
 class QStandardItemModel;

@@ -17,14 +17,13 @@
 #include <qwt_text.h>
 #include <qwt_plot_marker.h>
 
-#include <qtgui/qcombobox>
-#include <qtgui/qvboxlayout>
-#include <qtgui/qhboxlayout>
-#include <qtgui/qcheckbox>
-#include <qtgui/qlabel>
-#include <qtgui/qradiobutton>
-#include <qtgui/qbuttongroup>
-#include <qtgui/qslider>
+#include <QComboBox.h>
+#include <QBoxLayout.h>
+#include <QCheckBox.h>
+#include <QLabel.h>
+#include <QRadioButton.h>
+#include <QButtonGroup.h>
+#include <QSlider.h>
 
 #include <cassert>
 #include <iostream>

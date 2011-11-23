@@ -17,6 +17,8 @@ public:
 	AddUserWindow();
 	~AddUserWindow();
 
+	void setUser(User* user);
+
 signals:
 	void riderSelected(User* user);
 

@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <qtgui/qmainwindow>
+#include <QMainWindow.h>
 
  class QAction;
  class QLabel;
@@ -27,9 +27,10 @@
  private slots:
     void setUser();
     void addUser();
+    void editUser();
     void totals();
     void about();
-	void setRider(User* user);
+	void setUser(User* user);
 	void setRide(DataLog* data_log);
 	void setLap(int lap_index);
 	

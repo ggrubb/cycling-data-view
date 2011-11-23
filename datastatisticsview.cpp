@@ -3,9 +3,10 @@
 #include "datalog.h"
 #include "user.h"
 
-#include <qtgui/qtablewidget>
-#include <qtgui/qvboxlayout>
-#include <qtgui/qlabel>
+#include <QTableWidget.h>
+#include <QBoxLayout.h>
+#include <QLabel.h>
+
 #include <iostream>
 #include <cassert>
 
@@ -59,7 +60,7 @@ void DataStatisticsView::displayRide(DataLog* data_log, User* user)
 	{
 		_data_log = data_log;
 
-		_head_label->setText("<b>Ride Statistics: " + _data_log->date() + "</b>");
+		_head_label->setText("<b>Ride Statistics For:</b> " + _data_log->date());
 		displayCompleteRideStats();
 		show();
 	}

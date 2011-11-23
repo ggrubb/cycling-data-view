@@ -3,7 +3,7 @@
  
 #include <QLineEdit.h>
 #include <QLabel.h>
-#include <qtgui/QDoubleSpinBox>
+#include <QSpinBox.h>
 #include <QSpinBox.h>
 #include <QPushButton.h>
 #include <QFileDialog.h>
@@ -13,7 +13,7 @@
 AddUserWindow::AddUserWindow():
 QWidget()
 {
-	setWindowTitle(tr("Add Rider"));
+	setWindowTitle(tr("Specify Rider"));
 	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
 
 	_name_input = new QLineEdit();
@@ -44,16 +44,16 @@ QWidget()
 	QLabel* weight_label = new QLabel("Weight (kg):");
 	QLabel* bike_weight_label = new QLabel("Bike Weight (kg):");
 	QLabel* hr_zone1_label = new QLabel("HR Zone 1 - recovery (bpm):");
-	QLabel* hr_zone2_label = new QLabel("HR Zone 1 - endurance (bpm):");
-	QLabel* hr_zone3_label = new QLabel("HR Zone 1 - tempo (bpm):");
-	QLabel* hr_zone4_label = new QLabel("HR Zone 1 - threshold (bpm):");
-	QLabel* hr_zone5_label = new QLabel("HR Zone 1 - V02 max (bpm):");
+	QLabel* hr_zone2_label = new QLabel("HR Zone 2 - endurance (bpm):");
+	QLabel* hr_zone3_label = new QLabel("HR Zone 3 - tempo (bpm):");
+	QLabel* hr_zone4_label = new QLabel("HR Zone 4 - threshold (bpm):");
+	QLabel* hr_zone5_label = new QLabel("HR Zone 5 - V02 max (bpm):");
 
 	QPushButton* directory_button = new QPushButton("Select...");
 	connect(directory_button, SIGNAL(clicked()), this, SLOT(selectDirectory()));
 	
-	QPushButton* create_button = new QPushButton("Add");
-	connect(create_button, SIGNAL(clicked()), this, SLOT(createRider()));
+	QPushButton* done_button = new QPushButton("Done");
+	connect(done_button, SIGNAL(clicked()), this, SLOT(createRider()));
 
 	QPushButton* cancel_button = new QPushButton("Cancel");
 	connect(cancel_button, SIGNAL(clicked()), this, SLOT(cancel()));
@@ -88,7 +88,7 @@ QWidget()
 	grid_layout->addWidget(hr_zone5_label,9,0);
 	grid_layout->addWidget(_hr_zone5_input,9,1);
 
-	grid_layout->addWidget(create_button,10,0);
+	grid_layout->addWidget(done_button,10,0);
 	grid_layout->addWidget(cancel_button,10,1);
 
 	show();
@@ -106,6 +106,20 @@ AddUserWindow::~AddUserWindow()
 	delete _hr_zone3_input;
 	delete _hr_zone4_input;
 	delete _hr_zone5_input;
+}
+
+/******************************************************/
+void AddUserWindow::setUser(User* user)
+{
+	_name_input->setText(user->name());
+	_log_directory_input->setText(user->logDirectory());
+	_weight_input->setValue(user->weight());
+	_bike_weight_input->setValue(user->bikeWeight());
+	_hr_zone1_input->setValue(user->zone1());
+	_hr_zone2_input->setValue(user->zone2());
+	_hr_zone3_input->setValue(user->zone3());
+	_hr_zone4_input->setValue(user->zone4());
+	_hr_zone5_input->setValue(user->zone5());
 }
 
 /******************************************************/

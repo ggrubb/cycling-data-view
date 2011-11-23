@@ -1,6 +1,7 @@
 #include "user.h"
 
 #include <fstream>
+
 #include <qtxml/qdomdocument>
 #include <QFile.h>
 

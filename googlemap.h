@@ -2,10 +2,10 @@
 #define GOOGLEMAP_H
 
 #include <qtxml/qdomdocument>
-#include <qtgui/qwidget>
-#include <qtcore/qpoint>
+#include <QWidget.h>
+#include <QPoint.h>
 #include <QWebView.h>
-#include <qmap.h>
+#include <QMap.h>
 
 class DataLog;
 class QComboBox;

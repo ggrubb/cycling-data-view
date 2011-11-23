@@ -12,21 +12,22 @@
 
 #include <stdio.h>
 #include <iostream>
-#include <qtgui/qlabel>
-#include <qtgui/qscrollarea>
-#include <qtgui/qscrollbar>
-#include <qtgui/qaction>
-#include <qtgui/qmenu>
-#include <qtgui/qmenubar>
-#include <qtgui/qfiledialog>
-#include <qtgui/qmessagebox>
-#include <qtgui/qpainter>
-#include <qtgui/qapplication>
-#include <qtgui/qgridlayout>
-#include <qtgui/qdesktopwidget>
-#include <qtgui/qbitmap>
-#include <qtgui/qlistwidget>
-#include <qtgui/qinputdialog>
+
+#include <QLabel.h>
+#include <QScrollArea.h>
+#include <QScrollBar.h>
+#include <QAction.h>
+#include <QMenu.h>
+#include <QMenuBar.h>
+#include <QFileDialog.h>
+#include <QMessageBox.h>
+#include <QPainter.h>
+#include <QApplication.h>
+#include <QGridLayout.h>
+#include <QDesktopWidget.h>
+#include <QBitmap.h>
+#include <QListWidget.h>
+#include <QInputDialog.h>
 
 #define VERSION_INFO "Version 1.0 (Nov 2011)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
@@ -112,7 +113,7 @@ void MainWindow::setUser()
 		
 		// Set the selected user
 		if (ok)
-			setRider(users[user_names.indexOf(user_name)]);
+			setUser(users[user_names.indexOf(user_name)]);
 	}
 	else
 	{
@@ -124,17 +125,26 @@ void MainWindow::setUser()
 void MainWindow::addUser()
 {
 	AddUserWindow* add_user_window = new AddUserWindow();
-	connect(add_user_window, SIGNAL(riderSelected(User*)), this, SLOT(setRider(User*)));
+	connect(add_user_window, SIGNAL(riderSelected(User*)), this, SLOT(setUser(User*)));
 }
 
 /******************************************************/
-void MainWindow::setRider(User* user)
+void MainWindow::editUser()
 {
-	user->writeToFile(QString(".") + USER_DIRECTORY + user->name() + QString(".rider"));
-	//setWindowTitle(QString("RideViewer") + QString(": ") + user->name());
-	
+	AddUserWindow* edit_user_window = new AddUserWindow();
+	edit_user_window->setUser(_current_user);
+	connect(edit_user_window, SIGNAL(riderSelected(User*)), this, SLOT(setUser(User*)));
+}
+
+/******************************************************/
+void MainWindow::setUser(User* user)
+{
 	_current_user = user;
 	_ride_selector->setUser(_current_user);
+	
+	_edit_act->setEnabled(true);
+	_totals_act->setEnabled(true);
+	user->writeToFile(QString(".") + USER_DIRECTORY + user->name() + QString(".rider"));
 }
 
 /******************************************************/
@@ -193,9 +203,11 @@ void MainWindow::createActions()
 	connect(_add_act, SIGNAL(triggered()), this, SLOT(addUser()));
 
 	_edit_act = new QAction(tr("Edit..."), this);
-	connect(_edit_act, SIGNAL(triggered()), this, SLOT(addUser()));
+	_edit_act->setEnabled(false);
+	connect(_edit_act, SIGNAL(triggered()), this, SLOT(editUser()));
 
 	_totals_act = new QAction(tr("Totals"), this);
+	_totals_act->setEnabled(false);
 	connect(_totals_act, SIGNAL(triggered()), this, SLOT(totals()));
 
 	_exit_act = new QAction(tr("Exit"), this);

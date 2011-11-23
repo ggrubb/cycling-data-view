@@ -11,6 +11,7 @@
 #include <QProgressDialog.h>
 #include <QBoxLayout.h>
 #include <QLabel.h>
+
 #include <iostream>
 
 /******************************************************/
@@ -70,7 +71,7 @@ void RideSelectionWindow::formatTreeView()
 void RideSelectionWindow::setUser(User* user)
 {
 	const QString path = user->logDirectory();
-	_head_label->setText("<b>Ride Selector" + QString(": ") + user->name() + "</b>");
+	_head_label->setText("<b>Ride Selector For: </b>" + user->name());
 
 	// Read tcx files from specified directory
 	QDir log_directory;

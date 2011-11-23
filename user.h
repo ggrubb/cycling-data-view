@@ -3,6 +3,8 @@
 
 #include <QString.h>
 
+/* Class to represent a single rider */
+
 class User
  {
  public:

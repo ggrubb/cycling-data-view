@@ -1,8 +1,8 @@
 #ifndef ABOUTWINDOW_H
 #define ABOUTWINDOW_H
  
-#include <qtgui/QSplashScreen>
-#include <qtgui/QPainter>
+#include <QSplashScreen.h>
+#include <QPainter.h>
  
 class AboutWindow : public QSplashScreen
 {

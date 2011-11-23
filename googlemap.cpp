@@ -8,7 +8,8 @@
 #include <QDir.h>
 #include <QComboBox.h>
 #include <QLabel.h>
-#include <qtgui/qvboxlayout>
+#include <QBoxLayout.h>
+
 #include <qwt_scale_widget.h>
 #include <qwt_color_map.h>
 #include <qwt_interval.h>

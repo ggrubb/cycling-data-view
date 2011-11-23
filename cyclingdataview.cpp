@@ -2,6 +2,7 @@
 
 #include <QApplication.h>
 #include <QSplashScreen.h>
+
 #include <windows.h>
 #include "mainwindow.h"
 

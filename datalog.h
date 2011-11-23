@@ -1,9 +1,12 @@
 #ifndef DATALOG_H
 #define DATALOG_H
 
-#include <qstring.h>
-#include <qmap.h>
+#include <QString.h>
+#include <QMap.h>
+
 #include <vector>
+
+/* Class to represent a single ride log */
 
 class DataLog
  {

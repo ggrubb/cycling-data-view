@@ -1,7 +1,7 @@
 #ifndef DATASTATISTICSVIEW_H
 #define DATASTATISTICSVIEW_H
 
-#include <qtgui/qwidget>
+#include <Qwidget.h>
 
 class QTableWidget;
 class QLabel;
