@@ -82,31 +82,6 @@ bool TcxParser::parseRideDetails(DataLog& data_log)
 					num_empty_track_points++;
 				}
 
-				// Sometimes the xml contains a track point with no GPS. Here we check this and re-use
-				// the previous GPS if the dropout was only one sample.
-				if (data_log.lgd(track_point_idx) == 0 && data_log.ltd(track_point_idx) == 0 && 
-					data_log.dist(track_point_idx) != 0)
-				{
-					if (track_point_idx > 0) 
-					{
-						if (data_log.lgd(track_point_idx-1) != 0 && data_log.ltd(track_point_idx-1) != 0) // recover by using prev pos
-						{
-							data_log.lgd(track_point_idx) = data_log.lgd(track_point_idx-1);
-							data_log.ltd(track_point_idx) = data_log.ltd(track_point_idx-1);
-						}
-						else // give up on this point
-						{
-							valid_track_point = false;
-							num_empty_track_points++;
-						}
-					}
-					else // give up on this point
-					{
-						valid_track_point = false;
-						num_empty_track_points++;
-					}
-				}
-
 				if (valid_track_point)
 					track_point_idx++;
 			}
@@ -131,6 +106,16 @@ bool TcxParser::parseRideDetails(DataLog& data_log)
 	for (int i=data_log.numPoints()-1; i >= 0; --i)
 	{
 		data_log.time(i) = data_log.time(i) - data_log.time(0);
+	}
+
+	// Clean up sporadic empty GPS points
+	for (int i=1; i < data_log.numPoints(); ++i)
+	{
+		if (data_log.lgd(i) == 0 && data_log.ltd(i) == 0 && data_log.dist(i) != 0)
+		{
+			data_log.lgd(i) = data_log.lgd(i-1);
+			data_log.ltd(i) = data_log.ltd(i-1);
+		}
 	}
 
 	// Set flags to indicate vailidity of data read

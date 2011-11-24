@@ -52,8 +52,11 @@ private slots:
 	void moveAndHoldSelection(int delta_idx);
 
  private:
-	 // Create the webpage and put in the given stream
+	// Create the webpage to display google maps
 	void createPage(std::ostringstream& page);
+
+	// Create the webpage to show no GPS data
+	void createEmptyPage(std::ostringstream& page);
 
 	// Create sting decription of lat/long between first and last iterators
 	std::string defineCoords(int idx_start, int idx_end);

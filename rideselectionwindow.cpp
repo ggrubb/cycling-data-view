@@ -94,7 +94,7 @@ void RideSelectionWindow::setUser(User* user)
 	}
 
 	// Create a small progress bar
-	QProgressDialog load_progress("Loading logs...", "Cancel load", 0, filenames.size()-1, this);
+	QProgressDialog load_progress("Loading new logs...", "Cancel load", 0, filenames.size()-1, this);
 	load_progress.setWindowModality(Qt::WindowModal);
 	load_progress.setMinimumDuration(0); //msec
 	load_progress.setWindowTitle("RideViewer");

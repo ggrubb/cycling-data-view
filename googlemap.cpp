@@ -137,7 +137,7 @@ void GoogleMap::displayRide(DataLog* data_log)
 	{
 		_data_log = data_log;
 
-		if (_data_log->lgdValid() && _data_log->ltdValid())
+		if (_data_log->lgdValid() && _data_log->ltdValid()) // we have a valid path to show
 		{
 			// Create the google map web page
 			ostringstream page;
@@ -148,6 +148,19 @@ void GoogleMap::displayRide(DataLog* data_log)
 
 			// Enabled user interface
 			setEnabled(true);
+			_path_colour_scheme->setCurrentIndex(0);
+		}
+		else // no valid path to show
+		{
+			// Create the google map web page
+			ostringstream page;
+			createEmptyPage(page);
+			_view->setHtml(QString::fromStdString(page.str()));
+
+			show();
+
+			// Disable user interface
+			setEnabled(false);
 			_path_colour_scheme->setCurrentIndex(0);
 		}
 	}
@@ -511,4 +524,29 @@ void GoogleMap::createPage(std::ostringstream& page)
 	page << oss.str();
 }
 
+/******************************************************/
+void GoogleMap::createEmptyPage(std::ostringstream& page)
+{
+		ostringstream oss;
+    oss.precision(6); // set precision so we plot lat/long correctly
+	oss.setf(ios::fixed,ios::floatfield);
+
+	oss << "<!DOCTYPE html>" << endl
+		<< "<html>" << endl
+		<< "<head>" << endl
+		<< "<meta name=\"viewport\" content=\"initial-scale=1.0, user-scalable=no\" />" << endl
+		<< "<style type=\"text/css\">" << endl
+		<< "html { height: 100% }" << endl
+		<< "body { height: 100%; margin: 0; padding: 0 }" << endl
+		<< "#map_canvas { height: 100% }" << endl
+		<< "</style>" << endl
+		
+		<< "</head>" << endl
+		<< "<body bgcolor=\"#E2E2E2\">" << endl
+		<< "<br><br><br><br><br><small><center>No GPS data to display in this log</center></small>" << endl
+		<< "</body>" << endl
+		<< "</html>" << endl;
+
+	page << oss.str();
+}
 
