@@ -25,7 +25,7 @@
 	virtual void closeEvent(QCloseEvent* event);
 
  private slots:
-    void setUser();
+    void promptForUser();
     void addUser();
     void editUser();
     void totals();

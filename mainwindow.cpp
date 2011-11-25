@@ -28,7 +28,10 @@
 #include <QBitmap.h>
 #include <QListWidget.h>
 #include <QInputDialog.h>
+#include <QSettings.h>
 
+#define COMPANY_NAME "RideViewer"
+#define APP_NAME "RiderViewer"
 #define VERSION_INFO "Version 1.0 (Nov 2011)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
 
@@ -44,6 +47,7 @@ QMainWindow()
 	_google_map = new GoogleMapWindow();
 	_stats_view = new DataStatisticsWindow();
 	_plot_window = new PlotWindow(_google_map, _stats_view);
+	_totals_window = 0;
 
 	_ride_selector = new RideSelectionWindow();
 	connect(_ride_selector , SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
@@ -62,6 +66,20 @@ QMainWindow()
 	
 	// Set to full screen size
 	showMaximized();
+
+	// Check for saved user from persistent settings
+	QSettings settings(COMPANY_NAME, APP_NAME);
+	if (settings.contains("Rider"))
+	{
+		QString user_name = settings.value("Rider").toString();
+		_current_user->readFromFile(QDir::currentPath() + USER_DIRECTORY + user_name + ".rider");
+		setUser(_current_user);
+	}
+	else
+	{
+		QMessageBox::information(this, tr("First Start"), tr("Bonjour! You need to create a rider profile before using RideViewer."));
+		addUser();
+	}
  }
 
 /******************************************************/
@@ -71,6 +89,14 @@ MainWindow::~MainWindow()
 /******************************************************/
 void MainWindow::closeEvent(QCloseEvent* event) 
 {
+	// Save current user
+	if (!_current_user->name().isEmpty())
+	{
+		QSettings settings(COMPANY_NAME, APP_NAME);
+		settings.setValue("Rider", _current_user->name());
+	}
+
+	// Delete members
 	delete _google_map;
 	delete _plot_window;
 	delete _stats_view;
@@ -84,7 +110,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 }
 
 /******************************************************/
-void MainWindow::setUser()
+void MainWindow::promptForUser()
 {
 	QDir directory;
 	QStringList filter;
@@ -114,10 +140,6 @@ void MainWindow::setUser()
 		// Set the selected user
 		if (ok)
 			setUser(users[user_names.indexOf(user_name)]);
-	}
-	else
-	{
-		// Say the user needs to add a user
 	}
 }
 
@@ -197,7 +219,7 @@ void MainWindow::totals()
 void MainWindow::createActions()
 {
 	_set_act = new QAction(tr("Select..."), this);
-	connect(_set_act, SIGNAL(triggered()), this, SLOT(setUser()));
+	connect(_set_act, SIGNAL(triggered()), this, SLOT(promptForUser()));
 
 	_add_act = new QAction(tr("Add..."), this);
 	connect(_add_act, SIGNAL(triggered()), this, SLOT(addUser()));

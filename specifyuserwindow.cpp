@@ -133,18 +133,21 @@ void SpecifyUserWindow::selectDirectory()
 /******************************************************/
 void SpecifyUserWindow::createRider()
 {
-	User* new_user = new User(
-		_name_input->text(),
-		_log_directory_input->text(),
-		_weight_input->value(),
-		_bike_weight_input->value(),
-		_hr_zone1_input->value(),
-		_hr_zone2_input->value(),
-		_hr_zone3_input->value(),
-		_hr_zone4_input->value(),
-		_hr_zone5_input->value());
+	if (!_name_input->text().isEmpty())
+	{
+		User* new_user = new User(
+			_name_input->text(),
+			_log_directory_input->text(),
+			_weight_input->value(),
+			_bike_weight_input->value(),
+			_hr_zone1_input->value(),
+			_hr_zone2_input->value(),
+			_hr_zone3_input->value(),
+			_hr_zone4_input->value(),
+			_hr_zone5_input->value());
 
-	emit userSelected(new_user);
+		emit userSelected(new_user);
+	}
 
 	this->~SpecifyUserWindow();
 }

@@ -192,7 +192,8 @@ void RideSelectionWindow::populateTableWithRides()
 	connect(_tree, SIGNAL(clicked(const QModelIndex&)),this,SLOT(rideSelected(const QModelIndex&)));
 	_tree->setCurrentIndex(_model->index(0,0));
 	
-	rideSelected(_tree->currentIndex());
+	if (_log_dir_summary->numLogs() > 0)
+		rideSelected(_tree->currentIndex());
 }
 
 /******************************************************/
