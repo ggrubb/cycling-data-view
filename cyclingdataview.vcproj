@@ -276,6 +276,7 @@
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
 						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
