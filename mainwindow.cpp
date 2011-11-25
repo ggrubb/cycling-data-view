@@ -68,6 +68,12 @@ QMainWindow()
 	showMaximized();
 
 	// Check for saved user from persistent settings
+	checkForSaveUser();
+ }
+
+/******************************************************/
+void MainWindow::checkForSaveUser()
+{
 	QSettings settings(COMPANY_NAME, APP_NAME);
 	if (settings.contains("Rider"))
 	{
@@ -80,7 +86,7 @@ QMainWindow()
 		QMessageBox::information(this, tr("First Start"), tr("Bonjour! You need to create a rider profile before using RideViewer."));
 		addUser();
 	}
- }
+}
 
 /******************************************************/
 MainWindow::~MainWindow()

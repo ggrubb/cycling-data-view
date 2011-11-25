@@ -35,6 +35,7 @@
 	void setLap(int lap_index);
 	
  private:
+	void checkForSaveUser();
     void createActions();
     void createMenus();
 
