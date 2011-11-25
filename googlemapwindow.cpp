@@ -1,4 +1,4 @@
-#include "googlemap.h"
+#include "googlemapwindow.h"
 #include "datalog.h"
 #include "dataprocessing.h"
 
@@ -79,7 +79,7 @@ private:
 };
 
 /******************************************************/
-GoogleMap::GoogleMap()
+GoogleMapWindow::GoogleMapWindow()
 {
 	_view = new QWebView();
 	_view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
@@ -119,19 +119,19 @@ GoogleMap::GoogleMap()
 }
 
 /******************************************************/
-GoogleMap::~GoogleMap()
+GoogleMapWindow::~GoogleMapWindow()
 {
 
 }
 
 /******************************************************/
-void GoogleMap::setEnabled(bool enabled)
+void GoogleMapWindow::setEnabled(bool enabled)
 {
 	_path_colour_scheme->setEnabled(enabled);
 }
 
 /******************************************************/
-void GoogleMap::displayRide(DataLog* data_log)
+void GoogleMapWindow::displayRide(DataLog* data_log)
 {
 	if (data_log != _data_log)
 	{
@@ -171,7 +171,7 @@ void GoogleMap::displayRide(DataLog* data_log)
 }
 
 /******************************************************/
-void GoogleMap::setMarkerPosition(int idx)
+void GoogleMapWindow::setMarkerPosition(int idx)
 {
 	if (idx > 0 && idx < _data_log->numPoints())
 	{
@@ -185,7 +185,7 @@ void GoogleMap::setMarkerPosition(int idx)
 }
 
 /******************************************************/
-void GoogleMap::setSelection(int idx_start, int idx_end, bool zoom_map)
+void GoogleMapWindow::setSelection(int idx_start, int idx_end, bool zoom_map)
 {
 	ostringstream stream;
 	stream << "var coords = [" << endl
@@ -199,13 +199,13 @@ void GoogleMap::setSelection(int idx_start, int idx_end, bool zoom_map)
 }
 
 /******************************************************/
-void GoogleMap::beginSelection(int idx_begin)
+void GoogleMapWindow::beginSelection(int idx_begin)
 {
 	_selection_begin_idx = idx_begin;
 }
 
 /******************************************************/
-void GoogleMap::endSelection(int idx_end)
+void GoogleMapWindow::endSelection(int idx_end)
 {
 	_selection_end_idx = idx_end;
 	if (_selection_end_idx > _selection_begin_idx)
@@ -219,7 +219,7 @@ void GoogleMap::endSelection(int idx_end)
 }
 
 /******************************************************/
-void GoogleMap::zoomSelection(int idx_start, int idx_end)
+void GoogleMapWindow::zoomSelection(int idx_start, int idx_end)
 {
 	_selection_begin_idx = idx_start;
 	_selection_end_idx = idx_end;
@@ -227,7 +227,7 @@ void GoogleMap::zoomSelection(int idx_start, int idx_end)
 }
 
 /******************************************************/
-void GoogleMap::deleteSelection()
+void GoogleMapWindow::deleteSelection()
 {
 	_selection_begin_idx = UNDEFINED_IDX;
 	_selection_end_idx = UNDEFINED_IDX;
@@ -238,7 +238,7 @@ void GoogleMap::deleteSelection()
 }
 
 /******************************************************/
-void GoogleMap::moveSelection(int delta_idx)
+void GoogleMapWindow::moveSelection(int delta_idx)
 {
 	int i = std::max(_selection_begin_idx - delta_idx, 0);
 	int j = std::min(_selection_end_idx - delta_idx, _data_log->numPoints());
@@ -246,7 +246,7 @@ void GoogleMap::moveSelection(int delta_idx)
 }
 
 /******************************************************/
-void GoogleMap::moveAndHoldSelection(int delta_idx)
+void GoogleMapWindow::moveAndHoldSelection(int delta_idx)
 {
 	_selection_begin_idx = std::max(_selection_begin_idx - delta_idx, 0);
 	_selection_end_idx = std::min(_selection_end_idx - delta_idx, _data_log->numPoints());
@@ -254,7 +254,7 @@ void GoogleMap::moveAndHoldSelection(int delta_idx)
 }
 
 /******************************************************/
-void GoogleMap::definePathColour()
+void GoogleMapWindow::definePathColour()
 {
 	// Colour the path and set the colour bar correspondingly
 	ostringstream stream;
@@ -353,7 +353,7 @@ void GoogleMap::definePathColour()
 }
 
 /******************************************************/
-std::string GoogleMap::defineCoords(int idx_start, int idx_end)
+std::string GoogleMapWindow::defineCoords(int idx_start, int idx_end)
 {
 	ostringstream stream;
 	stream.precision(6); // set precision so we plot lat/long correctly
@@ -368,7 +368,7 @@ std::string GoogleMap::defineCoords(int idx_start, int idx_end)
 }
 
 /******************************************************/
-void GoogleMap::createPage(std::ostringstream& page)
+void GoogleMapWindow::createPage(std::ostringstream& page)
 {
 	ostringstream oss;
     oss.precision(6); // set precision so we plot lat/long correctly
@@ -525,9 +525,9 @@ void GoogleMap::createPage(std::ostringstream& page)
 }
 
 /******************************************************/
-void GoogleMap::createEmptyPage(std::ostringstream& page)
+void GoogleMapWindow::createEmptyPage(std::ostringstream& page)
 {
-		ostringstream oss;
+	ostringstream oss;
     oss.precision(6); // set precision so we plot lat/long correctly
 	oss.setf(ios::fixed,ios::floatfield);
 

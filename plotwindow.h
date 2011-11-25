@@ -8,8 +8,8 @@
 
 class DataLog;
 class User;
-class GoogleMap;
-class DataStatisticsView;
+class GoogleMapWindow;
+class DataStatisticsWindow;
 class QwtPlotPicker;
 class QwtCustomPlotZoomer;
 class QwtCustomPlotPicker;
@@ -27,7 +27,7 @@ class PlotWindow : public QWidget
 
  public:
 	// Create plot and connect to google map and stats viewer
-	PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view);
+	PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_view);
 	~PlotWindow();
 	
 	// Display the ride log in plots

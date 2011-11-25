@@ -11,13 +11,13 @@ class DataLog;
 class QComboBox;
 class ColourBar;
 
-class GoogleMap : public QWidget
+class GoogleMapWindow : public QWidget
 {
 	Q_OBJECT
 
  public:
-	GoogleMap();
-	~GoogleMap();
+	GoogleMapWindow();
+	~GoogleMapWindow();
 
 	// Display the ride route on a google map
 	void displayRide(DataLog* data_log);

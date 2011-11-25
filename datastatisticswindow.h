@@ -8,12 +8,12 @@ class QLabel;
 class DataLog;
 class User;
 
-class DataStatisticsView : public QWidget
+class DataStatisticsWindow : public QWidget
  {
 	 Q_OBJECT
  public:
-	DataStatisticsView();
-	~DataStatisticsView();
+	DataStatisticsWindow();
+	~DataStatisticsWindow();
 
 	void displayRide(DataLog* data_log, User* user);
 

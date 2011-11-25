@@ -6,10 +6,10 @@
  class QAction;
  class QLabel;
  class QMenu;
- class GoogleMap;
+ class GoogleMapWindow;
  class PlotWindow;
  class DataLog;
- class DataStatisticsView;
+ class DataStatisticsWindow;
  class RideSelectionWindow;
  class User;
  class TotalsWindow;
@@ -49,9 +49,9 @@
     QMenu* _view_menu;
     QMenu* _help_menu;
 
-	GoogleMap* _google_map;
+	GoogleMapWindow* _google_map;
 	PlotWindow* _plot_window;
-	DataStatisticsView* _stats_view;
+	DataStatisticsWindow* _stats_view;
 	RideSelectionWindow* _ride_selector;
 	TotalsWindow* _totals_window;
 

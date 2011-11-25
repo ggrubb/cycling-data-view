@@ -1,4 +1,4 @@
-#include "datastatisticsview.h"
+#include "datastatisticswindow.h"
 #include "dataprocessing.h"
 #include "datalog.h"
 #include "user.h"
@@ -11,7 +11,7 @@
 #include <cassert>
 
 /******************************************************/
-DataStatisticsView::DataStatisticsView()
+DataStatisticsWindow::DataStatisticsWindow()
 {
 	_table = new QTableWidget(19,2,this);
 	_table->setSelectionMode(QAbstractItemView::NoSelection);
@@ -46,13 +46,13 @@ DataStatisticsView::DataStatisticsView()
 }
 
 /******************************************************/
-DataStatisticsView::~DataStatisticsView()
+DataStatisticsWindow::~DataStatisticsWindow()
 {
 	
 }
 
 /******************************************************/
-void DataStatisticsView::displayRide(DataLog* data_log, User* user)
+void DataStatisticsWindow::displayRide(DataLog* data_log, User* user)
 {
 	_user = user;
 
@@ -71,7 +71,7 @@ void DataStatisticsView::displayRide(DataLog* data_log, User* user)
 }
 
 /******************************************************/
-void DataStatisticsView::displayCompleteRideStats()
+void DataStatisticsWindow::displayCompleteRideStats()
 {
 	assert(_user);
 	assert(_data_log);
@@ -147,7 +147,7 @@ void DataStatisticsView::displayCompleteRideStats()
 }
 
 /******************************************************/
-void DataStatisticsView::clearTable()
+void DataStatisticsWindow::clearTable()
 {
 	clearTotalsColumn();
 	clearSelectionColumn();
@@ -155,7 +155,7 @@ void DataStatisticsView::clearTable()
 }
 
 /******************************************************/
-void DataStatisticsView::clearTotalsColumn()
+void DataStatisticsWindow::clearTotalsColumn()
 {
 	for (int r = 0; r < _table->rowCount(); ++r)
 	{
@@ -166,7 +166,7 @@ void DataStatisticsView::clearTotalsColumn()
 }
 
 /******************************************************/
-void DataStatisticsView::clearSelectionColumn()
+void DataStatisticsWindow::clearSelectionColumn()
 {
 	for (int r = 0; r < _table->rowCount(); ++r)
 	{
@@ -177,13 +177,13 @@ void DataStatisticsView::clearSelectionColumn()
 }
 
 /******************************************************/
-void DataStatisticsView::deleteSelection()
+void DataStatisticsWindow::deleteSelection()
 {
 	clearSelectionColumn();
 }
 
 /******************************************************/
-void DataStatisticsView::displaySelectedRideStats(int idx_start, int idx_end)
+void DataStatisticsWindow::displaySelectedRideStats(int idx_start, int idx_end)
 {
 	assert(_user);
 	assert(_data_log);

@@ -1,8 +1,8 @@
 #include "plotwindow.h"
 #include "datalog.h"
 #include "user.h"
-#include "googlemap.h"
-#include "datastatisticsview.h"
+#include "googlemapwindow.h"
+#include "datastatisticswindow.h"
 #include "dataprocessing.h"
 #include "qwtcustomplotpicker.h"
 #include "qwtcustomplotzoomer.h"
@@ -212,7 +212,7 @@ void QwtCustomPlotPicker::xAxisUnitsChanged(int units)
 }
 
 /******************************************************/
-PlotWindow::PlotWindow(GoogleMap* google_map, DataStatisticsView* stats_view)
+PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_view)
 {
 	// Create the plot
 	_plot = new QwtPlot();

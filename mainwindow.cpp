@@ -1,8 +1,8 @@
 #include "mainwindow.h"
 #include "datalog.h"
-#include "googlemap.h"
+#include "googlemapwindow.h"
 #include "plotwindow.h"
-#include "datastatisticsview.h"
+#include "datastatisticswindow.h"
 #include "rideselectionwindow.h"
 #include "user.h"
 #include "aboutwindow.h"
@@ -41,8 +41,8 @@ QMainWindow()
 
 	_current_user = new User();
 
-	_google_map = new GoogleMap();
-	_stats_view = new DataStatisticsView();
+	_google_map = new GoogleMapWindow();
+	_stats_view = new DataStatisticsWindow();
 	_plot_window = new PlotWindow(_google_map, _stats_view);
 
 	_ride_selector = new RideSelectionWindow();
