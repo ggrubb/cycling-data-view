@@ -25,19 +25,19 @@ public:
 		QStyleOptionViewItem  view_option(option);
 		if (index.row() <= 3) 
 		{
-			painter->fillRect(option.rect, QColor(255,210,210));
+			painter->fillRect(option.rect, QColor(233,233,233));
 		} 
 		else if (index.row() > 3 && index.row() <= 8) 
 		{	
-			painter->fillRect(option.rect, QColor(205,255,190));
+			painter->fillRect(option.rect, QColor(255,255,255));
 		} 
 		else if (index.row() > 8 && index.row() <= 13) 
 		{
-			painter->fillRect(option.rect, QColor(245,255,195));
+			painter->fillRect(option.rect, QColor(233,233,233));
 		}
 		else if (index.row() > 13) 
 		{
-			painter->fillRect(option.rect, QColor(195,220,255));
+			painter->fillRect(option.rect, QColor(255,255,255));
 		}
 		QItemDelegate::paint(painter, view_option, index);
 	}

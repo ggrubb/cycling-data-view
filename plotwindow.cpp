@@ -21,8 +21,7 @@
 #include <QBoxLayout.h>
 #include <QCheckBox.h>
 #include <QLabel.h>
-#include <QRadioButton.h>
-#include <QButtonGroup.h>
+#include <QComboBox.h>
 #include <QSlider.h>
 
 #include <cassert>
@@ -30,8 +29,8 @@
 #include <sstream>
 
 // Define colour of plot curves
-#define HR_COLOUR Qt::darkGreen // old = Qt::darkRed
-#define ALT_COLOUR QColor(170,150,95) // old = QColor(135,180,105)
+#define HR_COLOUR Qt::darkGreen
+#define ALT_COLOUR QColor(170,150,95)
 #define CADENCE_COLOUR Qt::darkBlue
 #define SPEED_COLOUR Qt::yellow
 
@@ -332,20 +331,12 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	connect(_plot_panner, SIGNAL(panned(int, int)), this, SLOT(panAndHoldSelection(int, int)));
 
 	// Selection for x-axis measurement
-	QWidget* axis_selection_widget = new QWidget;
-	QVBoxLayout* button_group_layout = new QVBoxLayout(axis_selection_widget);
-	_time_axis = new QRadioButton("Time");
-	_dist_axis = new QRadioButton("Distance");
-	_dist_axis->setChecked(true);
-	_plot->setAxisScaleDraw(QwtPlot::xBottom, new XAxisScaleDraw(tr("dist")));
-	button_group_layout->addWidget(_time_axis);
-	button_group_layout->addWidget(_dist_axis);
-	
-	_x_axis_measurement = new QButtonGroup(axis_selection_widget);
-	_x_axis_measurement->addButton(_time_axis, 0);
-	_x_axis_measurement->addButton(_dist_axis, 1);
-	connect(_x_axis_measurement,SIGNAL(buttonClicked(int)), this, SLOT(xAxisUnitsChanged(int)));
-	connect(_x_axis_measurement,SIGNAL(buttonClicked(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
+	_x_axis_measurement = new QComboBox;
+	_x_axis_measurement->insertItem(0, "x-axis = time");
+	_x_axis_measurement->insertItem(1, "x-axis = distance");
+	_x_axis_measurement->setCurrentIndex(1);
+	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisUnitsChanged(int)));
+	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
 
 	// Checkboxes for graph plots
 	_hr_cb = new QCheckBox("Heart Rate");
@@ -399,7 +390,7 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	vlayout1->addWidget(_speed_cb);
 	vlayout1->addWidget(_alt_cb);
 	vlayout1->addWidget(_cadence_cb);
-	vlayout1->addWidget(axis_selection_widget);
+	vlayout1->addWidget(_x_axis_measurement);
 	vlayout1->addWidget(smoothing_widget);
 	vlayout1->addWidget(_laps_cb);
 	vlayout1->addWidget(_hr_zones_cb);
@@ -426,8 +417,7 @@ void PlotWindow::setEnabled(bool enabled)
 	_plot_picker2->setEnabled(enabled);
 	_plot_zoomer->setEnabled(enabled);
 	_plot_panner->setEnabled(enabled);
-	_time_axis->setEnabled(enabled);
-	_dist_axis->setEnabled(enabled);
+	_x_axis_measurement->setEnabled(enabled);
 	_smoothing_selection->setEnabled(enabled);
 	_smoothing_label->setEnabled(enabled);
 	_hr_cb->setEnabled(enabled);
@@ -481,7 +471,7 @@ void PlotWindow::drawGraphs()
 {
 	filterCurveData();
 	setCurveData();
-	if (_x_axis_measurement->checkedId() == 0) // time
+	if (_x_axis_measurement->currentIndex() == 0) // time
 	{
 		_plot->setAxisScale(QwtPlot::xBottom, 0, _data_log->totalTime());
 	}
@@ -496,7 +486,7 @@ void PlotWindow::drawGraphs()
 /******************************************************/
 void PlotWindow::setCurveData()
 {
-	if (_x_axis_measurement->checkedId() == 0) // time
+	if (_x_axis_measurement->currentIndex() == 0) // time
 	{
 		_curve_hr->setRawSamples(&_data_log->time(0), &_data_log->heartRateFltd(0), _data_log->numPoints());
 		_curve_speed->setRawSamples(&_data_log->time(0), &_data_log->speedFltd(0), _data_log->numPoints());
@@ -522,7 +512,7 @@ void PlotWindow::drawLapMarkers()
 			QwtPlotMarker* marker = new QwtPlotMarker;
 			marker->setLineStyle(QwtPlotMarker::VLine);
 			marker->setLinePen(QPen(Qt::DotLine));
-			if (_x_axis_measurement->checkedId() == 0) // time
+			if (_x_axis_measurement->currentIndex() == 0) // time
 			{
 				const double time = _data_log->time(_data_log->lap(i).second);
 				marker->setXValue(time);
@@ -584,7 +574,7 @@ void PlotWindow::displayLap(int lap_index)
 	QRect zoom_rect;
 	zoom_rect.setBottom(200);
 	zoom_rect.setTop(0);
-	if (_x_axis_measurement->checkedId() == 0) // time
+	if (_x_axis_measurement->currentIndex() == 0) // time
 	{
 		zoom_rect.setLeft(_data_log->time(lap.first));
 		zoom_rect.setRight(_data_log->time(lap.second));
@@ -602,7 +592,7 @@ void PlotWindow::displayLap(int lap_index)
 /******************************************************/
 void PlotWindow::setMarkerPosition(const QPointF& point)
 {
-	if (_x_axis_measurement->checkedId() == 0) // time
+	if (_x_axis_measurement->currentIndex() == 0) // time
 		emit setMarkerPosition(_data_log->indexFromTime(point.x()));
 	else // distance
 		emit setMarkerPosition(_data_log->indexFromDist(point.x()));
@@ -612,7 +602,7 @@ void PlotWindow::setMarkerPosition(const QPointF& point)
 void PlotWindow::beginSelection(const QPointF& point)
 {
 	_plot_picker1->setEnabled(false);
-	if (_x_axis_measurement->checkedId() == 0) // time
+	if (_x_axis_measurement->currentIndex() == 0) // time
 		emit beginSelection(_data_log->indexFromTime(point.x()));
 	else // distance
 		emit beginSelection(_data_log->indexFromDist(point.x()));
@@ -621,7 +611,7 @@ void PlotWindow::beginSelection(const QPointF& point)
 /******************************************************/
 void PlotWindow::endSelection(const QPointF& point)
 {
-	if (_x_axis_measurement->checkedId() == 0) // time
+	if (_x_axis_measurement->currentIndex() == 0) // time
 		emit endSelection(_data_log->indexFromTime(point.x()));
 	else // distance
 		emit endSelection(_data_log->indexFromDist(point.x()));
@@ -638,7 +628,7 @@ void PlotWindow::zoomSelection(const QRectF& rect)
 	}
 	else // regular zoom
 	{
-		if (_x_axis_measurement->checkedId() == 0) // time
+		if (_x_axis_measurement->currentIndex() == 0) // time
 			emit zoomSelection(_data_log->indexFromTime(rect.left()), _data_log->indexFromTime(rect.right()));
 		else // distance
 			emit zoomSelection(_data_log->indexFromDist(rect.left()), _data_log->indexFromDist(rect.right()));
@@ -648,7 +638,7 @@ void PlotWindow::zoomSelection(const QRectF& rect)
 /******************************************************/
 void PlotWindow::panSelection(int x, int y)
 {
-	if (_x_axis_measurement->checkedId() == 0) // time
+	if (_x_axis_measurement->currentIndex() == 0) // time
 	{
 		emit panSelection(
 		_data_log->indexFromTime(_plot->invTransform(QwtPlot::xBottom,x))-
@@ -665,7 +655,7 @@ void PlotWindow::panSelection(int x, int y)
 /******************************************************/
 void PlotWindow::panAndHoldSelection(int x, int y)
 {
-	if (_x_axis_measurement->checkedId() == 0) // time
+	if (_x_axis_measurement->currentIndex() == 0) // time
 	{
 		emit panAndHoldSelection(
 		_data_log->indexFromTime(_plot->invTransform(QwtPlot::xBottom,x))-

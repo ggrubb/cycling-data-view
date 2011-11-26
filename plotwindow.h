@@ -15,9 +15,8 @@ class QwtCustomPlotZoomer;
 class QwtCustomPlotPicker;
 class QwtPlotPanner;
 class QwtPlotMarker;
-class QButtonGroup;
+class QComboBox;
 class QCheckBox;
-class QRadioButton;
 class QSlider;
 class QLabel;
 
@@ -82,9 +81,7 @@ class PlotWindow : public QWidget
 	std::vector<QwtPlotMarker* > _lap_markers;
 	std::vector<QwtPlotMarker* > _hr_zone_markers;
 	
-	QButtonGroup* _x_axis_measurement;
-	QRadioButton* _time_axis;
-	QRadioButton* _dist_axis;
+	QComboBox* _x_axis_measurement;
 	QCheckBox* _hr_cb;
 	QCheckBox* _speed_cb;
 	QCheckBox* _alt_cb;

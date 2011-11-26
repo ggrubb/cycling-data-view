@@ -83,7 +83,7 @@ void MainWindow::checkForSaveUser()
 	}
 	else
 	{
-		QMessageBox::information(this, tr("First Start"), tr("Bonjour! You need to create a rider profile before using RideViewer."));
+		QMessageBox::information(this, tr("First Start"), tr("Ciao! You need to create a rider profile before using RideViewer."));
 		addUser();
 	}
 }
