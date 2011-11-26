@@ -6,16 +6,49 @@
 #include <QTableWidget.h>
 #include <QBoxLayout.h>
 #include <QLabel.h>
+#include <QItemDelegate.h>
+#include <QPainter.h>
 
 #include <iostream>
 #include <cassert>
+
+/******************************************************/
+class ItemDelegate: public QItemDelegate
+{
+public:
+	ItemDelegate()
+	{}
+
+	virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const 
+	{
+		QPalette pal = option.palette;
+		QStyleOptionViewItem  view_option(option);
+		if (index.row() <= 3) 
+		{
+			painter->fillRect(option.rect, QColor(255,210,210));
+		} 
+		else if (index.row() > 3 && index.row() <= 8) 
+		{	
+			painter->fillRect(option.rect, QColor(205,255,190));
+		} 
+		else if (index.row() > 8 && index.row() <= 13) 
+		{
+			painter->fillRect(option.rect, QColor(245,255,195));
+		}
+		else if (index.row() > 13) 
+		{
+			painter->fillRect(option.rect, QColor(195,220,255));
+		}
+		QItemDelegate::paint(painter, view_option, index);
+	}
+};
 
 /******************************************************/
 DataStatisticsWindow::DataStatisticsWindow()
 {
 	_table = new QTableWidget(19,2,this);
 	_table->setSelectionMode(QAbstractItemView::NoSelection);
-	_table->setAlternatingRowColors(true);
+	_table->setItemDelegate(new ItemDelegate); // Set custom item delegate to colour rows as desired
 
 	QStringList column_headers, row_headers;
 	row_headers 
