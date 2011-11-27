@@ -585,6 +585,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\garminfitsdk\fit_buffered_record_mesg_broadcaster.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_buffered_record_mesg_broadcaster.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\garminfitsdk\fit_buffered_record_mesg_listener.hpp"
 				>
 			</File>
@@ -805,6 +813,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\garminfitsdk\fit_mesg_with_event_broadcaster.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_with_event_broadcaster.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\garminfitsdk\fit_mesg_with_event_listener.hpp"
 				>
 			</File>
@@ -941,22 +957,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\garminfitsdk\fit_buffered_record_mesg_broadcaster.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\garminfitsdk\fit_buffered_record_mesg_broadcaster.hpp"
-			>
-		</File>
-		<File
-			RelativePath=".\garminfitsdk\fit_mesg_with_event_broadcaster.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\garminfitsdk\fit_mesg_with_event_broadcaster.hpp"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

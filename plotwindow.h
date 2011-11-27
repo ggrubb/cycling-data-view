@@ -86,6 +86,8 @@ class PlotWindow : public QWidget
 	QCheckBox* _speed_cb;
 	QCheckBox* _alt_cb;
 	QCheckBox* _cadence_cb;
+	QCheckBox* _power_cb;
+	QCheckBox* _temp_cb;
 	QSlider* _smoothing_selection;
 	QLabel* _smoothing_label;
 	QCheckBox* _hr_zones_cb;

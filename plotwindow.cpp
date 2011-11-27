@@ -33,6 +33,8 @@
 #define ALT_COLOUR QColor(170,150,95)
 #define CADENCE_COLOUR Qt::darkBlue
 #define SPEED_COLOUR Qt::yellow
+#define POWER_COLOUR Qt::darkRed
+#define POWER_COLOUR Qt::darkRed
 
 /******************************************************/
 class XAxisScaleDraw: public QwtScaleDraw
