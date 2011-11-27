@@ -176,6 +176,10 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 		const QPoint pt1_alt(pt1.x(),plot()->transform(QwtPlot::yRight,alt));
 		const double cadence = _data_log->cadenceFltd(idx);
 		const QPoint pt1_cadence(pt1.x(),plot()->transform(QwtPlot::yLeft,cadence));
+		const double power = _data_log->powerFltd(idx);
+		const QPoint pt1_power(pt1.x(),plot()->transform(QwtPlot::yLeft,power));
+		const double temp = _data_log->temp(idx);
+		const QPoint pt1_temp(pt1.x(),plot()->transform(QwtPlot::yLeft,temp));
 
 		// Draw highlights on all curves
 		const QPoint offset(8,-5);
@@ -201,6 +205,16 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 			{
 				painter->drawLine(pt1_cadence.x(), pt1_cadence.y(), pt1_cadence.x()+6, pt1_cadence.y());
 				painter->drawText(pt1_cadence + offset, QString::number(cadence,'g',3));
+			}
+			if (item_list.at(i)->title().text() == "Power" && item_list.at(i)->isVisible())
+			{
+				painter->drawLine(pt1_power.x(), pt1_power.y(), pt1_power.x()+6, pt1_power.y());
+				painter->drawText(pt1_power + offset, QString::number(power,'g',3));
+			}
+			if (item_list.at(i)->title().text() == "Temp" && item_list.at(i)->isVisible())
+			{
+				painter->drawLine(pt1_temp.x(), pt1_temp.y(), pt1_temp.x()+6, pt1_temp.y());
+				painter->drawText(pt1_temp + offset, QString::number(temp,'g',3));
 			}
 		}
 	}
@@ -262,7 +276,7 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	font.setPointSize(8);
 	axis_text.setFont(font);
 
-	axis_text.setText("HR (bpm) Speed (km/h) Cadence (rpm)");
+	axis_text.setText("HR (bpm) Speed (km/h) Cadence (rpm) Power (W) Temp (C)");
 	_plot->setAxisTitle(QwtPlot::yLeft,axis_text);
 
 	axis_text.setText("Elevation (m)");
