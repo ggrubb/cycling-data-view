@@ -77,6 +77,8 @@ class PlotWindow : public QWidget
 	QwtPlotCurve* _curve_speed;
 	QwtPlotCurve* _curve_cadence;
 	QwtPlotCurve* _curve_alt;
+	QwtPlotCurve* _curve_power;
+	QwtPlotCurve* _curve_temp;
 
 	std::vector<QwtPlotMarker* > _lap_markers;
 	std::vector<QwtPlotMarker* > _hr_zone_markers;

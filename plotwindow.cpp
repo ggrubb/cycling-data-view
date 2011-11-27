@@ -34,7 +34,7 @@
 #define CADENCE_COLOUR Qt::darkBlue
 #define SPEED_COLOUR Qt::yellow
 #define POWER_COLOUR Qt::darkRed
-#define POWER_COLOUR Qt::darkRed
+#define TEMP_COLOUR Qt::black
 
 /******************************************************/
 class XAxisScaleDraw: public QwtScaleDraw
@@ -289,18 +289,30 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	_curve_speed->setPen(c);
 	_curve_speed->setYAxis(QwtPlot::yLeft);
 
+	_curve_power = new QwtPlotCurve("Power");
+	c = POWER_COLOUR;
+	_curve_power->setPen(c);
+	_curve_power->setYAxis(QwtPlot::yLeft);
+
+	_curve_temp = new QwtPlotCurve("Temp");
+	c = TEMP_COLOUR;
+	_curve_temp->setPen(c);
+	_curve_temp->setYAxis(QwtPlot::yLeft);
+
 	_curve_alt = new QwtPlotCurve("Elevation");
 	_curve_alt->setRenderHint(QwtPlotItem::RenderAntialiased);
 	c = ALT_COLOUR;
 	_curve_alt->setPen(c);
     _curve_alt->setBrush(c);
 	_curve_alt->setYAxis(QwtPlot::yRight);
-	_curve_alt->setBaseline(-100.0); // ensure display is correct even when -ve altitude
+	_curve_alt->setBaseline(-300.0); // ensure display is correct even when -ve altitude
 
 	_curve_alt->attach(_plot);
 	_curve_speed->attach(_plot);
 	_curve_cadence->attach(_plot);
 	_curve_hr->attach(_plot);
+	_curve_power->attach(_plot);
+	_curve_temp->attach(_plot);
 
 	// Plot picker for numerical display
 	_plot_picker1 = 
@@ -345,12 +357,16 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	_speed_cb = new QCheckBox("Speed");
 	_alt_cb = new QCheckBox("Elevation");
 	_cadence_cb = new QCheckBox("Cadence");
+	_power_cb = new QCheckBox("Power");
+	_temp_cb = new QCheckBox("Temp");
 	_laps_cb = new QCheckBox("Laps");
 	_hr_zones_cb = new QCheckBox("HR Zones");
 	_hr_cb->setChecked(true);
 	_speed_cb->setChecked(true);
 	_alt_cb->setChecked(true);
 	_cadence_cb->setChecked(true);
+	_power_cb->setChecked(false);
+	_temp_cb->setChecked(false);
 	_laps_cb->setChecked(true);
 	_hr_zones_cb->setChecked(false);
 
@@ -363,11 +379,17 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	_alt_cb->setPalette(plt);
 	plt.setColor(QPalette::WindowText, CADENCE_COLOUR);
 	_cadence_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, POWER_COLOUR);
+	_power_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, TEMP_COLOUR);
+	_temp_cb->setPalette(plt);
 
 	connect(_hr_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	connect(_speed_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	connect(_alt_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	connect(_cadence_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_power_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_temp_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
 	connect(_laps_cb, SIGNAL(stateChanged(int)),this,SLOT(lapSelectionChanged()));
 	connect(_hr_zones_cb, SIGNAL(stateChanged(int)),this,SLOT(hrZoneSelectionChanged()));
 
@@ -392,6 +414,8 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	vlayout1->addWidget(_speed_cb);
 	vlayout1->addWidget(_alt_cb);
 	vlayout1->addWidget(_cadence_cb);
+	vlayout1->addWidget(_power_cb);
+	vlayout1->addWidget(_temp_cb);
 	vlayout1->addWidget(_x_axis_measurement);
 	vlayout1->addWidget(smoothing_widget);
 	vlayout1->addWidget(_laps_cb);
@@ -426,6 +450,8 @@ void PlotWindow::setEnabled(bool enabled)
 	_speed_cb->setEnabled(enabled);
 	_alt_cb->setEnabled(enabled);
 	_cadence_cb->setEnabled(enabled);
+	_power_cb->setEnabled(enabled);
+	_temp_cb->setEnabled(enabled);
 	_laps_cb->setEnabled(enabled);
 	_hr_zones_cb->setEnabled(enabled);
 }
@@ -458,7 +484,7 @@ void PlotWindow::displayRide(DataLog* data_log, User* user)
 
 		// Enabled user interface
 		setEnabled(true);
-
+		curveSelectionChanged();
 		show();
 	}
 	else
@@ -494,6 +520,8 @@ void PlotWindow::setCurveData()
 		_curve_speed->setRawSamples(&_data_log->time(0), &_data_log->speedFltd(0), _data_log->numPoints());
 		_curve_cadence->setRawSamples(&_data_log->time(0), &_data_log->cadenceFltd(0), _data_log->numPoints());
 		_curve_alt->setRawSamples(&_data_log->time(0), &_data_log->altFltd(0), _data_log->numPoints());
+		_curve_power->setRawSamples(&_data_log->time(0), &_data_log->powerFltd(0), _data_log->numPoints());
+		_curve_temp->setRawSamples(&_data_log->time(0), &_data_log->temp(0), _data_log->numPoints());
 	}
 	else // distance
 	{
@@ -501,6 +529,8 @@ void PlotWindow::setCurveData()
 		_curve_speed->setRawSamples(&_data_log->dist(0), &_data_log->speedFltd(0), _data_log->numPoints());
 		_curve_cadence->setRawSamples(&_data_log->dist(0), &_data_log->cadenceFltd(0), _data_log->numPoints());
 		_curve_alt->setRawSamples(&_data_log->dist(0), &_data_log->altFltd(0), _data_log->numPoints());
+		_curve_power->setRawSamples(&_data_log->dist(0), &_data_log->powerFltd(0), _data_log->numPoints());
+		_curve_temp->setRawSamples(&_data_log->dist(0), &_data_log->temp(0), _data_log->numPoints());
 	}
 }
 
@@ -701,6 +731,8 @@ void PlotWindow::curveSelectionChanged()
 	if (_alt_cb->isChecked()) _curve_alt->show(); else _curve_alt->hide();
 	if (_cadence_cb->isChecked()) _curve_cadence->show(); else _curve_cadence->hide();
 	if (_speed_cb->isChecked()) _curve_speed->show(); else _curve_speed->hide();
+	if (_power_cb->isChecked()) _curve_power->show(); else _curve_power->hide();
+	if (_temp_cb->isChecked()) _curve_temp->show(); else _curve_temp->hide();
 
 	_plot->replot();
 }
@@ -748,10 +780,12 @@ void PlotWindow::filterCurveData()
 	DataProcessing::lowPassFilterSignal(_data_log->cadence(),_data_log->cadenceFltd(),_smoothing_selection->value());
 	DataProcessing::lowPassFilterSignal(_data_log->alt(),_data_log->altFltd(),_smoothing_selection->value());
 	DataProcessing::lowPassFilterSignal(_data_log->gradient(),_data_log->gradientFltd(),_smoothing_selection->value());
+	DataProcessing::lowPassFilterSignal(_data_log->power(),_data_log->powerFltd(),_smoothing_selection->value());
 
 	_data_log->heartRateFltdValid() = true;
 	_data_log->speedFltdValid() = true;
 	_data_log->cadenceFltdValid() = true;
 	_data_log->altFltdValid() = true;
 	_data_log->gradientFltdValid() = true;
+	_data_log->powerFltdValid() = true;
 }
