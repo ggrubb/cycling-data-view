@@ -1,6 +1,7 @@
 #include "rideselectionwindow.h"
 #include "datalog.h"
 #include "tcxparser.h"
+#include "fitparser.h"
 #include "dataprocessing.h"
 #include "logdirectorysummary.h"
 #include "user.h"
@@ -43,7 +44,8 @@ RideSelectionWindow::RideSelectionWindow()
 	setFixedSize(270,290);
 
 	// Create parser and setup log directory summary
-	_parser = new TcxParser();
+	_tcx_parser = new TcxParser();
+	_fit_parser = new FitParser();
 	_current_data_log = 0;
 	_log_dir_summary = 0;
 
@@ -76,7 +78,7 @@ void RideSelectionWindow::setUser(User* user)
 	// Read tcx files from specified directory
 	QDir log_directory;
 	QStringList filter;
-	filter << "*.tcx";
+	filter << "*.tcx" << "*.fit";
 	log_directory.setNameFilters(filter);
 	log_directory.setPath(path);
 	QStringList filenames = log_directory.entryList();
@@ -105,11 +107,13 @@ void RideSelectionWindow::setUser(User* user)
 	{
 		DataLog* data_log = new DataLog;
 		const QString filename_with_path = log_directory.path() + "/" + filenames[i];
-		if (_parser->parse(filename_with_path, *data_log))
-		{
+		
+		if (parse(filename_with_path, data_log))
+		{	
 			data_logs.push_back(data_log);
 			_current_data_log = data_log;
 		}
+
 		load_progress.setValue(i);
 		load_progress.setLabelText(filename_with_path);
 		if (load_progress.wasCanceled())
@@ -205,15 +209,11 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 		QStandardItem* item = _model->item(index.row(),3); // 4th element is data log index (not displayed)
 
 		// Parse complete ride details
-		if (_current_data_log == 0)
+		if (_current_data_log == 0 ||
+			_current_data_log->filename() != _log_dir_summary->log(item->text().toInt())._filename)
 		{
 			_current_data_log = new DataLog;
-			_parser->parse(_log_dir_summary->log(item->text().toInt())._filename, *_current_data_log);
-		}
-		else if (_current_data_log->filename() != _log_dir_summary->log(item->text().toInt())._filename)
-		{
-			_current_data_log = new DataLog;
-			_parser->parse(_log_dir_summary->log(item->text().toInt())._filename, *_current_data_log);
+			parse(_log_dir_summary->log(item->text().toInt())._filename, _current_data_log);
 		}
 
 		// Notify to display the selected ride
@@ -224,19 +224,12 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 		// Get the item which represents the index
 		QStandardItem* ride_item = _model->item(index.parent().row(),3); // 4th element is data log index (not displayed)
 
-		if (_current_data_log == 0)
+		if (_current_data_log == 0 ||
+			_current_data_log->filename() != _log_dir_summary->log(ride_item->text().toInt())._filename)
 		{
 			_current_data_log = new DataLog;
-			_parser->parse(_log_dir_summary->log(ride_item->text().toInt())._filename, *_current_data_log);
+			parse(_log_dir_summary->log(ride_item->text().toInt())._filename, _current_data_log);
 			
-			// Notify to display the selected ride
-			emit displayRide(_current_data_log);
-		}
-		else if (_current_data_log->filename() != _log_dir_summary->log(ride_item->text().toInt())._filename)
-		{
-			_current_data_log = new DataLog;
-			_parser->parse(_log_dir_summary->log(ride_item->text().toInt())._filename, *_current_data_log);
-		
 			// Notify to display the selected ride
 			emit displayRide(_current_data_log);
 		}
@@ -246,5 +239,22 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 
 		// Notif to display the selected lap
 		emit displayLap(lap_item->text().toInt());
+	}
+}
+
+/******************************************************/
+bool RideSelectionWindow::parse(const QString filename, DataLog* data_log)
+{
+	if (filename.contains(".fit"))
+	{
+		return _fit_parser->parse(filename, *data_log);
+	}
+	else if (filename.contains(".tcx"))
+	{
+		return _tcx_parser->parse(filename, *data_log);
+	}
+	else
+	{
+		return false; // unknown log type
 	}
 }

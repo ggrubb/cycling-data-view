@@ -183,6 +183,14 @@
 			Name="Layer 1 - Data"
 			>
 			<File
+				RelativePath=".\baseparser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\baseparser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\datalog.cpp"
 				>
 			</File>
@@ -196,6 +204,14 @@
 			</File>
 			<File
 				RelativePath=".\dataprocessing.h"
+				>
+			</File>
+			<File
+				RelativePath=".\fitparser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\fitparser.h"
 				>
 			</File>
 			<File
@@ -247,7 +263,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -257,7 +273,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -275,7 +291,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -285,7 +301,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -505,6 +521,442 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Garmin Fit SDK"
+			>
+			<File
+				RelativePath=".\garminfitsdk\fit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_accumulated_field.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_accumulated_field.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_accumulator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_accumulator.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_activity_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_activity_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_bike_profile_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_bike_profile_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_blood_pressure_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_blood_pressure_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_buffer_encode.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_buffer_encode.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_buffered_record_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_buffered_record_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_capabilities_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_capabilities_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_config.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_course_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_course_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_course_point_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_course_point_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_crc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_crc.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_decode.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_decode.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_device_info_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_device_info_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_device_settings_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_device_settings_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_encode.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_encode.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_event_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_event_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_factory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_factory.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_field.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_field.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_field_capabilities_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_field_capabilities_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_field_definition.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_field_definition.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_file_capabilities_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_file_capabilities_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_file_creator_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_file_creator_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_file_id_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_file_id_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_goal_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_goal_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_hr_zone_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_hr_zone_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_hrm_profile_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_hrm_profile_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_hrv_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_hrv_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_lap_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_lap_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_broadcaster.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_broadcaster.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_capabilities_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_capabilities_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_definition.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_definition.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_definition_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_with_event.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_mesg_with_event_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_met_zone_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_met_zone_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_pad_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_pad_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_power_zone_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_power_zone_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_profile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_profile.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_record_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_record_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_runtime_exception.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_sdm_profile_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_sdm_profile_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_session_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_session_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_software_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_software_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_sport_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_sport_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_totals_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_totals_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_unicode.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_unicode.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_user_profile_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_user_profile_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_weight_scale_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_weight_scale_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_workout_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_workout_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_workout_step_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_workout_step_mesg_listener.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_zones_target_mesg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\garminfitsdk\fit_zones_target_mesg_listener.hpp"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath=".\garminfitsdk\fit_buffered_record_mesg_broadcaster.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\garminfitsdk\fit_buffered_record_mesg_broadcaster.hpp"
+			>
+		</File>
+		<File
+			RelativePath=".\garminfitsdk\fit_mesg_with_event_broadcaster.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\garminfitsdk\fit_mesg_with_event_broadcaster.hpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

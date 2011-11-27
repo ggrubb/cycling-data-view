@@ -23,7 +23,9 @@ bool TcxParser::parseRideDetails(DataLog& data_log)
 	QDomElement id  = doc.firstChild().firstChild().firstChildElement("Id");
 	QString date = id.firstChild().nodeValue().replace('T', QChar(' '));
 	date.chop(1);
-	data_log.date() = date;
+	QDate qdate = QDate::fromString(date.split(" ")[0], "yyyy-MM-dd");
+	QTime qtime = QTime::fromString(date.split(" ")[1], "hh:mm:ss");
+	data_log.date() = QDateTime(qdate, qtime);
 
 	// Loop over all laps
 	int track_point_idx = 0;
@@ -125,82 +127,6 @@ bool TcxParser::parseRideDetails(DataLog& data_log)
 		return true;
 	else
 		return false;
-}
-
-/******************************************************/
-void TcxParser::setDataValidFlags(DataLog& data_log)
-{
-	for (int i=0; i < data_log.numPoints(); ++i)
-	{
-		if (data_log.ltd(i) != 0.0 || data_log.lgd(i) != 0.0)
-		{
-			data_log.lgdValid() = true;
-			data_log.ltdValid() = true;
-		}
-
-		if (data_log.alt(i) != 0.0)
-		{
-			data_log.altValid() = true;
-		}
-
-		if (data_log.speed(i) != 0.0)
-		{
-			data_log.speedValid() = true;
-		}
-
-		if (data_log.heartRate(i) != 0.0)
-		{
-			data_log.heartRateValid() = true;
-		}
-
-		if (data_log.cadence(i) != 0.0)
-		{
-			data_log.cadenceValid() = true;
-		}
-
-		if (data_log.dist(i) != 0.0)
-		{
-			data_log.distValid() = true;
-		}
-	}
-
-}
-
-/******************************************************/
-void TcxParser::computeAdditionalDetailts(DataLog& data_log)
-{
-	// Compute grad from smoothed gradient
-	if (data_log.altValid())
-	{
-		DataProcessing::lowPassFilterSignal(data_log.alt(), data_log.altFltd());
-		data_log.altFltdValid() = true;
-		DataProcessing::computeGradient(data_log.altFltd(), data_log.dist(), data_log.gradient());
-		data_log.gradientValid() = true;
-	}
-	
-	// Compute speed if not already measured
-	if (!data_log.speedValid())
-	{
-		DataProcessing::computeSpeed(data_log.time(), data_log.dist(), data_log.speed());
-		data_log.speedValid() = true;
-	}
-	
-	// Compute max and avg of all signals
-	data_log.avgSpeed() = DataProcessing::computeAverage(data_log.speed().begin(), data_log.speed().end());
-	data_log.avgHeartRate() = DataProcessing::computeAverage(data_log.heartRate().begin(), data_log.heartRate().end());
-	data_log.avgGradient() = DataProcessing::computeAverage(data_log.gradient().begin(), data_log.gradient().end());
-	data_log.avgCadence() = DataProcessing::computeAverage(data_log.cadence().begin(), data_log.cadence().end());
-	data_log.avgPower() = DataProcessing::computeAverage(data_log.power().begin(), data_log.power().end());
-
-	data_log.maxSpeed() = DataProcessing::computeMax(data_log.speed().begin(), data_log.speed().end());
-	data_log.maxHeartRate() = DataProcessing::computeMax(data_log.heartRate().begin(), data_log.heartRate().end());
-	data_log.maxGradient() = DataProcessing::computeMax(data_log.gradient().begin(), data_log.gradient().end());
-	data_log.maxCadence() = DataProcessing::computeMax(data_log.cadence().begin(), data_log.cadence().end());
-	data_log.maxPower() = DataProcessing::computeMax(data_log.power().begin(), data_log.power().end());
-
-	// Totals
-	data_log.totalTime() = data_log.time(data_log.numPoints()-1);
-	data_log.totalDist() = data_log.dist(data_log.numPoints()-1);
 }
 
 /******************************************************/

@@ -7,7 +7,7 @@
 /****************************************/
 DataLog::DataLog():
 _filename(""),
-_date(""),
+_date(),
 _total_time(0.0),
 _total_dist(0.0),
 _max_speed(0.0),
@@ -26,9 +26,14 @@ _lap_indecies()
 
 /****************************************/
 DataLog::~DataLog()
-{
+{}
 
-}
+/****************************************/
+QString DataLog::dateString()
+{
+	QString date = _date.date().toString("yyyy-MM-dd") + " " + _date.time().toString("hh:mm:ss");
+	return date;
+};
 
 /****************************************/
 double& DataLog::time(int idx) 
@@ -111,6 +116,14 @@ double& DataLog::power(int idx)
 }
 
 /****************************************/
+double& DataLog::temp(int idx)
+{ 
+	assert(idx >= 0); 
+	assert(idx < _num_points);
+	return _temp[idx]; 
+}
+
+/****************************************/
 double& DataLog::altFltd(int idx)
 { 
 	assert(idx >= 0); 
@@ -175,6 +188,7 @@ void DataLog::resize(int size)
 	_speed.resize(size);
 	_gradient.resize(size);
 	_power.resize(size);
+	_temp.resize(size);
 
 	_alt_fltd.resize(size);
 	_heart_rate_fltd.resize(size);
@@ -196,6 +210,7 @@ void DataLog::resize(int size)
 	_speed_valid = false;
 	_gradient_valid = false;
 	_power_valid = false;
+	_temp_valid = false;
 
 	_alt_fltd_valid = false;
 	_heart_rate_fltd_valid = false;

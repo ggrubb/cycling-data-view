@@ -160,7 +160,7 @@ void LogDirectorySummary::addLogsToSummary(const std::vector<DataLog*> data_logs
 	{
 		LogSummary log_summary;
 		log_summary._filename = data_logs[lg]->filename();
-		log_summary._date = data_logs[lg]->date();
+		log_summary._date = data_logs[lg]->dateString();
 		log_summary._time = data_logs[lg]->totalTime();
 		log_summary._dist = data_logs[lg]->totalDist();
 		for (int i=0; i < data_logs[lg]->numLaps(); ++i)

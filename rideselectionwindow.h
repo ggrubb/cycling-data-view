@@ -8,6 +8,7 @@ class QStandardItemModel;
 class QModelIndex;
 class QLabel;
 class TcxParser;
+class FitParser;
 class DataLog;
 class User;
 class LogDirectorySummary;
@@ -31,12 +32,14 @@ private slots:
  private:
 	void populateTableWithRides();
 	void formatTreeView();
+	bool parse(const QString filename, DataLog* data_log);
 
 	QTreeView* _tree;
 	QStandardItemModel* _model;
 	QLabel* _head_label;
 	
-	TcxParser* _parser;
+	TcxParser* _tcx_parser;
+	FitParser* _fit_parser;
 
 	DataLog* _current_data_log;
 	LogDirectorySummary* _log_dir_summary;

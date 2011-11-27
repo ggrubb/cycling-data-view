@@ -3,6 +3,7 @@
 
 #include <QString.h>
 #include <QMap.h>
+#include <QDateTime.h>
 
 #include <vector>
 
@@ -10,11 +11,6 @@
 
 class DataLog
  {
-	 enum Status
-	 {
-		Summary = 0,
-		Complete = 1
-	 };
 
  public:
 	DataLog();
@@ -23,7 +19,8 @@ class DataLog
 	void resize(int size);
 
 	QString& filename() { return _filename; };
-	QString& date() { return _date; };
+	QDateTime& date() { return _date; };
+	QString dateString();
 	double& totalTime() { return _total_time; };
 	double& totalDist() { return _total_dist; };
 	double& maxSpeed() { return _max_speed; };
@@ -52,6 +49,7 @@ class DataLog
 	double& speed(int idx);
 	double& gradient(int idx);
 	double& power(int idx);
+	double& temp(int idx);
 
 	double& altFltd(int idx);
 	double& heartRateFltd(int idx);
@@ -70,6 +68,7 @@ class DataLog
 	std::vector<double>& speed() { return _speed; }
 	std::vector<double>& gradient() { return _gradient; }
 	std::vector<double>& power() { return _power; }
+	std::vector<double>& temp() { return _temp; }
 
 	std::vector<double>& altFltd() { return _alt_fltd; }
 	std::vector<double>& heartRateFltd() { return _heart_rate_fltd; }
@@ -88,6 +87,7 @@ class DataLog
 	bool& speedValid() { return _speed_valid; }
 	bool& gradientValid() { return _gradient_valid; }
 	bool& powerValid() { return _power_valid; }
+	bool& tempValid() { return _temp_valid; }
 
 	bool& altFltdValid() { return _alt_fltd_valid; }
 	bool& heartRateFltdValid() { return _heart_rate_fltd_valid; }
@@ -104,12 +104,9 @@ class DataLog
 	int indexFromDist(double dist);
 
  private:
-	// Status of the log (summary, complete, etc)
-	Status _status;
-
 	// Summary data
 	QString _filename;
-	QString _date;
+	QDateTime _date;
 	double _total_time;
 	double _total_dist;
 	double _max_speed;
@@ -135,6 +132,7 @@ class DataLog
 	std::vector<double> _speed; //kmh
 	std::vector<double> _gradient; //%
 	std::vector<double> _power; //W
+	std::vector<double> _temp; //C
 
 	std::vector<double> _alt_fltd; //m
 	std::vector<double> _heart_rate_fltd; //bpm
@@ -161,6 +159,7 @@ class DataLog
 	bool _speed_valid;
 	bool _gradient_valid;
 	bool _power_valid;
+	bool _temp_valid;
 
 	bool _alt_fltd_valid;
 	bool _heart_rate_fltd_valid;
