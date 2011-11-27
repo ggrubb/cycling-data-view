@@ -79,7 +79,7 @@ bool QwtCustomPlotZoomer::accept(QPolygon& p) const
 
 	// Set the zoom rect to be top to bottm, irrespective of what the user selects in y axis
 	p[0].setY(0);
-	p[1].setY(200);
+	p[1].setY(230);
 	return true;
 }
 
