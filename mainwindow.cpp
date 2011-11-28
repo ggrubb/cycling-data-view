@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "datalog.h"
 #include "googlemapwindow.h"
+#include "googlemapcollagewindow.h"
 #include "plotwindow.h"
 #include "datastatisticswindow.h"
 #include "rideselectionwindow.h"
@@ -172,6 +173,7 @@ void MainWindow::setUser(User* user)
 	
 	_edit_act->setEnabled(true);
 	_totals_act->setEnabled(true);
+	_map_collage_act->setEnabled(true);
 	user->writeToFile(QString(".") + USER_DIRECTORY + user->name() + QString(".rider"));
 }
 
@@ -222,6 +224,25 @@ void MainWindow::totals()
 }
 
 /******************************************************/
+void MainWindow::mapCollage()
+{
+	if (_current_user)
+	{
+		LogDirectorySummary log_summary(_current_user->logDirectory());
+		log_summary.readFromFile();
+		std::vector<QString> filenames;
+		for (int j=0; j < log_summary.numLogs(); ++j)
+		{
+			filenames.push_back(log_summary.log(j)._filename);
+		}
+
+		_map_collage = new GoogleMapCollageWindow();
+		_map_collage->displayRides(filenames);
+		_map_collage->show();
+	}
+}
+
+/******************************************************/
 void MainWindow::createActions()
 {
 	_set_act = new QAction(tr("Select..."), this);
@@ -237,6 +258,10 @@ void MainWindow::createActions()
 	_totals_act = new QAction(tr("Totals"), this);
 	_totals_act->setEnabled(false);
 	connect(_totals_act, SIGNAL(triggered()), this, SLOT(totals()));
+
+	_map_collage_act = new QAction(tr("Map Collage"), this);
+	_map_collage_act->setEnabled(false);
+	connect(_map_collage_act, SIGNAL(triggered()), this, SLOT(mapCollage()));
 
 	_exit_act = new QAction(tr("Exit"), this);
 	connect(_exit_act, SIGNAL(triggered()), this, SLOT(close()));
@@ -255,8 +280,9 @@ void MainWindow::createMenus()
 	_file_menu->addSeparator();
 	_file_menu->addAction(_exit_act);
 
-	_view_menu = new QMenu(tr("&View"), this);
+	_view_menu = new QMenu(tr("&Extras"), this);
 	_view_menu->addAction(_totals_act);
+	_view_menu->addAction(_map_collage_act);
 
 	_help_menu = new QMenu(tr("&Help"), this);
 	_help_menu->addAction(_about_act);

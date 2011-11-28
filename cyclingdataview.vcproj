@@ -279,6 +279,34 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\googlemapcollagewindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\googlemapcollagewindow.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\googlemapwindow.cpp"
 				>
 			</File>
@@ -481,6 +509,10 @@
 				>
 				<File
 					RelativePath=".\moc_datastatisticswindow.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\moc_googlemapcollagewindow.cpp"
 					>
 				</File>
 				<File

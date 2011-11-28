@@ -7,6 +7,7 @@
  class QLabel;
  class QMenu;
  class GoogleMapWindow;
+ class GoogleMapCollageWindow;
  class PlotWindow;
  class DataLog;
  class DataStatisticsWindow;
@@ -29,6 +30,7 @@
     void addUser();
     void editUser();
     void totals();
+	void mapCollage();
     void about();
 	void setUser(User* user);
 	void setRide(DataLog* data_log);
@@ -43,6 +45,7 @@
     QAction* _add_act;
     QAction* _edit_act;
     QAction* _totals_act;
+    QAction* _map_collage_act;
     QAction* _exit_act;
     QAction* _about_act;
 
@@ -55,6 +58,7 @@
 	DataStatisticsWindow* _stats_view;
 	RideSelectionWindow* _ride_selector;
 	TotalsWindow* _totals_window;
+	GoogleMapCollageWindow* _map_collage;
 
 	User* _current_user;
  };
