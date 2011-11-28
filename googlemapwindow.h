@@ -66,14 +66,13 @@ private slots:
 
 	// The window to display google maps
 	QWebView *_view;
-	// Map to define association between time and lat/long
-	QMap<double, std::pair<double, double> > _time_v_ltd_lgd;
 	// The start index of selection to highlight
 	int _selection_begin_idx;
 	// The end index of selection to highlight
 	int _selection_end_idx;
 	// Pointer to the data log
 	DataLog* _data_log;
+	// GUI controls
 	QComboBox* _path_colour_scheme;
 	ColourBar* _colour_bar;
 };
