@@ -79,7 +79,7 @@ bool QwtCustomPlotZoomer::accept(QPolygon& p) const
 
 	// Set the zoom rect to be top to bottm, irrespective of what the user selects in y axis
 	p[0].setY(0);
-	p[1].setY(230);
+	p[1].setY(canvas()->size().height());
 	return true;
 }
 
@@ -101,7 +101,7 @@ void QwtCustomPlotZoomer::drawRubberBand(QPainter* painter) const
 		const QPoint& pt1 = p[0];
 		const QPoint& pt2 = p[1];
 
-		const int end = 250;
+		const int end = canvas()->size().height();
 		painter->drawLine(pt1.x(), 0, pt1.x(), end);
 		painter->drawLine(pt2.x(), 0, pt2.x(), end);
 		painter->fillRect(QRect(pt1.x(), 0, pt2.x() - pt1.x(), end), QBrush(QColor("black"), Qt::Dense7Pattern));
@@ -276,7 +276,7 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	font.setPointSize(8);
 	axis_text.setFont(font);
 
-	axis_text.setText("HR (bpm) Speed (km/h) Cadence (rpm) Power (W) Temp (C)");
+	axis_text.setText("HR (bpm) Speed (km/h) Cadence (rpm)\nPower (W) Temp (C)");
 	_plot->setAxisTitle(QwtPlot::yLeft,axis_text);
 
 	axis_text.setText("Elevation (m)");
