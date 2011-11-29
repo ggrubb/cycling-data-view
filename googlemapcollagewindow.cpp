@@ -133,7 +133,7 @@ void GoogleMapCollageWindow::setEnabled(bool enabled)
 /******************************************************/
 void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
 {
-	_data_logs.resize(0);
+	_accumulated_points.clear();
 
 	// Create a small progress bar
 	QProgressDialog load_progress("Loading log:", "Cancel load", 0, filenames.size()-1, this);
@@ -153,11 +153,19 @@ void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
 		if (parse(filenames[i], data_log))
 		{	
 			if (data_log->lgdValid() && data_log->ltdValid())
-				_data_logs.push_back(data_log);
+			{
+				for (int pt=0; pt < data_log->numPoints(); ++pt)
+				{
+					LatLng lat_lng;
+					lat_lng.lat = data_log->ltd(pt);
+					lat_lng.lng = data_log->lgd(pt);
+					_accumulated_points.insert(lat_lng, 1);
+				}
+			}
 		}
 	}
 
-	if (_data_logs.size() > 0) // we have a valid path to show
+	if (_accumulated_points.size() > 0) // we have a valid path to show
 	{
 		// Create the google map web page
 		ostringstream page;
@@ -296,15 +304,11 @@ std::string GoogleMapCollageWindow::defineCoords()
 	stream.precision(6); // set precision so we plot lat/long correctly
 	stream.setf(ios::fixed,ios::floatfield);
 
-	for (unsigned int i = 0; i < _data_logs.size(); ++i)
+	QMap<LatLng, int>::const_iterator it = _accumulated_points.begin();
+	while (it != _accumulated_points.end())
 	{
-		if (_data_logs[i])
-		{
-			for (int j = 0; j < _data_logs[i]->numPoints(); ++j)
-			{
-				stream << "new google.maps.LatLng(" << _data_logs[i]->ltd(j) << "," << _data_logs[i]->lgd(j) << ")," << endl;
-			}
-		}
+		stream << "new google.maps.LatLng(" << it.key().lat << "," << it.key().lng<< ")," << endl;
+		++it;
 	}
 
 	return stream.str();
@@ -384,19 +388,17 @@ void GoogleMapCollageWindow::createPage(std::ostringstream& page)
 		<< "function initialize() {" << endl
 		<< "selected_path = new google.maps.Polyline({strokeColor: \"#000000\",strokeOpacity: 1.0, strokeWeight: 8, zIndex: 1});" << endl
 		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeId: google.maps.MapTypeId.ROADMAP});" << endl
+
 		<< "ride_coords = [" << defineCoords() << "];" << endl // create a path from GPS coords
-		<< "for (i=0;i<ride_coords.length-1;i++) {" << endl
-		<< "path = [ride_coords[i], ride_coords[i+1]];" << endl
-		<< "ride_path[i] = new google.maps.Polyline({path: path, strokeColor: \"#FF0000\", strokeOpacity: 1.0, strokeWeight: 3, zIndex: 2, map: map });" << endl
+		
+		<< "for (i=0;i<200;i++) {" << endl
+		<< "new google.maps.Circle({center: ride_coords[i], radius: 10.0, map: map})" << endl
 		<< "}" << endl
+		
 		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
 		<< "ride_bounds.extend(ride_coords[i]);" << endl
 		<< "}" << endl
 		<< "map.fitBounds(ride_bounds);" << endl
-		<< "start_marker.setMap(map);" << endl
-		<< "finish_marker.setMap(map);" << endl
-		<< "start_marker.setPosition(ride_coords[0]);" << endl
-		<< "finish_marker.setPosition(ride_coords[ride_coords.length-1]);" << endl
 		<< "}" << endl
 
 		// Function setMarker
