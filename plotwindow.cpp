@@ -363,6 +363,7 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	_x_axis_measurement->insertItem(0, "x-axis = time");
 	_x_axis_measurement->insertItem(1, "x-axis = distance");
 	_x_axis_measurement->setCurrentIndex(1);
+	_plot->setAxisScaleDraw(QwtPlot::xBottom, new XAxisScaleDraw(tr("dist")));
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisUnitsChanged(int)));
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
 
