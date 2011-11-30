@@ -442,13 +442,13 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 		<< "selected_path = new google.maps.Polyline({strokeColor: \"#000000\",strokeOpacity: 1.0, strokeWeight: 8, zIndex: 1});" << endl
 		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeId: google.maps.MapTypeId.ROADMAP});" << endl
 		<< "ride_coords = [" << defineCoords(0, _data_log->numPoints()) << "];" << endl // create a path from GPS coords
-		<< "for (i=0;i<ride_coords.length-1;i++) {" << endl
+		
+		<< "for (var i = 0, len = ride_coords.length; i < len-1; i++) {" << endl
 		<< "path = [ride_coords[i], ride_coords[i+1]];" << endl
 		<< "ride_path[i] = new google.maps.Polyline({path: path, strokeColor: \"#FF0000\", strokeOpacity: 1.0, strokeWeight: 3, zIndex: 2, map: map });" << endl
-		<< "}" << endl
-		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
 		<< "ride_bounds.extend(ride_coords[i]);" << endl
 		<< "}" << endl
+		
 		<< "map.fitBounds(ride_bounds);" << endl
 		<< "start_marker.setMap(map);" << endl
 		<< "finish_marker.setMap(map);" << endl
@@ -495,7 +495,7 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 		<< "}" << endl
 		<< "}" << endl
 
-		// Function to convert num to hex (0 <= frac <= 1.0)
+		// Function to return a colour given a fraction [0.0-1.0] 
 		<< "function colourFromFraction(frac) {" << endl
 		<< "index = frac*colours.length" << endl
 		<< "if (Math.round(index) == colours.length)" << endl
