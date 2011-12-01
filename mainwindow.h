@@ -22,6 +22,7 @@
  public:
     MainWindow();
     ~MainWindow();
+
  protected:
 	virtual void closeEvent(QCloseEvent* event);
 
@@ -58,7 +59,7 @@
 	DataStatisticsWindow* _stats_view;
 	RideSelectionWindow* _ride_selector;
 	TotalsWindow* _totals_window;
-	GoogleMapCollageWindow* _map_collage;
+	GoogleMapCollageWindow* _ride_collage;
 
 	User* _current_user;
  };

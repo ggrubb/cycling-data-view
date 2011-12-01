@@ -88,26 +88,14 @@ GoogleMapCollageWindow::GoogleMapCollageWindow()
 	_tcx_parser = new TcxParser();
 	_fit_parser = new FitParser();
 
-	// Selection for path colour scheme
-	_path_colour_scheme = new QComboBox();
-	_path_colour_scheme->setMaximumWidth(120);
-	_path_colour_scheme->insertItem(0,"None");
-	_path_colour_scheme->insertItem(1,"Heart Rate (bpm)");
-	_path_colour_scheme->insertItem(2,"Speed (km/h)");
-	_path_colour_scheme->insertItem(3,"Gradient (%)");
-	_path_colour_scheme->insertItem(4,"Cadence (rpm)");
-	_path_colour_scheme->insertItem(5,"Power (W)");
-	connect(_path_colour_scheme,SIGNAL(currentIndexChanged(int)), this, SLOT(definePathColour()));
-
-	QLabel* label = new QLabel("Path coloured to: ");
-	label->setMaximumWidth(90);
+	QLabel* label = new QLabel("Path coloured to ride frequency");
+	label->setMaximumWidth(160);
 	
 	_colour_bar = new ColourBar();
 	QWidget* widget1 = new QWidget;
 	QHBoxLayout* hlayout = new QHBoxLayout(widget1);
 	hlayout->addSpacing(20);
 	hlayout->addWidget(label);
-	hlayout->addWidget(_path_colour_scheme);
 	hlayout->addSpacing(20);
 	hlayout->addWidget(_colour_bar);
 
@@ -116,8 +104,8 @@ GoogleMapCollageWindow::GoogleMapCollageWindow()
 	vlayout->addWidget(widget1);
 	vlayout->setSpacing(0);
 
-	// Disable user interface until a ride is loaded
-	setEnabled(false);
+	setWindowTitle("Ride Collage");
+	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
 }
 
 /******************************************************/
@@ -125,21 +113,23 @@ GoogleMapCollageWindow::~GoogleMapCollageWindow()
 {}
 
 /******************************************************/
-void GoogleMapCollageWindow::setEnabled(bool enabled)
+void GoogleMapCollageWindow::closeEvent(QCloseEvent* event) 
 {
-	_path_colour_scheme->setEnabled(enabled);
+	delete _view;
 }
 
 /******************************************************/
 void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
 {
 	_accumulated_points.clear();
+	_accumulated_point_extra_info.clear();
+	_max_count=0;
 
 	// Create a small progress bar
 	QProgressDialog load_progress("Loading log:", "Cancel load", 0, filenames.size()-1, this);
 	load_progress.setWindowModality(Qt::WindowModal);
 	load_progress.setMinimumDuration(0); //msec
-	load_progress.setWindowTitle("RideViewer");
+	load_progress.setWindowTitle("Ride Collage");
 
 	// Load new log files in the directory
 	for (unsigned int i=0; i < filenames.size(); ++i)
@@ -154,15 +144,41 @@ void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
 		{	
 			if (data_log->lgdValid() && data_log->ltdValid())
 			{
-				for (int pt=0; pt < data_log->numPoints(); ++pt)
+				for (int pt=0; pt < data_log->numPoints(); pt+=4)
 				{
-					LatLng lat_lng;
-					lat_lng.lat = data_log->ltd(pt);
-					lat_lng.lng = data_log->lgd(pt);
-					_accumulated_points.insert(lat_lng, 1);
+					LatLng lat_lng(data_log->ltd(pt), data_log->lgd(pt));
+					bool found = false;
+					
+					int a_pt=_accumulated_points.size()-1; // going backwards is slightly faster because the latest points are at the end (so break quicker)
+					while (a_pt >= 0)
+					{
+						// Check if we have visited this point previously
+						if (lat_lng == _accumulated_points[a_pt].first)
+						{
+							// Only increment frequency if we have not been here in this ride, or it is this ride but more than 60 secs ago
+							if (i != _accumulated_point_extra_info[a_pt].first || abs(data_log->time(pt) - _accumulated_point_extra_info[a_pt].second) > 60)
+							{
+								_accumulated_points[a_pt].second++;
+								_accumulated_point_extra_info[a_pt].first = i;
+								_accumulated_point_extra_info[a_pt].second = data_log->time(pt);
+								if (_accumulated_points[a_pt].second > _max_count)
+									_max_count = _accumulated_points[a_pt].second;
+							}
+							found = true;
+							break;
+						}
+						--a_pt;
+					}
+
+					if (!found)
+					{
+						_accumulated_points.push_back(std::make_pair(lat_lng,1));
+						_accumulated_point_extra_info.push_back(std::make_pair(i,data_log->time(pt)));
+					}
 				}
 			}
 		}
+		delete data_log;
 	}
 
 	if (_accumulated_points.size() > 0) // we have a valid path to show
@@ -171,12 +187,8 @@ void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
 		ostringstream page;
 		createPage(page);
 		_view->setHtml(QString::fromStdString(page.str()));
-
+		definePathColour();
 		show();
-
-		// Enabled user interface
-		setEnabled(true);
-		_path_colour_scheme->setCurrentIndex(0);
 	}
 }
 
@@ -200,101 +212,29 @@ bool GoogleMapCollageWindow::parse(const QString filename, DataLog* data_log)
 /******************************************************/
 void GoogleMapCollageWindow::definePathColour()
 {
-/*	// Colour the path and set the colour bar correspondingly
+	// Colour the path and set the colour bar correspondingly
 	ostringstream stream;
 	stream.precision(2); // only need low precision
 	stream.setf(ios::fixed,ios::floatfield);
-	
-	// First determine min and max of signal to colour code
-	double max = 0.0;
-	double min = 0.0;
-	switch (_path_colour_scheme->currentIndex())
-	{
-	case 0: // none
-		break;
-	case 1: // heart rate
-		max = _data_log->maxHeartRate();
-		min = DataProcessing::computeMin(_data_log->heartRateFltd().begin(), _data_log->heartRateFltd().end());
-		break;
-	case 2: // speed
-		max = _data_log->maxSpeed();
-		min = DataProcessing::computeMin(_data_log->speedFltd().begin(), _data_log->speedFltd().end());
-		break;
-	case 3: // gradient
-		max = _data_log->maxGradient();
-		min = DataProcessing::computeMin(_data_log->gradientFltd().begin(), _data_log->gradientFltd().end());
-		break;
-	case 4: // cadence
-		max = _data_log->maxCadence();//DataProcessing::computeNthPercentile(_data_log->cadence().begin(), _data_log->cadence().end(), 0.95);  // large spikes in cadence can exist, so be harsher when choosing max
-		min = DataProcessing::computeMin(_data_log->cadenceFltd().begin(), _data_log->cadenceFltd().end());
-		break;
-	case 5: // power
-		max = _data_log->maxPower();
-		min = DataProcessing::computeMin(_data_log->powerFltd().begin(), _data_log->powerFltd().end());
-		break;
-	}
 
-	double factor;
-	double min_key = 1.0;
+	// Compute a psuedo max
+	//std::vector<double> freq(_accumulated_points.size());
+	//for (unsigned int f=0; f < freq.size(); ++f)
+	//	freq[f] = _accumulated_points[f].second;
+	const double max_freq = 40;//DataProcessing::computeNthPercentile(freq.begin(),freq.end(),0.9);
+
 	stream << "var key = [" << endl;
-	for (int i=0; i < _data_log->numPoints()-1; ++i) // one less key since there is one more polyline segment in the path
+	for (unsigned int i=0; i < _accumulated_points.size(); ++i) // one less key since there is one more polyline segment in the path
 	{
-		double key = 1.0;
-		switch (_path_colour_scheme->currentIndex())
-		{
-		case 0: // none
-			key = 1.0;
-			break;
-		case 1: // heart rate
-			factor = 0.9;
-			if (max > 0.0)
-				key = ((_data_log->heartRateFltd(i)/_data_log->maxHeartRate())*(1.0+factor) ) - factor;
-			break;
-		case 2: // speed
-			factor = 0.1;
-			if (max > 0.0)
-				key = ((_data_log->speedFltd(i)/_data_log->maxSpeed())*(1.0+factor) ) - factor;
-			break;
-		case 3: // gradient
-			if (max > 0.0)
-				key = (_data_log->gradientFltd(i)/(_data_log->maxGradient()*0.5 + 0.00001) ) + 0.5;
-			break;
-		case 4: // cadence
-			{
-			factor = 0.0;
-			if (max > 0.0)
-				key = std::min( _data_log->cadenceFltd(i)/max, 1.0);
-			}
-			break;
-		case 5: // power
-			factor = 0.7;
-			if (max > 0.0)
-				key = ((_data_log->powerFltd(i)/_data_log->maxPower())*(1.0+factor) ) - factor;
-			break;
-		}
-		key = std::max(key,0.0);
-		key = std::min(key,1.0);
+		double key = std::min((double)_accumulated_points[i].second/max_freq, 1.0);
 		stream << key << ", ";
-
-		if (key < min_key) // keep track of the min key value
-			min_key = key;
 	}
 
 	stream << "];" << endl; 
 	stream << "strokeRidePath(key);";
 	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
 
-	// Draw the colour bar appropriately, depending on the max key value
-	if (min_key < 1.0)
-	{
-		_colour_bar->setColourRange(Qt::green, Qt::yellow, Qt::red, min, max);
-	}
-	else
-	{
-		_colour_bar->setColourRange(Qt::red, Qt::red, Qt::red, 0.0, 0.0);
-	}
-	_colour_bar->update();
-	*/
+	_colour_bar->setColourRange(Qt::green, Qt::yellow, Qt::red, 1, _max_count);
 }
 
 /******************************************************/
@@ -304,11 +244,9 @@ std::string GoogleMapCollageWindow::defineCoords()
 	stream.precision(6); // set precision so we plot lat/long correctly
 	stream.setf(ios::fixed,ios::floatfield);
 
-	QMap<LatLng, int>::const_iterator it = _accumulated_points.begin();
-	while (it != _accumulated_points.end())
+	for (unsigned int i=0; i < _accumulated_points.size(); ++i)
 	{
-		stream << "new google.maps.LatLng(" << it.key().lat << "," << it.key().lng<< ")," << endl;
-		++it;
+		stream << "new google.maps.LatLng(" << _accumulated_points[i].first.lat << "," << _accumulated_points[i].first.lng<< ")," << endl;
 	}
 
 	return stream.str();
@@ -337,52 +275,10 @@ void GoogleMapCollageWindow::createPage(std::ostringstream& page)
 		
 		// Global variables
 		<< "var map;" << endl
-		<< "var selected_path;" << endl
 		<< "var colours = [\"00FF00\", \"19FF00\", \"32FF00\", \"4CFF00\", \"66FF00\", \"7FFF00\", \"99FF00\", \"B2FF00\", \"CCFF00\", \"E5FF00\", \"FFFF00\", \"FFE500\", \"FFCC00\", \"FFB200\", \"FF9900\", \"FF7F00\", \"FF6600\", \"FF4C00\", \"FF3300\", \"FF1900\", \"FF0000\"];" << endl // colour table, from green to red in 20 steps
-		<< "var ride_path = new Array();" << endl
-		<< "var ride_bounds = new google.maps.LatLngBounds();" << endl
+		<< "var bounds = new google.maps.LatLngBounds();" << endl
 		<< "var ride_coords;" << endl
-
-		// Global variables - define marker images
-		<< "var marker_image = new google.maps.MarkerImage(" << endl
-		<< "'" << QDir::currentPath().toStdString() << "/resources/marker_image.png'," << endl
-		<< "new google.maps.Size(50,50)," << endl
-		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(25,50) );" << endl
-
-		<< "var marker_shadow = new google.maps.MarkerImage(" << endl
-		<< "'" << QDir::currentPath().toStdString() << "/resources/marker_shadow.png'," << endl
-		<< "new google.maps.Size(78,50)," << endl
-		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(25,50) );" << endl
-
-		<< "var start_image = new google.maps.MarkerImage(" << endl
-		<< "'" << QDir::currentPath().toStdString() << "/resources/start_image.png'," << endl
-		<< "new google.maps.Size(25,25)," << endl
-		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(25,25) );" << endl
-
-		<< "var start_shadow = new google.maps.MarkerImage(" << endl
-		<< "'" << QDir::currentPath().toStdString() << "/resources/start_shadow.png'," << endl
-		<< "new google.maps.Size(41,25)," << endl
-		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(25,25) );" << endl
-
-		<< "var finish_image = new google.maps.MarkerImage(" << endl
-		<< "'" << QDir::currentPath().toStdString() << "/resources/finish_image.png'," << endl
-		<< "new google.maps.Size(25,25)," << endl
-		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(0,25) );" << endl
-
-		<< "var finish_shadow = new google.maps.MarkerImage(" << endl
-		<< "'" << QDir::currentPath().toStdString() << "/resources/finish_shadow.png'," << endl
-		<< "new google.maps.Size(41,25)," << endl
-		<< "new google.maps.Point(0,0)," << endl
-		<< "new google.maps.Point(0,25) );" << endl
-
-		<< "var marker = new google.maps.Marker({icon: marker_image, shadow: marker_shadow});" << endl
-		<< "var start_marker = new google.maps.Marker({icon: start_image, shadow: start_shadow});" << endl
-		<< "var finish_marker = new google.maps.Marker({icon: finish_image, shadow: finish_shadow});" << endl
+		<< "var ride_circles = new Array();;" << endl
 
 		// Function initialise
 		<< "function initialize() {" << endl
@@ -391,51 +287,19 @@ void GoogleMapCollageWindow::createPage(std::ostringstream& page)
 
 		<< "ride_coords = [" << defineCoords() << "];" << endl // create a path from GPS coords
 		
-		<< "for (i=0;i<200;i++) {" << endl
-		<< "new google.maps.Circle({center: ride_coords[i], radius: 10.0, map: map})" << endl
+		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
+		<< "ride_circles[i] = new google.maps.Circle({strokeWeight: 2, fillOpacity: 1.0, center: ride_coords[i], radius: 30.0, clickable: false, map: map})" << endl
+		<< "bounds.extend(ride_coords[i]);" << endl
 		<< "}" << endl
 		
-		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
-		<< "ride_bounds.extend(ride_coords[i]);" << endl
-		<< "}" << endl
-		<< "map.fitBounds(ride_bounds);" << endl
-		<< "}" << endl
-
-		// Function setMarker
-		<< "function setMarker(ltd,lgd) {" << endl
-		<< "var lat_lng = new google.maps.LatLng(ltd ,lgd);" << endl
-		<< "marker.setPosition(lat_lng);" << endl
-		<< "marker.setMap(map);" << endl
-		<< "}" << endl
-
-		// Function setSelectionPath
-		<< "function setSelectionPath(coords, zoom_map) { " << endl
-		<< "selected_path.setPath(coords);" << endl
-		<< "selected_path.setMap(map);" << endl
-		<< "if (zoom_map) {" << endl
-		<< "var path_bounds = new google.maps.LatLngBounds();" << endl
-		<< "for (var i = 0, len = coords.length; i < len; i++) {" << endl
-		<< "path_bounds.extend(coords[i]);" << endl
-		<< "}" << endl
-		<< "map.fitBounds(path_bounds);" << endl
-		<< "}" << endl
-		<< "start_marker.setPosition(coords[0]);" << endl
-		<< "finish_marker.setPosition(coords[coords.length-1]);" << endl
-		<< "}" << endl
-
-		// Function deleteSelectionPath
-		<< "function deleteSelectionPath() {" << endl
-		<< "selected_path.setMap(null);" << endl
-		<< "map.fitBounds(ride_bounds);" << endl
-		<< "start_marker.setPosition(ride_coords[0]);" << endl
-		<< "finish_marker.setPosition(ride_coords[ride_coords.length-1]);" << endl
+		<< "map.fitBounds(bounds);" << endl
 		<< "}" << endl
 
 		// Function to stroke ride path (ie colour it) according to key vector (0 <= key[i] <= 1)
 		<< "function strokeRidePath(key) {" << endl
-		<< "if (key.length == ride_path.length) {" << endl
-		<< "for (i=0; i<ride_path.length-1; i++) {" << endl
-		<< "ride_path[i].setOptions({strokeColor: colourFromFraction(key[i])});" << endl
+		<< "if (key.length == ride_circles.length) {" << endl
+		<< "for (i=0; i<ride_circles.length; i++) {" << endl
+		<< "ride_circles[i].setOptions({fillColor: colourFromFraction(key[i]), strokeColor: colourFromFraction(key[i])});" << endl
 		<< "}" << endl
 		<< "}" << endl
 		<< "}" << endl
@@ -468,30 +332,3 @@ void GoogleMapCollageWindow::createPage(std::ostringstream& page)
 
 	page << oss.str();
 }
-
-/******************************************************/
-void GoogleMapCollageWindow::createEmptyPage(std::ostringstream& page)
-{
-	ostringstream oss;
-    oss.precision(6); // set precision so we plot lat/long correctly
-	oss.setf(ios::fixed,ios::floatfield);
-
-	oss << "<!DOCTYPE html>" << endl
-		<< "<html>" << endl
-		<< "<head>" << endl
-		<< "<meta name=\"viewport\" content=\"initial-scale=1.0, user-scalable=no\" />" << endl
-		<< "<style type=\"text/css\">" << endl
-		<< "html { height: 100% }" << endl
-		<< "body { height: 100%; margin: 0; padding: 0 }" << endl
-		<< "#map_canvas { height: 100% }" << endl
-		<< "</style>" << endl
-		
-		<< "</head>" << endl
-		<< "<body bgcolor=\"#E2E2E2\">" << endl
-		<< "<br><br><br><br><br><small><center>No GPS data to display in this log</center></small>" << endl
-		<< "</body>" << endl
-		<< "</html>" << endl;
-
-	page << oss.str();
-}
-

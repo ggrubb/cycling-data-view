@@ -114,6 +114,11 @@ void MainWindow::closeEvent(QCloseEvent* event)
 		_totals_window->close();
 		delete _totals_window;
 	}
+	if (_ride_collage)
+	{
+		_ride_collage->close();
+		delete _ride_collage;
+	}
 }
 
 /******************************************************/
@@ -219,8 +224,11 @@ void MainWindow::setLap(int lap_index)
 /******************************************************/
 void MainWindow::totals()
 {
-	_totals_window = new TotalsWindow(_current_user);
-	_totals_window->show();
+	if (_current_user)
+	{
+		_totals_window = new TotalsWindow(_current_user);
+		_totals_window->show();
+	}
 }
 
 /******************************************************/
@@ -228,6 +236,8 @@ void MainWindow::mapCollage()
 {
 	if (_current_user)
 	{
+		QMessageBox::information(this, tr("Ride Collage"), tr("Warning! This can be slow, please be patient. Click OK to continue."));
+
 		LogDirectorySummary log_summary(_current_user->logDirectory());
 		log_summary.readFromFile();
 		std::vector<QString> filenames;
@@ -236,9 +246,9 @@ void MainWindow::mapCollage()
 			filenames.push_back(log_summary.log(j)._filename);
 		}
 
-		_map_collage = new GoogleMapCollageWindow();
-		_map_collage->displayRides(filenames);
-		_map_collage->show();
+		_ride_collage = new GoogleMapCollageWindow();
+		_ride_collage->displayRides(filenames);
+		_ride_collage->show();
 	}
 }
 
@@ -259,7 +269,7 @@ void MainWindow::createActions()
 	_totals_act->setEnabled(false);
 	connect(_totals_act, SIGNAL(triggered()), this, SLOT(totals()));
 
-	_map_collage_act = new QAction(tr("Map Collage"), this);
+	_map_collage_act = new QAction(tr("Ride Collage"), this);
 	_map_collage_act->setEnabled(false);
 	connect(_map_collage_act, SIGNAL(triggered()), this, SLOT(mapCollage()));
 
