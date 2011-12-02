@@ -395,6 +395,8 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 		<< "var ride_path = new Array();" << endl
 		<< "var ride_bounds = new google.maps.LatLngBounds();" << endl
 		<< "var ride_coords;" << endl
+		<< "var grey_style = [ { featureType: \"all\",  elementType: \"all\", stylers: [ { saturation: -100 }]}];" << endl
+		<< "var colour_style = [ { featureType: \"all\",  elementType: \"all\", stylers: [ { saturation: 0 }]}];" << endl
 
 		// Global variables - define marker images
 		<< "var marker_image = new google.maps.MarkerImage(" << endl
@@ -439,8 +441,14 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 
 		// Function initialise
 		<< "function initialize() {" << endl
+		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeControlOptions: {mapTypeIds: ['colour', 'grey', google.maps.MapTypeId.TERRAIN]}} );" << endl
+		<< "var map_type_grey = new google.maps.StyledMapType(grey_style, { name:\"Grey\" });" << endl
+		<< "var map_type_colour = new google.maps.StyledMapType(colour_style, { name:\"Colour\" });" << endl
+		<< "map.mapTypes.set('grey', map_type_grey);" << endl
+		<< "map.mapTypes.set('colour', map_type_colour);" << endl
+		<< "map.setMapTypeId('grey');" << endl
+
 		<< "selected_path = new google.maps.Polyline({strokeColor: \"#000000\",strokeOpacity: 1.0, strokeWeight: 8, zIndex: 1});" << endl
-		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeId: google.maps.MapTypeId.ROADMAP});" << endl
 		<< "ride_coords = [" << defineCoords(0, _data_log->numPoints()) << "];" << endl // create a path from GPS coords
 		
 		<< "for (var i = 0, len = ride_coords.length; i < len-1; i++) {" << endl
