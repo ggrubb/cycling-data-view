@@ -64,18 +64,14 @@ class GoogleMapCollageWindow : public QWidget
 
 	// Display all the rides in filenames on a google map
 	void displayRides(const std::vector<QString>& filenames);
- 
- protected:
-	virtual void closeEvent(QCloseEvent* event);
 
  private:
 	// Create the webpage to display google maps
 	void createPage(std::ostringstream& page);
 
-	// Stroke the ride path according to frequency
-	void definePathColour();
-
+	std::string defineColours();
 	std::string defineCoords();
+
 	bool parse(const QString filename, DataLog* data_log);
 
 	TcxParser* _tcx_parser;

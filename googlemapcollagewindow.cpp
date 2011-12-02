@@ -104,19 +104,13 @@ GoogleMapCollageWindow::GoogleMapCollageWindow()
 	vlayout->addWidget(widget1);
 	vlayout->setSpacing(0);
 
-	setWindowTitle("Ride Collage");
+	setWindowTitle("RideCollage");
 	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
 }
 
 /******************************************************/
 GoogleMapCollageWindow::~GoogleMapCollageWindow()
 {}
-
-/******************************************************/
-void GoogleMapCollageWindow::closeEvent(QCloseEvent* event) 
-{
-	delete _view;
-}
 
 /******************************************************/
 void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
@@ -129,7 +123,7 @@ void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
 	QProgressDialog load_progress("Loading log:", "Cancel load", 0, filenames.size()-1, this);
 	load_progress.setWindowModality(Qt::WindowModal);
 	load_progress.setMinimumDuration(0); //msec
-	load_progress.setWindowTitle("Ride Collage");
+	load_progress.setWindowTitle("RideCollage");
 
 	// Load new log files in the directory
 	for (unsigned int i=0; i < filenames.size(); ++i)
@@ -156,7 +150,8 @@ void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
 						if (lat_lng == _accumulated_points[a_pt].first)
 						{
 							// Only increment frequency if we have not been here in this ride, or it is this ride but more than 60 secs ago
-							if (i != _accumulated_point_extra_info[a_pt].first || abs(data_log->time(pt) - _accumulated_point_extra_info[a_pt].second) > 60)
+							if (i != _accumulated_point_extra_info[a_pt].first || 
+								0)//abs(data_log->time(pt) - _accumulated_point_extra_info[a_pt].second) > 60)
 							{
 								_accumulated_points[a_pt].second++;
 								_accumulated_point_extra_info[a_pt].first = i;
@@ -180,14 +175,13 @@ void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
 		}
 		delete data_log;
 	}
-
+	
 	if (_accumulated_points.size() > 0) // we have a valid path to show
 	{
 		// Create the google map web page
 		ostringstream page;
 		createPage(page);
 		_view->setHtml(QString::fromStdString(page.str()));
-		definePathColour();
 		show();
 	}
 }
@@ -210,31 +204,22 @@ bool GoogleMapCollageWindow::parse(const QString filename, DataLog* data_log)
 }
 
 /******************************************************/
-void GoogleMapCollageWindow::definePathColour()
+std::string GoogleMapCollageWindow::defineColours()
 {
 	// Colour the path and set the colour bar correspondingly
 	ostringstream stream;
 	stream.precision(2); // only need low precision
 	stream.setf(ios::fixed,ios::floatfield);
 
-	// Compute a psuedo max
-	//std::vector<double> freq(_accumulated_points.size());
-	//for (unsigned int f=0; f < freq.size(); ++f)
-	//	freq[f] = _accumulated_points[f].second;
-	const double max_freq = 40;//DataProcessing::computeNthPercentile(freq.begin(),freq.end(),0.9);
-
-	stream << "var key = [" << endl;
 	for (unsigned int i=0; i < _accumulated_points.size(); ++i) // one less key since there is one more polyline segment in the path
 	{
-		double key = std::min((double)_accumulated_points[i].second/max_freq, 1.0);
+		double key = std::min((double)_accumulated_points[i].second/_max_count, 1.0);
 		stream << key << ", ";
 	}
 
-	stream << "];" << endl; 
-	stream << "strokeRidePath(key);";
-	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
-
 	_colour_bar->setColourRange(Qt::green, Qt::yellow, Qt::red, 1, _max_count);
+
+	return stream.str();
 }
 
 /******************************************************/
@@ -274,34 +259,31 @@ void GoogleMapCollageWindow::createPage(std::ostringstream& page)
 		<< "<script type=\"text/javascript\">" << endl
 		
 		// Global variables
-		<< "var map;" << endl
 		<< "var colours = [\"00FF00\", \"19FF00\", \"32FF00\", \"4CFF00\", \"66FF00\", \"7FFF00\", \"99FF00\", \"B2FF00\", \"CCFF00\", \"E5FF00\", \"FFFF00\", \"FFE500\", \"FFCC00\", \"FFB200\", \"FF9900\", \"FF7F00\", \"FF6600\", \"FF4C00\", \"FF3300\", \"FF1900\", \"FF0000\"];" << endl // colour table, from green to red in 20 steps
 		<< "var bounds = new google.maps.LatLngBounds();" << endl
-		<< "var ride_coords;" << endl
-		<< "var ride_circles = new Array();;" << endl
+		<< "var grey_style = [ { featureType: \"all\",  elementType: \"all\", stylers: [ { saturation: -100 }]}];" << endl
+		<< "var colour_style = [ { featureType: \"all\",  elementType: \"all\", stylers: [ { saturation: 0 }]}];" << endl
 
 		// Function initialise
 		<< "function initialize() {" << endl
-		<< "selected_path = new google.maps.Polyline({strokeColor: \"#000000\",strokeOpacity: 1.0, strokeWeight: 8, zIndex: 1});" << endl
-		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeId: google.maps.MapTypeId.ROADMAP});" << endl
+		<< "var map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeControlOptions: {mapTypeIds: ['colour', 'grey', google.maps.MapTypeId.TERRAIN]}} );" << endl
+		<< "var map_type_grey = new google.maps.StyledMapType(grey_style, { name:\"Grey\" });" << endl
+		<< "var map_type_colour = new google.maps.StyledMapType(colour_style, { name:\"Colour\" });" << endl
+		<< "map.mapTypes.set('grey', map_type_grey);" << endl
+		<< "map.mapTypes.set('colour', map_type_colour);" << endl
+		<< "map.setMapTypeId('grey');" << endl
 
-		<< "ride_coords = [" << defineCoords() << "];" << endl // create a path from GPS coords
+		<< "var bounds = new google.maps.LatLngBounds();" << endl
+		<< "var ride_coords = [" << defineCoords() << "];" << endl // create a path from GPS coords
+		<< "var colour_key = [" << defineColours() << "];" << endl // create a key of colours
 		
 		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
-		<< "ride_circles[i] = new google.maps.Circle({strokeWeight: 2, fillOpacity: 1.0, center: ride_coords[i], radius: 30.0, clickable: false, map: map})" << endl
+		<< "var colour = colourFromFraction(colour_key[i]);" << endl
+		<< "new google.maps.Circle({fillColor: colour, strokeColor: colour, strokeWeight: 2, fillOpacity: 1.0, center: ride_coords[i], radius: 30.0, clickable: false, map: map})" << endl
 		<< "bounds.extend(ride_coords[i]);" << endl
 		<< "}" << endl
 		
 		<< "map.fitBounds(bounds);" << endl
-		<< "}" << endl
-
-		// Function to stroke ride path (ie colour it) according to key vector (0 <= key[i] <= 1)
-		<< "function strokeRidePath(key) {" << endl
-		<< "if (key.length == ride_circles.length) {" << endl
-		<< "for (i=0; i<ride_circles.length; i++) {" << endl
-		<< "ride_circles[i].setOptions({fillColor: colourFromFraction(key[i]), strokeColor: colourFromFraction(key[i])});" << endl
-		<< "}" << endl
-		<< "}" << endl
 		<< "}" << endl
 
 		// Function to convert num to hex (0 <= frac <= 1.0)

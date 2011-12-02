@@ -38,7 +38,9 @@
 
 /******************************************************/
 MainWindow::MainWindow():
-QMainWindow()
+QMainWindow(),
+_totals_window(0),
+_ride_collage(0)
  {
 	createActions();
 	createMenus();
@@ -147,7 +149,7 @@ void MainWindow::promptForUser()
 
 		// Prompt to select a user
 		bool ok;
-		QString	user_name = QInputDialog::getItem(this, tr("Rider Selection"), tr("Select Rider:"), user_names, 0, false, &ok, 0);
+		QString	user_name = QInputDialog::getItem(this, tr("RiderSelection"), tr("Select Rider:"), user_names, 0, false, &ok, 0);
 		
 		// Set the selected user
 		if (ok)
@@ -236,7 +238,7 @@ void MainWindow::mapCollage()
 {
 	if (_current_user)
 	{
-		QMessageBox::information(this, tr("Ride Collage"), tr("Warning! This can be slow, please be patient. Click OK to continue."));
+		QMessageBox::information(this, tr("RideCollage"), tr("Warning! This can be slow, please be patient. Click OK to continue."));
 
 		LogDirectorySummary log_summary(_current_user->logDirectory());
 		log_summary.readFromFile();
