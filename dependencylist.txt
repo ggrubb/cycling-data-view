@@ -1,0 +1,9 @@
+Depends on the following dlls:
+imageformats\*
+resources\* (excluding originals)
+phonon4.dll
+QtCore4.dll
+QtGui4.dll
+QtNetwork4.dll
+QtWebKit4.dll
+QtXml4.dll
