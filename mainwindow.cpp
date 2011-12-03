@@ -223,6 +223,15 @@ void MainWindow::setLap(int lap_index)
 	about->show();
  }
 
+ /******************************************************/
+ void MainWindow::help()
+ {
+	// Launch help in web browser
+	QWebView *help_view = new QWebView();
+    help_view->load(QUrl("http://code.google.com/p/cycling-data-view/wiki/Help"));
+    help_view->show();
+ }
+
 /******************************************************/
 void MainWindow::totals()
 {
@@ -280,6 +289,9 @@ void MainWindow::createActions()
 
 	_about_act = new QAction(tr("About"), this);
 	connect(_about_act, SIGNAL(triggered()), this, SLOT(about()));
+
+	_goto_help_act = new QAction(tr("Goto Help"), this);
+	connect(_goto_help_act, SIGNAL(triggered()), this, SLOT(help()));
 }
 
 /******************************************************/
@@ -298,6 +310,7 @@ void MainWindow::createMenus()
 
 	_help_menu = new QMenu(tr("&Help"), this);
 	_help_menu->addAction(_about_act);
+	_help_menu->addAction(_goto_help_act);
 
 	menuBar()->addMenu(_file_menu);
 	menuBar()->addMenu(_view_menu);
