@@ -124,6 +124,12 @@ void RideSelectionWindow::setUser(User* user)
 	_log_dir_summary->addLogsToSummary(data_logs);
 	_log_dir_summary->writeToFile();
 
+	for (unsigned int i = 0; i < data_logs.size(); ++i)
+	{
+		if (_current_data_log != data_logs[i])
+			delete data_logs[i];
+	}
+
 	populateTableWithRides();
 }
 

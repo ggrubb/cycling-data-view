@@ -13,7 +13,7 @@
 SpecifyUserWindow::SpecifyUserWindow():
 QWidget()
 {
-	setWindowTitle(tr("Specify Rider"));
+	setWindowTitle(tr("SpecifyRider"));
 	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
 
 	_name_input = new QLineEdit();
