@@ -19,7 +19,6 @@ QWidget()
 	_name_input = new QLineEdit();
 	_log_directory_input = new QLabel(QDir::homePath());
 	_weight_input = new QDoubleSpinBox();
-	_bike_weight_input = new QDoubleSpinBox();
 	_hr_zone1_input = new QSpinBox();
 	_hr_zone2_input = new QSpinBox();
 	_hr_zone3_input = new QSpinBox();
@@ -42,7 +41,6 @@ QWidget()
 	QLabel* name_label = new QLabel("Name:");
 	QLabel* log_directory_label = new QLabel("Logfile Directory:");
 	QLabel* weight_label = new QLabel("Weight (kg):");
-	QLabel* bike_weight_label = new QLabel("Bike Weight (kg):");
 	QLabel* hr_zone1_label = new QLabel("HR Zone 1 - recovery (bpm):");
 	QLabel* hr_zone2_label = new QLabel("HR Zone 2 - endurance (bpm):");
 	QLabel* hr_zone3_label = new QLabel("HR Zone 3 - tempo (bpm):");
@@ -70,9 +68,6 @@ QWidget()
 	grid_layout->addWidget(weight_label,3,0);
 	grid_layout->addWidget(_weight_input,3,1);
 
-	grid_layout->addWidget(bike_weight_label,4,0);
-	grid_layout->addWidget(_bike_weight_input,4,1);
-
 	grid_layout->addWidget(hr_zone1_label,5,0);
 	grid_layout->addWidget(_hr_zone1_input,5,1);
 
@@ -91,6 +86,9 @@ QWidget()
 	grid_layout->addWidget(done_button,10,0);
 	grid_layout->addWidget(cancel_button,10,1);
 
+	log_directory_label->setToolTip("This needs to be the directory where you hold all your ride logs. Either .fit or .tcx files. RiderViwer will not modify these files!");
+	directory_button->setToolTip("This needs to be the directory where you hold all your ride logs. Either .fit or .tcx files. RiderViwer will not modify these files!");
+	
 	show();
 }
  
@@ -100,7 +98,6 @@ SpecifyUserWindow::~SpecifyUserWindow()
 	delete _name_input;
 	delete _log_directory_input;
 	delete _weight_input;
-	delete _bike_weight_input;
 	delete _hr_zone1_input;
 	delete _hr_zone2_input;
 	delete _hr_zone3_input;
@@ -114,7 +111,6 @@ void SpecifyUserWindow::setUser(User* user)
 	_name_input->setText(user->name());
 	_log_directory_input->setText(user->logDirectory());
 	_weight_input->setValue(user->weight());
-	_bike_weight_input->setValue(user->bikeWeight());
 	_hr_zone1_input->setValue(user->zone1());
 	_hr_zone2_input->setValue(user->zone2());
 	_hr_zone3_input->setValue(user->zone3());
@@ -139,7 +135,6 @@ void SpecifyUserWindow::createRider()
 			_name_input->text(),
 			_log_directory_input->text(),
 			_weight_input->value(),
-			_bike_weight_input->value(),
 			_hr_zone1_input->value(),
 			_hr_zone2_input->value(),
 			_hr_zone3_input->value(),

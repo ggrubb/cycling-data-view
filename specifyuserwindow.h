@@ -31,7 +31,6 @@ private:
 	QLineEdit* _name_input;
 	QLabel* _log_directory_input;
 	QDoubleSpinBox* _weight_input;
-	QDoubleSpinBox* _bike_weight_input;
 	QSpinBox* _hr_zone1_input;
 	QSpinBox* _hr_zone2_input;
 	QSpinBox* _hr_zone3_input;

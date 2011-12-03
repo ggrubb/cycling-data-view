@@ -11,7 +11,6 @@ class User
 	User(const QString& name,
 		 const QString& log_dir,
 		 double weight,
-		 double bike_weight,
 		 int hr_zone1,
 		 int hr_zone2,
 		 int hr_zone3,
@@ -23,7 +22,6 @@ class User
 	const QString& name() const;
 	const QString& logDirectory() const;
 	double weight() const;
-	double bikeWeight() const;
 	int zone1() const;
 	int zone2() const;
 	int zone3() const;
@@ -37,7 +35,6 @@ class User
 	 QString _name;
 	 QString _log_directory;
 	 double _weight; // kg
-	 double _bike_weight; // kg
 	 int _hr_zone1; // recovery
 	 int _hr_zone2; // endurance
 	 int _hr_zone3; // tempo

@@ -10,7 +10,6 @@ User::User(
 	const QString& name,
 	const QString& log_directory,
 	double weight,
-	double bike_weight,
 	int hr_zone1,
 	int hr_zone2,
 	int hr_zone3,
@@ -19,7 +18,6 @@ User::User(
 _name(name),
 _log_directory(log_directory),
 _weight(weight),
-_bike_weight(bike_weight),
 _hr_zone1(hr_zone1),
 _hr_zone2(hr_zone2),
 _hr_zone3(hr_zone3),
@@ -53,12 +51,6 @@ const QString& User::logDirectory() const
 double User::weight() const
 {
 	return _weight;
-}
-
-/****************************************/
-double User::bikeWeight() const
-{
-	return _bike_weight;
 }
 
 /****************************************/
@@ -107,7 +99,6 @@ void User::readFromFile(const QString& filename)
 		_name = user.firstChildElement("Name").firstChild().nodeValue();
 		_log_directory = user.firstChildElement("LogDirectory").firstChild().nodeValue();
 		_weight = user.firstChildElement("Weight").firstChild().nodeValue().toDouble();
-		_bike_weight = user.firstChildElement("BikeWeight").firstChild().nodeValue().toDouble();
 		_hr_zone1 = user.firstChildElement("HRZone1").firstChild().nodeValue().toDouble();
 		_hr_zone2 = user.firstChildElement("HRZone2").firstChild().nodeValue().toDouble();
 		_hr_zone3 = user.firstChildElement("HRZone3").firstChild().nodeValue().toDouble();
@@ -137,11 +128,6 @@ void User::writeToFile(const QString& filename) const
 	user.appendChild(weight);
 	text = dom_document.createTextNode(QString::number(_weight,'f',2));
 	weight.appendChild(text);
-
-	QDomElement bike_weight = dom_document.createElement("BikeWeight");
-	user.appendChild(bike_weight);
-	text = dom_document.createTextNode(QString::number(_bike_weight,'f',2));
-	bike_weight.appendChild(text);
 
 	QDomElement hr_zone1 = dom_document.createElement("HRZone1");
 	user.appendChild(hr_zone1);
