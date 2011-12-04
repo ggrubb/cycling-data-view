@@ -67,12 +67,16 @@ void DataProcessing::computeGradient(
 	assert(alt.size() > 1);
 
 	// Compute gradient from altitude
-	grad.resize(alt.size());
+	const double grad_limit = 30.0; // define a max grad (incase of noise in signal)
+	std::vector<double> grad_temp(alt.size());
 	for (unsigned int i=1; i < alt.size(); ++i)
 	{
-		if (dist[i] - dist[i-1] > 5)
-			grad[i] = 100*(alt[i] - alt[i-1])/(dist[i] - dist[i-1]);
+		if (dist[i] - dist[i-1] > 1.0)
+			grad_temp[i] = std::min(std::max(100*(alt[i] - alt[i-1])/(dist[i] - dist[i-1]), -grad_limit),grad_limit);
 	}
+
+	grad.resize(alt.size());
+	DataProcessing::lowPassFilterSignal(grad_temp,grad,10);
 }
 
 /****************************************/
