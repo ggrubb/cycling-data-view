@@ -290,7 +290,7 @@ void MainWindow::createActions()
 	_about_act = new QAction(tr("About"), this);
 	connect(_about_act, SIGNAL(triggered()), this, SLOT(about()));
 
-	_goto_help_act = new QAction(tr("Goto Help"), this);
+	_goto_help_act = new QAction(tr("Manual"), this);
 	connect(_goto_help_act, SIGNAL(triggered()), this, SLOT(help()));
 }
 
