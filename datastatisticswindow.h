@@ -20,6 +20,7 @@ class DataStatisticsWindow : public QWidget
  public slots:
 	void displayCompleteRideStats();
 	void displaySelectedRideStats(int idx_start, int idx_end);
+	void moveSelection(int delta_idx);
 	void deleteSelection();
 	
  private:
@@ -31,6 +32,11 @@ class DataStatisticsWindow : public QWidget
 	QLabel* _head_label;
 	DataLog* _data_log;
 	User* _user;
+
+	// The start index of selection to highlight
+	int _selection_begin_idx;
+	// The end index of selection to highlight
+	int _selection_end_idx;
  };
 
 #endif // DATASTATISTICSVIEW_H

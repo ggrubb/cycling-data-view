@@ -264,6 +264,7 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 
 	// Connect this window to the statistical viewer
 	connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(displaySelectedRideStats(int,int)));
+	connect(this, SIGNAL(panAndHoldSelection(int)), stats_view, SLOT(moveSelection(int)));
 	connect(this, SIGNAL(deleteSelection()), stats_view, SLOT(deleteSelection()));
 	connect(this, SIGNAL(updateDataView()), stats_view, SLOT(displayCompleteRideStats()));
 	
@@ -485,7 +486,7 @@ void PlotWindow::displayRide(DataLog* data_log, User* user)
 		// Show the data
 		drawGraphs();
 
-		// Display markers
+		// Display lap markers
 		clearLapMarkers();
 		if (_data_log->numLaps() > 1)
 		{
@@ -496,6 +497,14 @@ void PlotWindow::displayRide(DataLog* data_log, User* user)
 		{
 			_laps_cb->setChecked(false);
 		}
+
+		// Decide which graphs to display based on data content
+		_hr_cb->setChecked(_data_log->heartRateValid());
+		_speed_cb->setChecked(_data_log->speedValid());
+		_alt_cb->setChecked(_data_log->altValid());
+		_cadence_cb->setChecked(_data_log->cadenceValid());
+		_power_cb->setChecked(_data_log->powerValid());
+		_temp_cb->setChecked(_data_log->tempValid());
 
 		// Enabled user interface
 		setEnabled(true);

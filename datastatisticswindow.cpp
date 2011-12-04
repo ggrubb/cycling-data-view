@@ -216,10 +216,21 @@ void DataStatisticsWindow::deleteSelection()
 }
 
 /******************************************************/
+void DataStatisticsWindow::moveSelection(int delta_idx)
+{
+	int i = std::max(_selection_begin_idx - delta_idx, 0);
+	int j = std::min(_selection_end_idx - delta_idx, _data_log->numPoints());
+	displaySelectedRideStats(i, j);
+}
+
+/******************************************************/
 void DataStatisticsWindow::displaySelectedRideStats(int idx_start, int idx_end)
 {
 	assert(_user);
 	assert(_data_log);
+
+	_selection_begin_idx = idx_start;
+	_selection_end_idx = idx_end;
 
 	// Compute totals
 	double time = _data_log->time(idx_end) - _data_log->time(idx_start);
