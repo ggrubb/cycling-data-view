@@ -35,6 +35,7 @@
 #define APP_NAME "RiderViewer"
 #define VERSION_INFO "Version 1.0 (Nov 2011)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
+#define GARMIN_LOG_DIRECTORY "/garmin/activities/"
 
 /******************************************************/
 MainWindow::MainWindow():
@@ -181,6 +182,7 @@ void MainWindow::setUser(User* user)
 	_edit_act->setEnabled(true);
 	_totals_act->setEnabled(true);
 	_map_collage_act->setEnabled(true);
+	_retrieve_logs_act->setEnabled(true);
 	user->writeToFile(QString(".") + USER_DIRECTORY + user->name() + QString(".rider"));
 }
 
@@ -243,6 +245,37 @@ void MainWindow::totals()
 }
 
 /******************************************************/
+void MainWindow::retrieveLogs()
+{
+	QFileInfoList drives = QDir::drives();
+	for (int i=0; i < drives.size(); ++i) // search for the Garmin device
+	{
+		QDir garmin_dir = QDir(drives.at(i).absoluteDir().path() + GARMIN_LOG_DIRECTORY, "*.fit");
+		if (garmin_dir.exists()) // found a device with the correct directory structure
+		{
+			QStringList garmin_filenames = garmin_dir.entryList();
+
+			QDir user_dir = QDir(_current_user->logDirectory(),"*.fit");
+			QStringList user_filenames = user_dir.entryList();
+
+			for (unsigned int j=0; j < garmin_filenames.size(); ++j)
+			{
+				if (!user_filenames.contains(garmin_filenames.at(j))) // copy the log if it doesn't exist in user directory
+				{
+					std::cout << "copy " << QString(garmin_dir.path() + "/" + garmin_filenames[j]).toStdString() << " to " << QString(_current_user->logDirectory() + "/" + garmin_filenames[j]).toStdString() << std::endl;
+					bool copied = QFile::copy(garmin_dir.path() + "/" + garmin_filenames[j],_current_user->logDirectory() + "/" + garmin_filenames[j]);
+					if (copied)
+						std::cout << "done!" << std::endl;
+				}
+			}
+
+			break;
+		}
+	}
+	setUser(_current_user);
+}
+
+/******************************************************/
 void MainWindow::mapCollage()
 {
 	if (_current_user)
@@ -276,6 +309,10 @@ void MainWindow::createActions()
 	_edit_act->setEnabled(false);
 	connect(_edit_act, SIGNAL(triggered()), this, SLOT(editUser()));
 
+	_retrieve_logs_act = new QAction(tr("Retreive Logs"), this);
+	_retrieve_logs_act->setEnabled(false);
+	connect(_retrieve_logs_act, SIGNAL(triggered()), this, SLOT(retrieveLogs()));
+
 	_totals_act = new QAction(tr("Totals"), this);
 	_totals_act->setEnabled(false);
 	connect(_totals_act, SIGNAL(triggered()), this, SLOT(totals()));
@@ -301,6 +338,8 @@ void MainWindow::createMenus()
 	_file_menu->addAction(_set_act);
 	_file_menu->addAction(_add_act);
 	_file_menu->addAction(_edit_act);
+	_file_menu->addSeparator();
+	_file_menu->addAction(_retrieve_logs_act);
 	_file_menu->addSeparator();
 	_file_menu->addAction(_exit_act);
 

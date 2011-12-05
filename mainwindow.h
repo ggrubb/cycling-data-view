@@ -30,6 +30,7 @@
     void promptForUser();
     void addUser();
     void editUser();
+	void retrieveLogs();
     void totals();
 	void mapCollage();
     void about();
@@ -46,6 +47,7 @@
     QAction* _set_act;
     QAction* _add_act;
     QAction* _edit_act;
+    QAction* _retrieve_logs_act;
     QAction* _totals_act;
     QAction* _map_collage_act;
     QAction* _exit_act;
