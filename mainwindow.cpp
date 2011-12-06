@@ -34,7 +34,7 @@
 
 #define COMPANY_NAME "RideViewer"
 #define APP_NAME "RiderViewer"
-#define VERSION_INFO "Version 1.0 (Nov 2011)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
+#define VERSION_INFO "Version 1.1 (Dec 2011)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
 #define GARMIN_LOG_DIRECTORY "/garmin/activities/"
 
