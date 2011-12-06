@@ -30,6 +30,7 @@
 #include <QListWidget.h>
 #include <QInputDialog.h>
 #include <QSettings.h>
+#include <QProgressDialog.h>
 
 #define COMPANY_NAME "RideViewer"
 #define APP_NAME "RiderViewer"
@@ -245,34 +246,50 @@ void MainWindow::totals()
 }
 
 /******************************************************/
+#include <windows.h>
 void MainWindow::retrieveLogs()
 {
+	bool garmin_found = false;
 	QFileInfoList drives = QDir::drives();
 	for (int i=0; i < drives.size(); ++i) // search for the Garmin device
 	{
 		QDir garmin_dir = QDir(drives.at(i).absoluteDir().path() + GARMIN_LOG_DIRECTORY, "*.fit");
 		if (garmin_dir.exists()) // found a device with the correct directory structure
 		{
+			garmin_found = true;
 			QStringList garmin_filenames = garmin_dir.entryList();
 
 			QDir user_dir = QDir(_current_user->logDirectory(),"*.fit");
 			QStringList user_filenames = user_dir.entryList();
 
+			QProgressDialog retrieve_progress("Retrieving log: ", "Cancel",0,garmin_filenames.size(),this);
+			retrieve_progress.setWindowModality(Qt::WindowModal);
+			retrieve_progress.setMinimumDuration(0); //msec
+			retrieve_progress.setWindowTitle("RideViewer");
+
 			for (unsigned int j=0; j < garmin_filenames.size(); ++j)
 			{
 				if (!user_filenames.contains(garmin_filenames.at(j))) // copy the log if it doesn't exist in user directory
 				{
-					std::cout << "copy " << QString(garmin_dir.path() + "/" + garmin_filenames[j]).toStdString() << " to " << QString(_current_user->logDirectory() + "/" + garmin_filenames[j]).toStdString() << std::endl;
 					bool copied = QFile::copy(garmin_dir.path() + "/" + garmin_filenames[j],_current_user->logDirectory() + "/" + garmin_filenames[j]);
 					if (copied)
-						std::cout << "done!" << std::endl;
+					{
+						retrieve_progress.setValue(j);
+						retrieve_progress.setLabelText("Retrieving log: " + garmin_filenames[j]);
+						if (retrieve_progress.wasCanceled())
+							break;
+					}
 				}
 			}
 
 			break;
 		}
 	}
-	setUser(_current_user);
+
+	if (garmin_found)
+		setUser(_current_user);
+	else
+		QMessageBox::information (this, "RideViewer", "No Garmin device found. Is it plugged in?");
 }
 
 /******************************************************/
@@ -299,25 +316,25 @@ void MainWindow::mapCollage()
 /******************************************************/
 void MainWindow::createActions()
 {
-	_set_act = new QAction(tr("Select..."), this);
+	_set_act = new QAction(tr("Select Rider..."), this);
 	connect(_set_act, SIGNAL(triggered()), this, SLOT(promptForUser()));
 
-	_add_act = new QAction(tr("Add..."), this);
+	_add_act = new QAction(tr("Add Rider..."), this);
 	connect(_add_act, SIGNAL(triggered()), this, SLOT(addUser()));
 
-	_edit_act = new QAction(tr("Edit..."), this);
+	_edit_act = new QAction(tr("Edit Rider..."), this);
 	_edit_act->setEnabled(false);
 	connect(_edit_act, SIGNAL(triggered()), this, SLOT(editUser()));
 
-	_retrieve_logs_act = new QAction(tr("Retreive Logs"), this);
+	_retrieve_logs_act = new QAction(tr("Retreive Logs From Device"), this);
 	_retrieve_logs_act->setEnabled(false);
 	connect(_retrieve_logs_act, SIGNAL(triggered()), this, SLOT(retrieveLogs()));
 
-	_totals_act = new QAction(tr("Totals"), this);
+	_totals_act = new QAction(tr("Total Metrics..."), this);
 	_totals_act->setEnabled(false);
 	connect(_totals_act, SIGNAL(triggered()), this, SLOT(totals()));
 
-	_map_collage_act = new QAction(tr("Ride Collage"), this);
+	_map_collage_act = new QAction(tr("Ride Collage..."), this);
 	_map_collage_act->setEnabled(false);
 	connect(_map_collage_act, SIGNAL(triggered()), this, SLOT(mapCollage()));
 
@@ -334,7 +351,7 @@ void MainWindow::createActions()
 /******************************************************/
 void MainWindow::createMenus()
 {
-	_file_menu = new QMenu(tr("&Rider"), this);
+	_file_menu = new QMenu(tr("&Actions"), this);
 	_file_menu->addAction(_set_act);
 	_file_menu->addAction(_add_act);
 	_file_menu->addAction(_edit_act);
@@ -343,7 +360,7 @@ void MainWindow::createMenus()
 	_file_menu->addSeparator();
 	_file_menu->addAction(_exit_act);
 
-	_view_menu = new QMenu(tr("&Extras"), this);
+	_view_menu = new QMenu(tr("&Totals"), this);
 	_view_menu->addAction(_totals_act);
 	_view_menu->addAction(_map_collage_act);
 
