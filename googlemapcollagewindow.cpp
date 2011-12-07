@@ -273,17 +273,20 @@ void GoogleMapCollageWindow::createPage(std::ostringstream& page)
 		<< "map.mapTypes.set('colour', map_type_colour);" << endl
 		<< "map.setMapTypeId('grey');" << endl
 
-		<< "var bounds = new google.maps.LatLngBounds();" << endl
 		<< "var ride_coords = [" << defineCoords() << "];" << endl // create a path from GPS coords
 		<< "var colour_key = [" << defineColours() << "];" << endl // create a key of colours
+		<< "var max_index = 0;" << endl
+		<< "var max_key = 0;" << endl
 		
 		<< "for (var i = 0, len = ride_coords.length; i < len; i++) {" << endl
 		<< "var colour = colourFromFraction(colour_key[i]);" << endl
 		<< "new google.maps.Circle({fillColor: colour, strokeColor: colour, strokeWeight: 2, fillOpacity: 1.0, center: ride_coords[i], radius: 30.0, clickable: false, map: map})" << endl
-		<< "bounds.extend(ride_coords[i]);" << endl
+		<< "if (colour_key[i] > max_key)" << endl
+		<< "{max_key = colour_key[i]; max_index = i;}" << endl
 		<< "}" << endl
 		
-		<< "map.fitBounds(bounds);" << endl
+		<< "var circle = new google.maps.Circle({center: ride_coords[max_index], radius: 70000});" << endl
+		<< "map.fitBounds(circle.getBounds());" << endl
 		<< "}" << endl
 
 		// Function to convert num to hex (0 <= frac <= 1.0)

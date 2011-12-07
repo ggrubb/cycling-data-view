@@ -353,6 +353,9 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
     _plot_zoomer->setMousePattern(QwtEventPattern::MouseSelect3,Qt::RightButton);
 	connect(_plot_zoomer, SIGNAL(zoomed(const QRectF&)), this, SLOT(zoomSelection(const QRectF&)));
 
+	QwtCustomPlotZoomer* plot_zoomer_right_y = new QwtCustomPlotZoomer(QwtPlot::xBottom, QwtPlot::yRight, _plot->canvas());
+	plot_zoomer_right_y ->setRubberBand(QwtPicker::NoRubberBand);
+
 	// Plot panner
 	_plot_panner = new QwtPlotPanner(_plot->canvas());
 	_plot_panner->setMouseButton(Qt::MidButton);

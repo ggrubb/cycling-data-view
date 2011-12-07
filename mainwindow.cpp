@@ -246,7 +246,6 @@ void MainWindow::totals()
 }
 
 /******************************************************/
-#include <windows.h>
 void MainWindow::retrieveLogs()
 {
 	bool garmin_found = false;
