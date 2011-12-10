@@ -291,7 +291,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -301,7 +301,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
