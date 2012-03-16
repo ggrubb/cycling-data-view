@@ -95,6 +95,7 @@ void DataStatisticsWindow::displayRide(DataLog* data_log, User* user)
 
 		_head_label->setText("<b>Ride Statistics For:</b> " + _data_log->dateString());
 		displayCompleteRideStats();
+		clearSelectionColumn();
 		show();
 	}
 	else
