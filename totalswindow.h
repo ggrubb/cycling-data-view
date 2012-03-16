@@ -9,6 +9,7 @@ class QwtPlotCurve;
 class QwtPlot;
 class QCheckBox;
 class QComboBox;
+class BarChartItem;
 
 class TotalsWindow : public QWidget
 {
@@ -32,6 +33,12 @@ private:
 	QwtPlotCurve* _histogram_monthly_dist;
 	QwtPlotCurve* _histogram_weekly_time;
 	QwtPlotCurve* _histogram_weekly_dist;
+
+	BarChartItem* _hist_monthly_dist;
+	BarChartItem* _hist_monthly_time;
+
+	QList< QPair<int, QString> > _dist_bar_heights;
+	QList< QPair<int, QString> > _time_bar_heights;
 
 	QwtPlot* _plot;
 

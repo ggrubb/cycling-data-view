@@ -251,6 +251,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\barchartitem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\barchartitem.h"
+				>
+			</File>
+			<File
 				RelativePath=".\datastatisticswindow.cpp"
 				>
 			</File>
