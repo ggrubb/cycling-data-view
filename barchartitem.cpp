@@ -10,7 +10,9 @@
 /******************************************************/
 BarChartItem::BarChartItem(const QwtText& title) : 
 QwtPlotItem(title),
-_bar_colour(Qt::red)
+_bar_colour(Qt::red),
+_width_sec(10),
+_offset_sec(0)
 {}
 
 /******************************************************/
@@ -20,28 +22,53 @@ void BarChartItem::setColour(const QColor& colour)
 }
 
 /******************************************************/
-void BarChartItem::setData(const QList< QPair<int, QString> >& data)
+void BarChartItem::setTimeWidth(int width_sec)
 {
-	_data = data;
-
-	// Set X axis
-	plot()->setAxisScale(QwtPlot::xBottom, 0, (_data.size()*2)-1);
-
-	// Set Y axis
-	int max;
-	QList< QPair<int, QString> >::const_iterator itr;
-	for(max = 0,itr = _data.begin(); itr != _data.end(); ++itr)
-	{
-		if((*itr).first > max)
-			max = (*itr).first;
-	}
-	plot()->setAxisScale(QwtPlot::yLeft, 0, max);
+	_width_sec = width_sec;
 }
 
 /******************************************************/
-const QList< QPair<int, QString> >& BarChartItem::data(void) const
+void BarChartItem::setTimeOffset(int offset_sec)
+{
+	_offset_sec = offset_sec;
+}
+
+/******************************************************/
+void BarChartItem::setData(const QList< QPair<int, int> >& data)
+{
+	_data = data;
+}
+
+/******************************************************/
+void BarChartItem::scalePlotAxis()
+{
+	if (_data.size() > 0)
+	{
+		// Set X axis
+		plot()->setAxisScale(QwtPlot::xBottom, _data.begin()->second, (_data.end()-1)->second + _width_sec*2);
+
+		// Set Y axis
+		int max;
+		QList< QPair<int, int> >::const_iterator itr;
+		for(max = 0,itr = _data.begin(); itr != _data.end(); ++itr)
+		{
+			if((*itr).first > max)
+				max = (*itr).first;
+		}
+		plot()->setAxisScale(yAxis(), 0, max);
+	}
+}
+
+/******************************************************/
+const QList< QPair<int, int> >& BarChartItem::data(void) const
 {
 	return _data;
+}
+
+/******************************************************/
+int BarChartItem::numElements() const
+{
+	return _data.size();
 }
 
 /******************************************************/
@@ -50,10 +77,10 @@ void BarChartItem::draw(QPainter* painter, const QwtScaleMap& xmap, const QwtSca
 	for(int i = 0;i <_data.size();++i)
 	{
 		// Paint the bar
-		painter->fillRect(xmap.transform(i*2),
-		                  ymap.transform(0),
-		                  xmap.transform((i*2)+1) - xmap.transform(i*2),
-		                  ymap.transform(_data[i].first) - ymap.transform(0),
+		painter->fillRect(xmap.transform(_data[i].second + _offset_sec), //x
+		                  ymap.transform(0), //y
+		                  xmap.transform(_width_sec) - xmap.transform(0), //w
+		                  ymap.transform(_data[i].first) - ymap.transform(0),  //h
 		                  QBrush(_bar_colour));
 	}
 }

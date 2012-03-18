@@ -77,56 +77,45 @@ QWidget()
 	_plot->setAxisTitle(QwtPlot::yLeft,axis_text);
 	axis_text.setText("Distance (km)");
 	_plot->setAxisTitle(QwtPlot::yRight,axis_text);
-
-	// Set the curves
-	QColor c;
-
-	_histogram_yearly_time = new QwtPlotCurve("Yearly Time");
-	_histogram_yearly_time->attach(_plot);
-	_histogram_yearly_time->setYAxis(QwtPlot::yLeft);
-	_histogram_yearly_time->setStyle(QwtPlotCurve::Lines);
-	c = TIME_COLOUR;
-	_histogram_yearly_time->setPen(c);
-
-	_histogram_yearly_dist = new QwtPlotCurve("Yearly Dist");
-	_histogram_yearly_dist->attach(_plot);
-	_histogram_yearly_dist->setYAxis(QwtPlot::yRight);
-	_histogram_yearly_dist->setStyle(QwtPlotCurve::Lines);
-	c = DIST_COLOUR;
-	_histogram_yearly_dist->setPen(c);
 	
-	_histogram_monthly_time = new QwtPlotCurve("Monthly Time");
-	_histogram_monthly_time->attach(_plot);
-	_histogram_monthly_time->setYAxis(QwtPlot::yLeft);
-	_histogram_monthly_time->setStyle(QwtPlotCurve::Lines);
-	c = TIME_COLOUR;
-	_histogram_monthly_time->setPen(c);
-
-	_histogram_monthly_dist = new QwtPlotCurve("Monthly Dist");
-	_histogram_monthly_dist->attach(_plot);
-	_histogram_monthly_dist->setYAxis(QwtPlot::yRight);
-	_histogram_monthly_dist->setStyle(QwtPlotCurve::Lines);
-	c = DIST_COLOUR;
-	_histogram_monthly_dist->setPen(c);
-	
-	_histogram_weekly_time = new QwtPlotCurve("Weekly Time");
-	_histogram_weekly_time->attach(_plot);
-	_histogram_weekly_time->setYAxis(QwtPlot::yLeft);
-	_histogram_weekly_time->setStyle(QwtPlotCurve::Lines);
-	c = TIME_COLOUR;
-	_histogram_weekly_time->setPen(c);
-
-	_histogram_weekly_dist = new QwtPlotCurve("Weekly Dist");
-	_histogram_weekly_dist->attach(_plot);
-	_histogram_weekly_dist->setYAxis(QwtPlot::yRight);
-	_histogram_weekly_dist->setStyle(QwtPlotCurve::Lines);
-	c = DIST_COLOUR;
-	_histogram_weekly_dist->setPen(c);
-
 	_hist_monthly_dist = new BarChartItem();
 	_hist_monthly_dist->setColour(DIST_COLOUR);
+	_hist_monthly_dist->setTimeWidth(3600*24*7); // a week in secs
+	_hist_monthly_dist->setYAxis(QwtPlot::yRight);
 	_hist_monthly_dist->attach(_plot);
 	
+	_hist_monthly_time = new BarChartItem();
+	_hist_monthly_time->setColour(TIME_COLOUR);
+	_hist_monthly_time->setTimeWidth(3600*24*7); // a week in secs
+	_hist_monthly_time->setTimeOffset(3600*24*7); // a week in secs
+	_hist_monthly_time->setYAxis(QwtPlot::yLeft);
+	_hist_monthly_time->attach(_plot);
+
+	_hist_weekly_dist = new BarChartItem();
+	_hist_weekly_dist->setColour(DIST_COLOUR);
+	_hist_weekly_dist->setTimeWidth(3600*24*2); // two days in secs
+	_hist_weekly_dist->setYAxis(QwtPlot::yRight);
+	_hist_weekly_dist->attach(_plot);
+	
+	_hist_weekly_time = new BarChartItem();
+	_hist_weekly_time->setColour(TIME_COLOUR);
+	_hist_weekly_time->setTimeWidth(3600*24*2); // two days in secs
+	_hist_weekly_time->setTimeOffset(3600*24*2); // two days in secs
+	_hist_weekly_time->setYAxis(QwtPlot::yLeft);
+	_hist_weekly_time->attach(_plot);
+
+	_hist_yearly_dist = new BarChartItem();
+	_hist_yearly_dist->setColour(DIST_COLOUR);
+	_hist_yearly_dist->setTimeWidth(3600*24*7*15); // 15 weeks in secs
+	_hist_yearly_dist->setYAxis(QwtPlot::yRight);
+	_hist_yearly_dist->attach(_plot);
+	
+	_hist_yearly_time = new BarChartItem();
+	_hist_yearly_time->setColour(TIME_COLOUR);
+	_hist_yearly_time->setTimeWidth(3600*24*7*15); // 15 weeks in secs
+	_hist_yearly_time->setTimeOffset(3600*24*7*15); // 15 weeks in secs
+	_hist_yearly_time->setYAxis(QwtPlot::yLeft);
+	_hist_yearly_time->attach(_plot);
 
 	// Creat GUI widgets
 	_dist_cb = new QCheckBox("Distance metric");
@@ -235,7 +224,6 @@ void TotalsWindow::computeHistogramData()
 /******************************************************/
 void TotalsWindow::computeCurves()
 {
-	
 	// Weeks
 	QVector<std::pair<int,int> > tmp1 = QVector<std::pair<int,int> >::fromList(_weekly_time.keys());
 	QVector<double> x_data_weeks(tmp1.size());
@@ -247,11 +235,17 @@ void TotalsWindow::computeCurves()
 		x_data_weeks[i] = date_time.toTime_t();
 	}
 
+	QList< QPair<int, int> > dist_bar_heights;
+	QList< QPair<int, int> > time_bar_heights;
 	QVector<double> y_data_time_weeks = QVector<double>::fromList(_weekly_time.values());
-	_histogram_weekly_time->setSamples(x_data_weeks, y_data_time_weeks);
-
 	QVector<double> y_data_dist_weeks = QVector<double>::fromList(_weekly_dist.values());
-	_histogram_weekly_dist->setSamples(x_data_weeks, y_data_dist_weeks);
+	for (int i=0; i < y_data_dist_weeks.size(); ++i)
+	{
+		dist_bar_heights.append(QPair<int, int>(y_data_dist_weeks.at(i), x_data_weeks.at(i) ));
+		time_bar_heights.append(QPair<int, int>(y_data_time_weeks.at(i), x_data_weeks.at(i) ));
+	}
+	_hist_weekly_dist->setData(dist_bar_heights);
+	_hist_weekly_time->setData(time_bar_heights);
 
 	// Months
 	QVector<std::pair<int,int> > tmp2 = QVector<std::pair<int,int> >::fromList(_monthly_time.keys());
@@ -262,15 +256,17 @@ void TotalsWindow::computeCurves()
 		x_data_months[i] = date_time.toTime_t();
 	}
 
+	time_bar_heights.clear();
+	dist_bar_heights.clear();
 	QVector<double> y_data_time_months = QVector<double>::fromList(_monthly_time.values());
-	_histogram_monthly_time->setSamples(x_data_months, y_data_time_months);
-
 	QVector<double> y_data_dist_months = QVector<double>::fromList(_monthly_dist.values());
-	_histogram_monthly_dist->setSamples(x_data_months, y_data_dist_months);
-
-	_dist_bar_heights.clear();
 	for (int i=0; i < y_data_dist_months.size(); ++i)
-		_dist_bar_heights.append(QPair<int, QString>(y_data_dist_months.at(i), QString::number(x_data_months.at(i)) ));
+	{
+		dist_bar_heights.append(QPair<int, int>(y_data_dist_months.at(i), x_data_months.at(i) ));
+		time_bar_heights.append(QPair<int, int>(y_data_time_months.at(i), x_data_months.at(i) ));
+	}
+	_hist_monthly_dist->setData(dist_bar_heights);
+	_hist_monthly_time->setData(time_bar_heights);
 	
 	// Years
 	QVector<int> tmp3 = QVector<int>::fromList(_yearly_time.keys());
@@ -281,11 +277,17 @@ void TotalsWindow::computeCurves()
 		x_data_years[i] = date_time.toTime_t();
 	}
 
+	time_bar_heights.clear();
+	dist_bar_heights.clear();
 	QVector<double> y_data_time_years = QVector<double>::fromList(_yearly_time.values());
-	_histogram_yearly_time->setSamples(x_data_years, y_data_time_years);
-
 	QVector<double> y_data_dist_years = QVector<double>::fromList(_yearly_dist.values());
-	_histogram_yearly_dist->setSamples(x_data_years, y_data_dist_years);
+	for (int i=0; i < y_data_dist_years.size(); ++i)
+	{
+		dist_bar_heights.append(QPair<int, int>(y_data_dist_years.at(i), x_data_years.at(i) ));
+		time_bar_heights.append(QPair<int, int>(y_data_time_years.at(i), x_data_years.at(i) ));
+	}
+	_hist_yearly_dist->setData(dist_bar_heights);
+	_hist_yearly_time->setData(time_bar_heights);
 }
 
 /******************************************************/
@@ -295,87 +297,85 @@ void TotalsWindow::updatePlot()
 	{
 	case 0: // weekly
 		_plot->setAxisScaleDraw(QwtPlot::xBottom, new DateScaleDraw(tr("weeks")));
-		_plot->setAxisScale(QwtPlot::xBottom,_histogram_weekly_time->minXValue(), _histogram_weekly_time->maxXValue()+1);
-
+		
 		// Update x-axis style	
 		_plot->setAxisLabelRotation(QwtPlot::xBottom, -90.0);
 		_plot->setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
-		_plot->setAxisMaxMajor(QwtPlot::xBottom,_histogram_weekly_time->dataSize()+2);	
-		_plot->setAxisMaxMinor(QwtPlot::xBottom,0);
+		_plot->setAxisMaxMajor(QwtPlot::xBottom,_hist_weekly_time->numElements()+2);	
+		_plot->setAxisMaxMinor(QwtPlot::xBottom,2);
 
 		if (_time_cb->isChecked())
-			_histogram_weekly_time->show();
+			_hist_weekly_time->show();
 		else
-			_histogram_weekly_time->hide();
+			_hist_weekly_time->hide();
 			
 		if (_dist_cb->isChecked())
-			_histogram_weekly_dist->show();
+			_hist_weekly_dist->show();
 		else
-			_histogram_weekly_dist->hide();
+			_hist_weekly_dist->hide();
 
-		_histogram_monthly_time->hide();
-		_histogram_monthly_dist->hide();
-		_histogram_yearly_time->hide();
-		_histogram_yearly_dist->hide();
+		_hist_monthly_time->hide();
+		_hist_monthly_dist->hide();
+		_hist_yearly_time->hide();
+		_hist_yearly_dist->hide();
+
+		_hist_weekly_dist->scalePlotAxis();
+		_hist_weekly_time->scalePlotAxis();
 		break;
 	case 1: // monthly
-		_hist_monthly_dist->setData(_dist_bar_heights);
 
 		_plot->setAxisScaleDraw(QwtPlot::xBottom, new DateScaleDraw(tr("months")));
-		//_plot->setAxisScale(QwtPlot::xBottom,_histogram_monthly_time->minXValue(), _histogram_monthly_time->maxXValue()+1);
-
+		
 		// Update x-axis style	
 		_plot->setAxisLabelRotation(QwtPlot::xBottom, -90.0);
 		_plot->setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
-		_plot->setAxisMaxMajor(QwtPlot::xBottom,_histogram_monthly_time->dataSize()+2);	
-		_plot->setAxisMaxMinor(QwtPlot::xBottom,0);
+		_plot->setAxisMaxMajor(QwtPlot::xBottom,_hist_monthly_time->numElements()+2);	
+		_plot->setAxisMaxMinor(QwtPlot::xBottom,2);
 
-		_histogram_weekly_time->hide();
-		_histogram_weekly_dist->hide();
+		_hist_weekly_time->hide();
+		_hist_weekly_dist->hide();
 		if (_time_cb->isChecked())
-			_histogram_monthly_time->show();
+			_hist_monthly_time->show();
 		else
-			_histogram_monthly_time->hide();
+			_hist_monthly_time->hide();
 
 		if (_dist_cb->isChecked())
-			//_histogram_monthly_dist->show();
 			_hist_monthly_dist->show();
 		else
-			//_histogram_monthly_dist->hide();
 			_hist_monthly_dist->hide();
 
-		_histogram_yearly_time->hide();
-		_histogram_yearly_dist->hide();
+		_hist_yearly_time->hide();
+		_hist_yearly_dist->hide();
 		
-		//std::cout << _histogram_monthly_time->minXValue() << std::endl;
-		//std::cout << _histogram_monthly_time->maxXValue()+1  << std::endl;
-		
+		_hist_monthly_dist->scalePlotAxis();
+		_hist_monthly_time->scalePlotAxis();
 		break;
 
 	case 2: // yearly
 		_plot->setAxisScaleDraw(QwtPlot::xBottom, new DateScaleDraw(tr("years")));
-		_plot->setAxisScale(QwtPlot::xBottom,_histogram_yearly_time->minXValue(), _histogram_yearly_time->maxXValue()+1);
 		
 		// Update x-axis style	
 		_plot->setAxisLabelRotation(QwtPlot::xBottom, -90.0);
 		_plot->setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
-		_plot->setAxisMaxMajor(QwtPlot::xBottom,_histogram_yearly_time->dataSize()+2);	
-		_plot->setAxisMaxMinor(QwtPlot::xBottom,0);
+		_plot->setAxisMaxMajor(QwtPlot::xBottom,_hist_yearly_time->numElements()+2);	
+		_plot->setAxisMaxMinor(QwtPlot::xBottom,2);
 
-		_histogram_weekly_time->hide();
-		_histogram_weekly_dist->hide();
-		_histogram_monthly_time->hide();
-		_histogram_monthly_dist->hide();
+		_hist_weekly_time->hide();
+		_hist_weekly_dist->hide();
+		_hist_monthly_time->hide();
+		_hist_monthly_dist->hide();
 		if (_time_cb->isChecked())
-			_histogram_yearly_time->show();
+			_hist_yearly_time->show();
 		else
-			_histogram_yearly_time->hide();
+			_hist_yearly_time->hide();
 
 		if (_dist_cb->isChecked())
-			_histogram_yearly_dist->show();
+			_hist_yearly_dist->show();
 		else
-			_histogram_yearly_dist->hide();
+			_hist_yearly_dist->hide();
 
+		_hist_yearly_dist->scalePlotAxis();
+		_hist_yearly_time->scalePlotAxis();
 		break;
 	}
 

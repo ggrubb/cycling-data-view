@@ -27,18 +27,12 @@ private:
 
 	User* _user;
 
-	QwtPlotCurve* _histogram_yearly_time;
-	QwtPlotCurve* _histogram_yearly_dist;
-	QwtPlotCurve* _histogram_monthly_time;
-	QwtPlotCurve* _histogram_monthly_dist;
-	QwtPlotCurve* _histogram_weekly_time;
-	QwtPlotCurve* _histogram_weekly_dist;
-
+	BarChartItem* _hist_yearly_time;
+	BarChartItem* _hist_yearly_dist;
+	BarChartItem* _hist_weekly_time;
+	BarChartItem* _hist_weekly_dist;
 	BarChartItem* _hist_monthly_dist;
 	BarChartItem* _hist_monthly_time;
-
-	QList< QPair<int, QString> > _dist_bar_heights;
-	QList< QPair<int, QString> > _time_bar_heights;
 
 	QwtPlot* _plot;
 
