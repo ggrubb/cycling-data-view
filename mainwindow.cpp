@@ -34,7 +34,7 @@
 
 #define COMPANY_NAME "RideViewer"
 #define APP_NAME "RiderViewer"
-#define VERSION_INFO "Version 1.1 (Dec 2011)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
+#define VERSION_INFO "Version 1.2 (March 2012)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
 #define GARMIN_LOG_DIRECTORY "/garmin/activities/"
 
@@ -217,8 +217,8 @@ void MainWindow::setLap(int lap_index)
 	 
 	QFont about_font;
 	about_font.setFamily("Arial");
-	about_font.setPixelSize(10);
-	about_font.setBold(true);
+	about_font.setPixelSize(12);
+	about_font.setBold(false);
 	 
 	about->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::SplashScreen);
 	about->setFont(about_font);
@@ -266,7 +266,7 @@ void MainWindow::retrieveLogs()
 			retrieve_progress.setMinimumDuration(0); //msec
 			retrieve_progress.setWindowTitle("RideViewer");
 
-			for (unsigned int j=0; j < garmin_filenames.size(); ++j)
+			for (int j=0; j < garmin_filenames.size(); ++j)
 			{
 				if (!user_filenames.contains(garmin_filenames.at(j))) // copy the log if it doesn't exist in user directory
 				{
@@ -296,7 +296,7 @@ void MainWindow::mapCollage()
 {
 	if (_current_user)
 	{
-		QMessageBox::information(this, tr("RideCollage"), tr("Warning! This can be slow, please be patient. Click OK to continue."));
+		QMessageBox::information(this, tr("RideCollage"), tr("Warning! This can be slow, please be patient. You can abort at anytime to see partial results. Click OK to continue."));
 
 		LogDirectorySummary log_summary(_current_user->logDirectory());
 		log_summary.readFromFile();
