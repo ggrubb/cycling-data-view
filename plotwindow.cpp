@@ -4,6 +4,7 @@
 #include "googlemapwindow.h"
 #include "datastatisticswindow.h"
 #include "dataprocessing.h"
+#include "hrzoneitem.h"
 #include "qwtcustomplotpicker.h"
 #include "qwtcustomplotzoomer.h"
 
@@ -234,40 +235,23 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	// Create the plot
 	_plot = new QwtPlot();
 
-	// Create vertial and horizonal markers (laps and HR zones)
-	QColor hr_zone_colours[5] = {Qt::green, Qt::yellow, Qt::magenta, Qt::red, Qt::darkRed};
+	// Create HR zone markers
+	const QColor hr_zone_colours[5] = {Qt::green, Qt::yellow, Qt::magenta, Qt::red, Qt::darkRed};
 	_hr_zone_markers.resize(5);
 	for (unsigned int i=0; i < _hr_zone_markers.size(); ++i)
 	{
-		QwtPlotMarker* marker = new QwtPlotMarker;
+		_hr_zone_markers[i] = new HRZoneItem;
 
-		QwtSymbol* rect = new QwtSymbol(QwtSymbol::Rect);
-		rect->setSize(200,10);
+		_hr_zone_markers[i]->attach(_plot);
+		_hr_zone_markers[i]->hide();
 		
 		// Set the fill colour
 		QColor c(hr_zone_colours[i]);
-		c.setAlpha(20);
-		rect->setColor(c);
-
-		// Set the border to be invisible
-		c.setAlpha(0);
-		QPen p(c);
-		rect->setPen(p);
-		marker->setSymbol(rect);
-
-		//marker->setLineStyle(QwtPlotMarker::HLine);
-		marker->setLinePen(QPen(Qt::DotLine));
-		marker->attach(_plot);
-		marker->hide();
-		QwtText text("HR Zone" + QString::number(i+1));
-		QFont font;
-		font.setPointSize(7);
-		text.setFont(font);
-		text.setColor(QColor(100,100,100));
-		marker->setLabel(text);
-		marker->setLabelAlignment(Qt::AlignLeft | Qt::AlignTop);
-		_hr_zone_markers[i] = marker;
+		c.setAlpha(40);
+		_hr_zone_markers[i]->setColour(c);
 	}
+
+	// Create lap markers
 	_lap_markers.resize(0);
 	
 	// Connect this window to the google map
@@ -341,8 +325,8 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	_curve_alt->setBaseline(-300.0); // ensure display is correct even when -ve altitude
 
 	_curve_alt->attach(_plot);
-	_curve_speed->attach(_plot);
 	_curve_cadence->attach(_plot);
+	_curve_speed->attach(_plot);
 	_curve_hr->attach(_plot);
 	_curve_power->attach(_plot);
 	_curve_temp->attach(_plot);
@@ -516,6 +500,10 @@ void PlotWindow::displayRide(DataLog* data_log, User* user)
 			_laps_cb->setChecked(false);
 		}
 
+		// Draw HR zones
+		if (_hr_zones_cb->isChecked())
+			drawHRZoneMarkers();
+
 		// Decide which graphs to display based on data content
 		_hr_cb->setChecked(_data_log->heartRateValid());
 		_speed_cb->setChecked(_data_log->speedValid());
@@ -622,51 +610,27 @@ void PlotWindow::drawHRZoneMarkers()
 	int width;
 	if (_x_axis_measurement->currentIndex() == 0) // time
 		width = _data_log->totalTime();
-	else
+	else // dist
 		width = _data_log->totalDist();
 
-	int height = _user->zone2() - _user->zone1();
-	int top_y = _user->zone1() + height/2;
-	_hr_zone_markers[0]->setYValue(top_y);
-	QwtSymbol* symbol = const_cast<QwtSymbol*>(_hr_zone_markers[0]->symbol());
-	symbol->setSize(width, height);
-	_hr_zone_markers[0]->setSymbol(symbol);
+	_hr_zone_markers[0]->setWidth(width);
+	_hr_zone_markers[0]->setMinMax(std::make_pair<int, int>(_user->zone1(), _user->zone2()));
 
-	//QMessageBox::information(this, tr("Height"), QString::number(_plot->invTransform(QwtPlot::yLeft,10)));
-	//QMessageBox::information(this, tr("Top"), QString::number(_plot->invTransform(QwtPlot::yLeft,10) - _plot->invTransform(QwtPlot::yLeft,0)));
-	
-	height = _user->zone3() - _user->zone2();
-	top_y = _user->zone2() + height/2;
-	_hr_zone_markers[1]->setYValue(top_y);
-	symbol = const_cast<QwtSymbol*>(_hr_zone_markers[1]->symbol());
-	symbol->setSize(width, height);
-	_hr_zone_markers[1]->setSymbol(symbol);
-	
-	height = _user->zone4() - _user->zone3();
-	top_y = _user->zone3() + height/2;
-	_hr_zone_markers[2]->setYValue(top_y);
-	symbol = const_cast<QwtSymbol*>(_hr_zone_markers[2]->symbol());
-	symbol->setSize(width, height);
-	_hr_zone_markers[2]->setSymbol(symbol);
+	_hr_zone_markers[1]->setWidth(width);
+	_hr_zone_markers[1]->setMinMax(std::make_pair<int, int>(_user->zone2(), _user->zone3()));
 
-	height = _user->zone5() - _user->zone4();
-	top_y = _user->zone4() + height/2;
-	_hr_zone_markers[3]->setYValue(top_y);
-	symbol = const_cast<QwtSymbol*>(_hr_zone_markers[3]->symbol());
-	symbol->setSize(width, height);
-	_hr_zone_markers[3]->setSymbol(symbol);
+	_hr_zone_markers[2]->setWidth(width);
+	_hr_zone_markers[2]->setMinMax(std::make_pair<int, int>(_user->zone3(), _user->zone4()));
 
-	height = 270 - _user->zone5();
-	top_y = _user->zone5() + height/2;
-	_hr_zone_markers[4]->setYValue(top_y);
-	symbol = const_cast<QwtSymbol*>(_hr_zone_markers[4]->symbol());
-	symbol->setSize(width, height);
-	_hr_zone_markers[4]->setSymbol(symbol);
+	_hr_zone_markers[3]->setWidth(width);
+	_hr_zone_markers[3]->setMinMax(std::make_pair<int, int>(_user->zone4(), _user->zone5()));
+
+	_hr_zone_markers[4]->setWidth(width);
+	_hr_zone_markers[4]->setMinMax(std::make_pair<int, int>(_user->zone5(), 300));
+
 
 	for (unsigned int i=0; i < _hr_zone_markers.size(); ++i)
 		_hr_zone_markers[i]->show();
-
-	//_hr_zone_markers[0]->show();
 }
 
 /******************************************************/

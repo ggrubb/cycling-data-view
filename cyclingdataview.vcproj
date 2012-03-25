@@ -240,7 +240,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Layer 2 - Windows"
+			Name="Layer 2 - GUI"
 			>
 			<File
 				RelativePath=".\aboutwindow.cpp"
@@ -341,6 +341,14 @@
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\hrzoneitem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\hrzoneitem.h"
+				>
 			</File>
 			<File
 				RelativePath=".\mainwindow.cpp"

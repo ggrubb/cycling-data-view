@@ -10,6 +10,7 @@ class DataLog;
 class User;
 class GoogleMapWindow;
 class DataStatisticsWindow;
+class HRZoneItem;
 class QwtPlotPicker;
 class QwtCustomPlotZoomer;
 class QwtCustomPlotPicker;
@@ -81,7 +82,7 @@ class PlotWindow : public QWidget
 	QwtPlotCurve* _curve_temp;
 
 	std::vector<QwtPlotMarker* > _lap_markers;
-	std::vector<QwtPlotMarker* > _hr_zone_markers;
+	std::vector<HRZoneItem* > _hr_zone_markers;
 	
 	QComboBox* _x_axis_measurement;
 	QCheckBox* _hr_cb;
