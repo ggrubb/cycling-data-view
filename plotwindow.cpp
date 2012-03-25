@@ -16,6 +16,7 @@
 #include <qwt_scale_engine.h>
 #include <qwt_text.h>
 #include <qwt_plot_marker.h>
+#include <qwt_symbol.h>
 
 #include <QComboBox.h>
 #include <QBoxLayout.h>
@@ -23,6 +24,7 @@
 #include <QLabel.h>
 #include <QComboBox.h>
 #include <QSlider.h>
+#include <QMessageBox.h>
 
 #include <cassert>
 #include <iostream>
@@ -158,12 +160,12 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 		int idx;
 		if (_x_axis_units == TimeAxis)
 		{
-			painter->drawText(QPoint(pt1.x()+5, 10), "time: " + DataProcessing::minsFromSecs(x_val));
+			painter->drawText(QPoint(pt1.x()-65, 10), "time: " + DataProcessing::minsFromSecs(x_val));
 			idx = _data_log->indexFromTime(x_val);
 		}
 		else if (_x_axis_units == DistAxis)
 		{
-			painter->drawText(QPoint(pt1.x()+5, 10), "dist: " + DataProcessing::kmFromMeters(x_val,2));
+			painter->drawText(QPoint(pt1.x()-60, 10), "dist: " + DataProcessing::kmFromMeters(x_val,2));
 			idx = _data_log->indexFromDist(x_val);
 		}
 		
@@ -233,11 +235,27 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	_plot = new QwtPlot();
 
 	// Create vertial and horizonal markers (laps and HR zones)
+	QColor hr_zone_colours[5] = {Qt::green, Qt::yellow, Qt::magenta, Qt::red, Qt::darkRed};
 	_hr_zone_markers.resize(5);
 	for (unsigned int i=0; i < _hr_zone_markers.size(); ++i)
 	{
 		QwtPlotMarker* marker = new QwtPlotMarker;
-		marker->setLineStyle(QwtPlotMarker::HLine);
+
+		QwtSymbol* rect = new QwtSymbol(QwtSymbol::Rect);
+		rect->setSize(200,10);
+		
+		// Set the fill colour
+		QColor c(hr_zone_colours[i]);
+		c.setAlpha(20);
+		rect->setColor(c);
+
+		// Set the border to be invisible
+		c.setAlpha(0);
+		QPen p(c);
+		rect->setPen(p);
+		marker->setSymbol(rect);
+
+		//marker->setLineStyle(QwtPlotMarker::HLine);
 		marker->setLinePen(QPen(Qt::DotLine));
 		marker->attach(_plot);
 		marker->hide();
@@ -601,14 +619,54 @@ void PlotWindow::drawHRZoneMarkers()
 {
 	assert(_user);
 	
-	_hr_zone_markers[0]->setYValue(_user->zone1());
-	_hr_zone_markers[1]->setYValue(_user->zone2());
-	_hr_zone_markers[2]->setYValue(_user->zone3());
-	_hr_zone_markers[3]->setYValue(_user->zone4());
-	_hr_zone_markers[4]->setYValue(_user->zone5());
+	int width;
+	if (_x_axis_measurement->currentIndex() == 0) // time
+		width = _data_log->totalTime();
+	else
+		width = _data_log->totalDist();
+
+	int height = _user->zone2() - _user->zone1();
+	int top_y = _user->zone1() + height/2;
+	_hr_zone_markers[0]->setYValue(top_y);
+	QwtSymbol* symbol = const_cast<QwtSymbol*>(_hr_zone_markers[0]->symbol());
+	symbol->setSize(width, height);
+	_hr_zone_markers[0]->setSymbol(symbol);
+
+	//QMessageBox::information(this, tr("Height"), QString::number(_plot->invTransform(QwtPlot::yLeft,10)));
+	//QMessageBox::information(this, tr("Top"), QString::number(_plot->invTransform(QwtPlot::yLeft,10) - _plot->invTransform(QwtPlot::yLeft,0)));
+	
+	height = _user->zone3() - _user->zone2();
+	top_y = _user->zone2() + height/2;
+	_hr_zone_markers[1]->setYValue(top_y);
+	symbol = const_cast<QwtSymbol*>(_hr_zone_markers[1]->symbol());
+	symbol->setSize(width, height);
+	_hr_zone_markers[1]->setSymbol(symbol);
+	
+	height = _user->zone4() - _user->zone3();
+	top_y = _user->zone3() + height/2;
+	_hr_zone_markers[2]->setYValue(top_y);
+	symbol = const_cast<QwtSymbol*>(_hr_zone_markers[2]->symbol());
+	symbol->setSize(width, height);
+	_hr_zone_markers[2]->setSymbol(symbol);
+
+	height = _user->zone5() - _user->zone4();
+	top_y = _user->zone4() + height/2;
+	_hr_zone_markers[3]->setYValue(top_y);
+	symbol = const_cast<QwtSymbol*>(_hr_zone_markers[3]->symbol());
+	symbol->setSize(width, height);
+	_hr_zone_markers[3]->setSymbol(symbol);
+
+	height = 270 - _user->zone5();
+	top_y = _user->zone5() + height/2;
+	_hr_zone_markers[4]->setYValue(top_y);
+	symbol = const_cast<QwtSymbol*>(_hr_zone_markers[4]->symbol());
+	symbol->setSize(width, height);
+	_hr_zone_markers[4]->setSymbol(symbol);
 
 	for (unsigned int i=0; i < _hr_zone_markers.size(); ++i)
 		_hr_zone_markers[i]->show();
+
+	//_hr_zone_markers[0]->show();
 }
 
 /******************************************************/
