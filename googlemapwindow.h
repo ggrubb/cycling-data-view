@@ -61,8 +61,14 @@ private slots:
 	// Create sting decription of lat/long between first and last iterators
 	std::string defineCoords(int idx_start, int idx_end);
 
+	// Create sting decription of lat/long for first and last iterators (ie 2 coords only)
+	std::string defineStartEndCoords(int idx_start, int idx_end);
+
 	// Draw the path between the start and end time on the map. Bool param to define whether to zoom the map
 	void setSelection(int idx_start, int idx_end, bool zoom_map);
+	
+	// Draw the markers at the start and end of path
+	void setStartEndMarkers(int idx_start, int idx_end);
 
 	// The window to display google maps
 	QWebView *_view;

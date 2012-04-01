@@ -199,6 +199,17 @@ void GoogleMapWindow::setSelection(int idx_start, int idx_end, bool zoom_map)
 }
 
 /******************************************************/
+void GoogleMapWindow::setStartEndMarkers(int idx_start, int idx_end)
+{
+	ostringstream stream;
+	stream << "var coords = [" << endl
+		<< defineStartEndCoords(idx_start, idx_end) << endl // create a path from GPS coords
+		<< "];" << endl;
+	stream << "setSelectionStartEnd(coords);";
+	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
+}
+
+/******************************************************/
 void GoogleMapWindow::beginSelection(int idx_begin)
 {
 	_selection_begin_idx = idx_begin;
@@ -210,11 +221,11 @@ void GoogleMapWindow::endSelection(int idx_end)
 	_selection_end_idx = idx_end;
 	if (_selection_end_idx > _selection_begin_idx)
 	{
-		setSelection(_selection_begin_idx,_selection_end_idx, false);
+		setStartEndMarkers(_selection_begin_idx,_selection_end_idx);
 	}
 	else
 	{
-		setSelection(_selection_end_idx,_selection_begin_idx, false);
+		setStartEndMarkers(_selection_end_idx,_selection_begin_idx);
 	}
 }
 
@@ -224,6 +235,7 @@ void GoogleMapWindow::zoomSelection(int idx_start, int idx_end)
 	_selection_begin_idx = idx_start;
 	_selection_end_idx = idx_end;
 	setSelection(_selection_begin_idx,_selection_end_idx, true);
+	setStartEndMarkers(_selection_begin_idx,_selection_end_idx);
 }
 
 /******************************************************/
@@ -368,6 +380,19 @@ std::string GoogleMapWindow::defineCoords(int idx_start, int idx_end)
 }
 
 /******************************************************/
+std::string GoogleMapWindow::defineStartEndCoords(int idx_start, int idx_end)
+{
+	ostringstream stream;
+	stream.precision(6); // set precision so we plot lat/long correctly
+	stream.setf(ios::fixed,ios::floatfield);
+
+	stream << "new google.maps.LatLng(" << _data_log->ltd(idx_start) << "," << _data_log->lgd(idx_start) << ")," << endl;
+	stream << "new google.maps.LatLng(" << _data_log->ltd(idx_end-1) << "," << _data_log->lgd(idx_end-1) << ")," << endl;
+
+	return stream.str();
+}
+
+/******************************************************/
 void GoogleMapWindow::createPage(std::ostringstream& page)
 {
 	ostringstream oss;
@@ -471,7 +496,7 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 		<< "marker.setMap(map);" << endl
 		<< "}" << endl
 
-		// Function setSelectionPath
+		// Function setSelectionPath (highlight the selected path on the map)
 		<< "function setSelectionPath(coords, zoom_map) { " << endl
 		<< "selected_path.setPath(coords);" << endl
 		<< "selected_path.setMap(map);" << endl
@@ -482,6 +507,10 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 		<< "}" << endl
 		<< "map.fitBounds(path_bounds);" << endl
 		<< "}" << endl
+		<< "}" << endl
+
+		// Function to setSelectionStartEnd (place start and end markers)
+		<< "function setSelectionStartEnd(coords) { " << endl
 		<< "start_marker.setPosition(coords[0]);" << endl
 		<< "finish_marker.setPosition(coords[coords.length-1]);" << endl
 		<< "}" << endl
