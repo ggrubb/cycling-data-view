@@ -35,6 +35,7 @@
 	void mapCollage();
     void about();
     void help();
+	void goToProjectPage();
 	void setUser(User* user);
 	void setRide(DataLog* data_log);
 	void setLap(int lap_index);
@@ -53,6 +54,7 @@
     QAction* _exit_act;
     QAction* _about_act;
 	QAction* _goto_help_act;
+	QAction* _goto_project_page_act;
 
     QMenu* _file_menu;
     QMenu* _view_menu;

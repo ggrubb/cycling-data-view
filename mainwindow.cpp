@@ -31,6 +31,8 @@
 #include <QInputDialog.h>
 #include <QSettings.h>
 #include <QProgressDialog.h>
+#include <QDesktopServices.h>
+#include <QUrl.h>
 
 #define COMPANY_NAME "RideViewer"
 #define APP_NAME "RiderViewer"
@@ -229,10 +231,17 @@ void MainWindow::setLap(int lap_index)
  /******************************************************/
  void MainWindow::help()
  {
-	// Launch help in web browser
+	// Launch help in Qt web browser
 	QWebView *help_view = new QWebView();
     help_view->load(QUrl("http://code.google.com/p/cycling-data-view/wiki/Help"));
     help_view->show();
+ }
+
+ /******************************************************/
+ void MainWindow::goToProjectPage()
+ {
+	// Launch project page in default web browser
+	QDesktopServices::openUrl(QUrl("http://code.google.com/p/cycling-data-view/"));
  }
 
 /******************************************************/
@@ -325,7 +334,7 @@ void MainWindow::createActions()
 	_edit_act->setEnabled(false);
 	connect(_edit_act, SIGNAL(triggered()), this, SLOT(editUser()));
 
-	_retrieve_logs_act = new QAction(tr("Retreive Logs From Device"), this);
+	_retrieve_logs_act = new QAction(tr("Retreive Logs From Garmin Edge"), this);
 	_retrieve_logs_act->setEnabled(false);
 	connect(_retrieve_logs_act, SIGNAL(triggered()), this, SLOT(retrieveLogs()));
 
@@ -345,6 +354,9 @@ void MainWindow::createActions()
 
 	_goto_help_act = new QAction(tr("Manual"), this);
 	connect(_goto_help_act, SIGNAL(triggered()), this, SLOT(help()));
+
+	_goto_project_page_act = new QAction(tr("Go to Project Page..."), this);
+	connect(_goto_project_page_act, SIGNAL(triggered()), this, SLOT(goToProjectPage()));
 }
 
 /******************************************************/
@@ -366,6 +378,7 @@ void MainWindow::createMenus()
 	_help_menu = new QMenu(tr("&Help"), this);
 	_help_menu->addAction(_about_act);
 	_help_menu->addAction(_goto_help_act);
+	_help_menu->addAction(_goto_project_page_act);
 
 	menuBar()->addMenu(_file_menu);
 	menuBar()->addMenu(_view_menu);
