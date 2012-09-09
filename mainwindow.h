@@ -14,6 +14,7 @@
  class RideSelectionWindow;
  class User;
  class TotalsWindow;
+ class RideIntervalFinderWindow;
 
  class MainWindow : public QMainWindow
  {
@@ -75,6 +76,7 @@
 	RideSelectionWindow* _ride_selector;
 	TotalsWindow* _totals_window;
 	GoogleMapCollageWindow* _ride_collage;
+	RideIntervalFinderWindow* _rider_interval_finder;
 
 	User* _current_user;
  };

@@ -467,6 +467,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\rideintervalfinderwindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\rideintervalfinderwindow.h"
+				>
+			</File>
+			<File
 				RelativePath=".\rideselectionwindow.cpp"
 				>
 			</File>

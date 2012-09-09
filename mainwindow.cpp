@@ -10,6 +10,7 @@
 #include "specifyuserwindow.h"
 #include "logdirectorysummary.h"
 #include "totalswindow.h"
+#include "rideintervalfinderwindow.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -326,6 +327,11 @@ void MainWindow::mapCollage()
 /******************************************************/
 void MainWindow::rideIntervalFinder()
 {
+	if (_current_user)
+	{
+		_rider_interval_finder = new RideIntervalFinderWindow(_current_user);
+		_rider_interval_finder->show();
+	}
 }
 
 /******************************************************/
