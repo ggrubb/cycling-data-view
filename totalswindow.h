@@ -10,6 +10,7 @@ class QwtPlot;
 class QCheckBox;
 class QComboBox;
 class BarChartItem;
+class DateSelectorWidget;
 
 class TotalsWindow : public QWidget
 {
@@ -20,6 +21,7 @@ public:
 
 private slots:
 	void updatePlot();
+	void recomputePlotData();
 
 private:
 	void computeHistogramData();
@@ -46,6 +48,8 @@ private:
 	QCheckBox* _dist_cb;
 	QCheckBox* _time_cb;
 	QComboBox* _time_group_selector;
+
+	DateSelectorWidget* _date_selector_widget;
 };
  
 #endif // TOTALSWINDOW_H

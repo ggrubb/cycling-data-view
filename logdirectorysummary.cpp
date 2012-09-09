@@ -156,7 +156,7 @@ void LogDirectorySummary::writeToFile() const
 /******************************************************/
 void LogDirectorySummary::addLogsToSummary(const std::vector<DataLog*> data_logs)
 {
-	for (int lg = 0; lg < data_logs.size(); ++lg)
+	for (unsigned int lg = 0; lg < data_logs.size(); ++lg)
 	{
 		LogSummary log_summary;
 		log_summary._filename = data_logs[lg]->filename();
@@ -173,4 +173,45 @@ void LogDirectorySummary::addLogsToSummary(const std::vector<DataLog*> data_logs
 		}
 		addLog(log_summary);
 	}
+}
+
+/******************************************************/
+LogSummary LogDirectorySummary::firstLog() const
+{
+	QDate min_date(2100, 1, 1); // arbitrarily chosen later date after now
+	int min_index = 0;
+
+	for (int i=0; i < numLogs(); ++i)
+	{
+		QString tmp = log(i)._date.split(' ')[0]; // split at the ' ' to get date only (no time)
+		QDate date = QDate::fromString(tmp,Qt::ISODate);
+
+		if (date < min_date)
+		{
+			min_date = date;
+			min_index = i;
+		}
+	}
+
+	return log(min_index);
+}
+
+/******************************************************/
+LogSummary LogDirectorySummary::lastLog() const
+{
+	QDate max_date(1970, 1, 1); // arbitrarily chosen ealier date before now
+	int max_index = 0;
+
+	for (int i=0; i < numLogs(); ++i)
+	{
+		QDate date = log(i).date();
+
+		if (date > max_date)
+		{
+			max_date = date;
+			max_index = i;
+		}
+	}
+
+	return log(max_index);
 }

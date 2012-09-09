@@ -2,6 +2,9 @@
 #define LOGDIRECTORYSUMMARY_H
 
 #include <QString.h>
+#include <QDateTime.h>
+#include <QStringList.h>
+
 #include <vector>
 
 class DataLog;
@@ -21,6 +24,12 @@ struct LogSummary
 	double _time;
 	double _dist;
 	std::vector<LapSummary> _laps;
+
+	QDate date() const
+	{
+		QString tmp = _date.split(' ')[0]; // split at the ' ' to get date only (no time)
+		return QDate::fromString(tmp,Qt::ISODate);
+	};
 };
 
 /**********************************/
@@ -38,6 +47,9 @@ class LogDirectorySummary
 	void readFromFile();
 	void writeToFile() const;
 	void addLogsToSummary(const std::vector<DataLog*> data_logs);
+
+	LogSummary firstLog() const; // chronologically first log
+	LogSummary lastLog() const; // chronologically last log
  private:
 
 	QString _log_directory;

@@ -2,6 +2,7 @@
 #include "user.h"
 #include "logdirectorysummary.h"
 #include "barchartitem.h"
+#include "dateselectorwidget.h"
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -133,16 +134,25 @@ QWidget()
 	plt.setColor(QPalette::WindowText, DIST_COLOUR);
 	_dist_cb->setPalette(plt);
 
+	LogDirectorySummary log_dir_summary(_user->logDirectory());
+	log_dir_summary.readFromFile();
+	_date_selector_widget = new DateSelectorWidget(log_dir_summary.firstLog().date(),log_dir_summary.lastLog().date());
+
 	connect(_dist_cb, SIGNAL(stateChanged(int)),this,SLOT(updatePlot()));
 	connect(_time_cb, SIGNAL(stateChanged(int)),this,SLOT(updatePlot()));
 	connect(_time_group_selector, SIGNAL(currentIndexChanged(int)),this,SLOT(updatePlot()));
+	connect(_date_selector_widget, SIGNAL(datesChanged()),this,SLOT(recomputePlotData()));
 
 	// Layout the GUI
+	QWidget* metric_ckboxs = new QWidget;
+	QVBoxLayout* vlayout = new QVBoxLayout(metric_ckboxs);
+	vlayout->addWidget(_dist_cb);
+	vlayout->addWidget(_time_cb);
+
 	QWidget* controls = new QWidget;
 	QHBoxLayout* hlayout = new QHBoxLayout(controls);
-	hlayout->addSpacing(200);
-	hlayout->addWidget(_dist_cb);
-	hlayout->addWidget(_time_cb);
+	hlayout->addWidget(_date_selector_widget);
+	hlayout->addWidget(metric_ckboxs);
 	hlayout->addWidget(_time_group_selector);
 
 	QVBoxLayout* layout = new QVBoxLayout();
@@ -150,18 +160,31 @@ QWidget()
 	layout->addWidget(controls);
 	setLayout(layout);
 
-	resize(800,350);
+	resize(800,400);
 	show();
 
-	computeHistogramData();
-	computeCurves();
-	updatePlot();
+	recomputePlotData();
 }
  
 /******************************************************/
 TotalsWindow::~TotalsWindow()
 {
 
+}
+
+/******************************************************/
+void TotalsWindow::recomputePlotData()
+{
+	_yearly_time.clear();
+	_yearly_dist.clear();
+	_monthly_time.clear();
+	_monthly_dist.clear();
+	_weekly_time.clear();
+	_weekly_dist.clear();
+
+	computeHistogramData();
+	computeCurves();
+	updatePlot();
 }
 
 /******************************************************/
@@ -173,52 +196,55 @@ void TotalsWindow::computeHistogramData()
 
 	for (int i=0; i < log_dir_summary.numLogs(); ++i)
 	{
-		QString tmp = log_dir_summary.log(i)._date.split(' ')[0]; // split at the ' ' to get date only (no time)
-		QDate date = QDate::fromString(tmp,Qt::ISODate);
+		QDate date = log_dir_summary.log(i).date();
 
-		QMap<int, double>::iterator yearly_time_it = _yearly_time.find(date.year());
-		QMap<int, double>::iterator yearly_dist_it = _yearly_dist.find(date.year());
-		QMap<std::pair<int,int>, double>::iterator monthly_time_it = _monthly_time.find(std::make_pair(date.year(), date.month()));
-		QMap<std::pair<int,int>, double>::iterator monthly_dist_it = _monthly_dist.find(std::make_pair(date.year(), date.month()));
-		QMap<std::pair<int,int>, double>::iterator weekly_time_it = _weekly_time.find(std::make_pair(date.year(), date.weekNumber()));
-		QMap<std::pair<int,int>, double>::iterator weekly_dist_it = _weekly_dist.find(std::make_pair(date.year(), date.weekNumber()));
+		// Check that the date is within the user selected range
+		if (date >= _date_selector_widget->minDate() && date <= _date_selector_widget->maxDate())
+		{
+			QMap<int, double>::iterator yearly_time_it = _yearly_time.find(date.year());
+			QMap<int, double>::iterator yearly_dist_it = _yearly_dist.find(date.year());
+			QMap<std::pair<int,int>, double>::iterator monthly_time_it = _monthly_time.find(std::make_pair(date.year(), date.month()));
+			QMap<std::pair<int,int>, double>::iterator monthly_dist_it = _monthly_dist.find(std::make_pair(date.year(), date.month()));
+			QMap<std::pair<int,int>, double>::iterator weekly_time_it = _weekly_time.find(std::make_pair(date.year(), date.weekNumber()));
+			QMap<std::pair<int,int>, double>::iterator weekly_dist_it = _weekly_dist.find(std::make_pair(date.year(), date.weekNumber()));
 
-		// Increment the yearly totals
-		if (yearly_time_it != _yearly_time.end())
-		{
-			yearly_time_it.value() += log_dir_summary.log(i)._time/3600.0; //hours
-			yearly_dist_it.value() += log_dir_summary.log(i)._dist/1000.0; //kms
-		}
-		else
-		{
-			_yearly_time.insert(date.year(), log_dir_summary.log(i)._time/3600.0);
-			_yearly_dist.insert(date.year(), log_dir_summary.log(i)._dist/1000.0);
-		}
+			// Increment the yearly totals
+			if (yearly_time_it != _yearly_time.end())
+			{
+				yearly_time_it.value() += log_dir_summary.log(i)._time/3600.0; //hours
+				yearly_dist_it.value() += log_dir_summary.log(i)._dist/1000.0; //kms
+			}
+			else
+			{
+				_yearly_time.insert(date.year(), log_dir_summary.log(i)._time/3600.0);
+				_yearly_dist.insert(date.year(), log_dir_summary.log(i)._dist/1000.0);
+			}
 
-		// Increment the monthly totals
-		if (monthly_time_it != _monthly_time.end())
-		{
-			monthly_time_it.value() += log_dir_summary.log(i)._time/3600.0; //hours
-			monthly_dist_it.value() += log_dir_summary.log(i)._dist/1000.0; //kms
-		}
-		else
-		{
-			_monthly_time.insert(std::make_pair(date.year(), date.month()), log_dir_summary.log(i)._time/3600.0);
-			_monthly_dist.insert(std::make_pair(date.year(), date.month()), log_dir_summary.log(i)._dist/1000.0);
-		}
+			// Increment the monthly totals
+			if (monthly_time_it != _monthly_time.end())
+			{
+				monthly_time_it.value() += log_dir_summary.log(i)._time/3600.0; //hours
+				monthly_dist_it.value() += log_dir_summary.log(i)._dist/1000.0; //kms
+			}
+			else
+			{
+				_monthly_time.insert(std::make_pair(date.year(), date.month()), log_dir_summary.log(i)._time/3600.0);
+				_monthly_dist.insert(std::make_pair(date.year(), date.month()), log_dir_summary.log(i)._dist/1000.0);
+			}
 
-		// Increment the weekly totals
-		if (weekly_time_it != _weekly_time.end())
-		{
-			weekly_time_it.value() += log_dir_summary.log(i)._time/3600.0; //hours
-			weekly_dist_it.value() += log_dir_summary.log(i)._dist/1000.0; //kms
-		}
-		else
-		{
-			_weekly_time.insert(std::make_pair(date.year(), date.weekNumber()), log_dir_summary.log(i)._time/3600.0);
-			_weekly_dist.insert(std::make_pair(date.year(), date.weekNumber()), log_dir_summary.log(i)._dist/1000.0);
-		}
-	}
+			// Increment the weekly totals
+			if (weekly_time_it != _weekly_time.end())
+			{
+				weekly_time_it.value() += log_dir_summary.log(i)._time/3600.0; //hours
+				weekly_dist_it.value() += log_dir_summary.log(i)._dist/1000.0; //kms
+			}
+			else
+			{
+				_weekly_time.insert(std::make_pair(date.year(), date.weekNumber()), log_dir_summary.log(i)._time/3600.0);
+				_weekly_dist.insert(std::make_pair(date.year(), date.weekNumber()), log_dir_summary.log(i)._dist/1000.0);
+			}
+		} // if 
+	} // for
 }
 
 /******************************************************/
