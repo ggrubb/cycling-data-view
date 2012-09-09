@@ -215,6 +215,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\latlng.h"
+				>
+			</File>
+			<File
 				RelativePath=".\logdirectorysummary.cpp"
 				>
 			</File>
@@ -293,6 +297,16 @@
 			<File
 				RelativePath=".\dateselectorwidget.h"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					>
