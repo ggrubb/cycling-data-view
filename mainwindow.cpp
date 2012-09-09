@@ -36,7 +36,7 @@
 
 #define COMPANY_NAME "RideViewer"
 #define APP_NAME "RiderViewer"
-#define VERSION_INFO "Version 1.2 (March 2012)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
+#define VERSION_INFO "Version 1.3 (October 2012)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
 #define GARMIN_LOG_DIRECTORY "/garmin/activities/"
 
@@ -185,6 +185,8 @@ void MainWindow::setUser(User* user)
 	_edit_act->setEnabled(true);
 	_totals_act->setEnabled(true);
 	_map_collage_act->setEnabled(true);
+	_ride_interval_finder_act->setEnabled(true);
+	_log_file_editor_act->setEnabled(true);
 	_retrieve_logs_act->setEnabled(true);
 	user->writeToFile(QString(".") + USER_DIRECTORY + user->name() + QString(".rider"));
 }
@@ -322,8 +324,29 @@ void MainWindow::mapCollage()
 }
 
 /******************************************************/
+void MainWindow::rideIntervalFinder()
+{
+}
+
+/******************************************************/
+void MainWindow::logFileEditor()
+{
+}
+
+/******************************************************/
+void MainWindow::setSingleLogMode()
+{
+}
+
+/******************************************************/
+void MainWindow::setDoubleLogMode()
+{
+}
+
+/******************************************************/
 void MainWindow::createActions()
 {
+	// Actions menu items
 	_set_act = new QAction(tr("Select Rider..."), this);
 	connect(_set_act, SIGNAL(triggered()), this, SLOT(promptForUser()));
 
@@ -338,6 +361,21 @@ void MainWindow::createActions()
 	_retrieve_logs_act->setEnabled(false);
 	connect(_retrieve_logs_act, SIGNAL(triggered()), this, SLOT(retrieveLogs()));
 
+	_exit_act = new QAction(tr("Exit"), this);
+	connect(_exit_act, SIGNAL(triggered()), this, SLOT(close()));
+
+	// Mode menu items
+	_single_log_mode_act = new QAction(tr("Single Log Mode"), this);
+	_single_log_mode_act->setCheckable(true);
+	_single_log_mode_act->setChecked(true);
+	connect(_single_log_mode_act, SIGNAL(triggered()), this, SLOT(setSingleLogMode()));
+	
+	_double_log_mode_act = new QAction(tr("Side-by-side Log Mode"), this);
+	_double_log_mode_act->setCheckable(true);
+	_double_log_mode_act->setChecked(false);
+	connect(_double_log_mode_act, SIGNAL(triggered()), this, SLOT(setDoubleLogMode()));
+
+	// Tools menu items
 	_totals_act = new QAction(tr("Total Metrics..."), this);
 	_totals_act->setEnabled(false);
 	connect(_totals_act, SIGNAL(triggered()), this, SLOT(totals()));
@@ -346,9 +384,15 @@ void MainWindow::createActions()
 	_map_collage_act->setEnabled(false);
 	connect(_map_collage_act, SIGNAL(triggered()), this, SLOT(mapCollage()));
 
-	_exit_act = new QAction(tr("Exit"), this);
-	connect(_exit_act, SIGNAL(triggered()), this, SLOT(close()));
+	_ride_interval_finder_act = new QAction(tr("Ride Interval Finder..."), this);
+	_ride_interval_finder_act->setEnabled(false);
+	connect(_ride_interval_finder_act, SIGNAL(triggered()), this, SLOT(rideIntervalFinder()));
 
+	_log_file_editor_act = new QAction(tr("Log File Editor..."), this);
+	_log_file_editor_act ->setEnabled(false);
+	connect(_log_file_editor_act , SIGNAL(triggered()), this, SLOT(logFileEditor()));
+
+	// Help menu items
 	_about_act = new QAction(tr("About"), this);
 	connect(_about_act, SIGNAL(triggered()), this, SLOT(about()));
 
@@ -371,9 +415,15 @@ void MainWindow::createMenus()
 	_file_menu->addSeparator();
 	_file_menu->addAction(_exit_act);
 
-	_view_menu = new QMenu(tr("&Totals"), this);
-	_view_menu->addAction(_totals_act);
-	_view_menu->addAction(_map_collage_act);
+	_mode_menu = new QMenu(tr("&Mode"), this);
+	_mode_menu->addAction(_single_log_mode_act);
+	_mode_menu->addAction(_double_log_mode_act);
+
+	_tools_menu = new QMenu(tr("&Tools"), this);
+	_tools_menu->addAction(_totals_act);
+	_tools_menu->addAction(_map_collage_act); 
+	_tools_menu->addAction(_ride_interval_finder_act);
+	_tools_menu->addAction(_log_file_editor_act);
 
 	_help_menu = new QMenu(tr("&Help"), this);
 	_help_menu->addAction(_about_act);
@@ -381,6 +431,7 @@ void MainWindow::createMenus()
 	_help_menu->addAction(_goto_project_page_act);
 
 	menuBar()->addMenu(_file_menu);
-	menuBar()->addMenu(_view_menu);
+	menuBar()->addMenu(_mode_menu);
+	menuBar()->addMenu(_tools_menu);
 	menuBar()->addMenu(_help_menu);
 }

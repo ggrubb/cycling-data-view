@@ -30,9 +30,13 @@
     void promptForUser();
     void addUser();
     void editUser();
+	void setSingleLogMode();
+	void setDoubleLogMode();
 	void retrieveLogs();
     void totals();
 	void mapCollage();
+	void rideIntervalFinder();
+	void logFileEditor();
     void about();
     void help();
 	void goToProjectPage();
@@ -49,15 +53,20 @@
     QAction* _add_act;
     QAction* _edit_act;
     QAction* _retrieve_logs_act;
+	QAction* _single_log_mode_act;
+	QAction* _double_log_mode_act;
     QAction* _totals_act;
     QAction* _map_collage_act;
+    QAction* _ride_interval_finder_act;
+    QAction* _log_file_editor_act;
     QAction* _exit_act;
     QAction* _about_act;
 	QAction* _goto_help_act;
 	QAction* _goto_project_page_act;
 
     QMenu* _file_menu;
-    QMenu* _view_menu;
+    QMenu* _mode_menu;
+    QMenu* _tools_menu;
     QMenu* _help_menu;
 
 	GoogleMapWindow* _google_map;
