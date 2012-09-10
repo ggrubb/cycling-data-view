@@ -58,9 +58,7 @@ _end_date(end_date)
 
 /******************************************************/
 DateSelectorWidget::~DateSelectorWidget()
-{
-
-}
+{}
 
 /******************************************************/
 void DateSelectorWidget::updateLabels()
@@ -111,7 +109,7 @@ void DateSelectorWidget::userChangedDates()
 }
 
 /******************************************************/
-QDate& DateSelectorWidget::minDate()
+QDate DateSelectorWidget::minDate() const
 {
 	if (_all_dates_cb->isChecked())
 		return _start_date;
@@ -120,7 +118,7 @@ QDate& DateSelectorWidget::minDate()
 }
 
 /******************************************************/
-QDate& DateSelectorWidget::maxDate()
+QDate DateSelectorWidget::maxDate() const
 {
 	if (_all_dates_cb->isChecked())
 		return _end_date;
