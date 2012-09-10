@@ -25,6 +25,10 @@ class GoogleMapWindow : public QWidget
 	// Enable/disable all the user controls
 	void setEnabled(bool enabled);
 
+	// Function to return the currently selected indecies of the ride
+	// If no selection is currently made, start_index=0, end_index=max_data_points
+	void getSelectedIndecies(int& start_index, int& end_index) const;
+
 public slots:
 	// Stroke the ride path according to user selected parameter
 	void definePathColour();

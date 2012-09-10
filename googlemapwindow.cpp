@@ -199,6 +199,20 @@ void GoogleMapWindow::setSelection(int idx_start, int idx_end, bool zoom_map)
 }
 
 /******************************************************/
+void GoogleMapWindow::getSelectedIndecies(int& start_index, int& end_index) const
+{
+	if (_selection_begin_idx == UNDEFINED_IDX)
+		start_index = 0;
+	else
+		start_index = _selection_begin_idx;
+
+	if (_selection_end_idx == UNDEFINED_IDX)
+		end_index = _data_log->numPoints()-1;
+	else
+		end_index = _selection_end_idx;
+}
+
+/******************************************************/
 void GoogleMapWindow::setStartEndMarkers(int idx_start, int idx_end)
 {
 	ostringstream stream;

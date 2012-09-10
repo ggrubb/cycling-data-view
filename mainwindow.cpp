@@ -56,10 +56,11 @@ _ride_collage(0)
 	_stats_view = new DataStatisticsWindow();
 	_plot_window = new PlotWindow(_google_map, _stats_view);
 	_totals_window = 0;
+	_rider_interval_finder = new RideIntervalFinderWindow(_google_map);
 
 	_ride_selector = new RideSelectionWindow();
-	connect(_ride_selector , SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
-	connect(_ride_selector , SIGNAL(displayLap(int)),this,SLOT(setLap(int)));
+	connect(_ride_selector, SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
+	connect(_ride_selector, SIGNAL(displayLap(int)),this,SLOT(setLap(int)));
 
 	QWidget* central_widget = new QWidget;
 	QGridLayout* glayout1 = new QGridLayout(central_widget);
@@ -126,6 +127,12 @@ void MainWindow::closeEvent(QCloseEvent* event)
 		_ride_collage->close();
 		delete _ride_collage;
 	}
+	if (_rider_interval_finder)
+	{	
+		_rider_interval_finder->close();
+		delete _rider_interval_finder;
+	}
+	
 }
 
 /******************************************************/
@@ -203,6 +210,9 @@ void MainWindow::setRide(DataLog* data_log)
 
 	// Statistical viewer
 	_stats_view->displayRide(data_log, _current_user);
+
+	// Ride interval finder
+	_rider_interval_finder->setRide(data_log, _current_user);
 }
 
 /******************************************************/
@@ -329,7 +339,6 @@ void MainWindow::rideIntervalFinder()
 {
 	if (_current_user)
 	{
-		_rider_interval_finder = new RideIntervalFinderWindow(_current_user);
 		_rider_interval_finder->show();
 	}
 }

@@ -303,7 +303,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -313,7 +313,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -473,6 +473,26 @@
 			<File
 				RelativePath=".\rideintervalfinderwindow.h"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\rideselectionwindow.cpp"
@@ -589,6 +609,10 @@
 				</File>
 				<File
 					RelativePath=".\moc_qwtcustomplotpicker.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\moc_rideintervalfinderwindow.cpp"
 					>
 				</File>
 				<File
