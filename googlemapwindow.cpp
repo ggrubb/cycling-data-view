@@ -179,6 +179,9 @@ void GoogleMapWindow::setMarkerPosition(int idx)
 		double lgd = _data_log->lgd(idx);
 
 		ostringstream stream;
+		stream.precision(6); // set precision so we plot lat/long correctly
+		stream.setf(ios::fixed,ios::floatfield);
+
 		stream << "setMarker(" << ltd << "," << lgd << ");";
 		_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
 	}
