@@ -231,7 +231,7 @@ std::string GoogleMapCollageWindow::defineCoords()
 
 	for (unsigned int i=0; i < _accumulated_points.size(); ++i)
 	{
-		stream << "new google.maps.LatLng(" << _accumulated_points[i].first.lat << "," << _accumulated_points[i].first.lng<< ")," << endl;
+		stream << "new google.maps.LatLng(" << _accumulated_points[i].first._lat << "," << _accumulated_points[i].first._lng<< ")," << endl;
 	}
 
 	return stream.str();
