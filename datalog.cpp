@@ -29,7 +29,7 @@ DataLog::~DataLog()
 {}
 
 /****************************************/
-QString DataLog::dateString()
+QString DataLog::dateString() const
 {
 	QString date = _date.date().toString("yyyy-MM-dd") + " " + _date.time().toString("hh:mm:ss");
 	return date;

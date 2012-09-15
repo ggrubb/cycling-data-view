@@ -20,7 +20,7 @@ class DataLog
 
 	QString& filename() { return _filename; };
 	QDateTime& date() { return _date; };
-	QString dateString();
+	QString dateString() const;
 	double& totalTime() { return _total_time; };
 	double& totalDist() { return _total_dist; };
 	double& maxSpeed() { return _max_speed; };
