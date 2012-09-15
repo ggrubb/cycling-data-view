@@ -10,11 +10,10 @@
 #include <iostream>
 
 /******************************************************/
-DateSelectorWidget::DateSelectorWidget(
-	QDate& start_date, QDate& end_date):
+DateSelectorWidget::DateSelectorWidget():
 QWidget(),
-_start_date(start_date),
-_end_date(end_date)
+_start_date(QDate(1979,7,18)),
+_end_date(QDate(2080,5,23))
 {
 	assert(end_date.daysTo(start_date) < 0);
 
@@ -22,7 +21,7 @@ _end_date(end_date)
 	_all_dates_cb = new QCheckBox("All dates");
 	_all_dates_cb->setChecked(true);
 
-	const int n_days = start_date.daysTo(end_date);
+	const int n_days = _start_date.daysTo(_end_date);
 
 	_min_date_slider = new QSlider(Qt::Horizontal);
 	_min_date_slider->setRange(0,n_days);
@@ -59,6 +58,23 @@ _end_date(end_date)
 /******************************************************/
 DateSelectorWidget::~DateSelectorWidget()
 {}
+
+/******************************************************/
+void DateSelectorWidget::setRangeDates(
+	const QDate& start_date, 
+	const QDate& end_date)
+{
+	assert(end_date.daysTo(start_date) < 0);
+
+	_start_date = start_date;
+	_end_date = end_date;
+
+	const int n_days = _start_date.daysTo(_end_date);
+
+	_min_date_slider->setRange(0,n_days);
+	_max_date_slider->setRange(0,n_days);
+	_max_date_slider->setValue(n_days);
+}
 
 /******************************************************/
 void DateSelectorWidget::updateLabels()

@@ -136,7 +136,8 @@ QWidget()
 
 	LogDirectorySummary log_dir_summary(_user->logDirectory());
 	log_dir_summary.readFromFile();
-	_date_selector_widget = new DateSelectorWidget(log_dir_summary.firstLog().date(),log_dir_summary.lastLog().date());
+	_date_selector_widget = new DateSelectorWidget();
+	_date_selector_widget->setRangeDates(log_dir_summary.firstLog().date(),log_dir_summary.lastLog().date());
 
 	connect(_dist_cb, SIGNAL(stateChanged(int)),this,SLOT(updatePlot()));
 	connect(_time_cb, SIGNAL(stateChanged(int)),this,SLOT(updatePlot()));

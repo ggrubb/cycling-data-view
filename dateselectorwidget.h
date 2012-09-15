@@ -13,12 +13,16 @@ class DateSelectorWidget : public QWidget
 {
 	Q_OBJECT
  public:
-	DateSelectorWidget(QDate& start_date, QDate& end_date);
+	DateSelectorWidget();
 	~DateSelectorWidget();
 
 	QDate minDate() const;
 	QDate maxDate() const;
  
+	void setRangeDates(
+		const QDate& start_date, 
+		const QDate& end_date);
+
  signals:
 	void datesChanged();
 
