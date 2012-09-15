@@ -15,6 +15,7 @@ class GoogleMapWindow;
 class LogDirectorySummary;
 class QStandardItemModel;
 class QTreeView;
+class QStandardItem;
 
 class RideIntervalFinderWindow : public QWidget
 {
@@ -24,24 +25,38 @@ class RideIntervalFinderWindow : public QWidget
 	RideIntervalFinderWindow(GoogleMapWindow* google_map_window);
 	~RideIntervalFinderWindow();
 
+	// Set the source data log and user
 	void setRide(DataLog* data_log, User* user);
 
  private slots:
+	 // Find all the routes defined by the user
 	 void findIntervals();
 
  private:
-	void createWindow();
+	// Create the window and layout the GUI
+	void formatTreeView();
+	void setModelColumnHeadings(QStandardItemModel& model) const;
+
+	// Parse the given logfile, resulting data is in data_log
 	bool parse(const QString filename, DataLog* data_log);
+
+	// Populate table item with interval data
+	void populateIntervalData(
+		QList<QStandardItem*>& interval_list, 
+		DataLog& data_log, 
+		int found_start_index, int found_end_index) const;
 
 	// Determine if 2 points on a path are equal
 	// pt_a and pt_b are points of interest
 	// pt_a_nxt and pt_b_nxt are the following points (for angle estimation)
 	bool arePointsEqual(
 		const LatLng& pt_a, const LatLng& pt_a_nxt,
-		const LatLng& pt_b, const LatLng& pt_b_nxt);
+		const LatLng& pt_b, const LatLng& pt_b_nxt) const;
 
-	bool verifyRoute();
-	void formatTreeView();
+	// Verify the route defined between 2 points. Return true if verifed, false otherwise
+	bool verifyRoute(
+		DataLog& log1, int start_index1, int end_index1,
+		DataLog& log2, int start_index2, int end_index2) const;
 
 	TcxParser* _tcx_parser;
 	FitParser* _fit_parser;
