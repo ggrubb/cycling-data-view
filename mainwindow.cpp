@@ -73,12 +73,15 @@ _ride_collage(0)
 	setWindowTitle("RideViewer");
 	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
 	
-	// Set to full screen size
-	showMaximized();
-
 	// Check for saved user from persistent settings
 	checkForSaveUser();
  }
+
+/******************************************************/
+void MainWindow::refresh()
+{
+	_ride_selector->refresh();
+}
 
 /******************************************************/
 void MainWindow::checkForSaveUser()

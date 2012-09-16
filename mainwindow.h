@@ -24,6 +24,8 @@
     MainWindow();
     ~MainWindow();
 
+	void refresh();
+
  protected:
 	virtual void closeEvent(QCloseEvent* event);
 

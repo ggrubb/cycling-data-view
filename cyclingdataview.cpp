@@ -13,10 +13,12 @@ int main( int argc, char ** argv )
 	QPixmap pixmap("resources/splash_screen.png");
 	QSplashScreen splash(pixmap);
 	splash.show();
-	Sleep(2000);
-	splash.hide();
+	Sleep(1000); // msec
 
     MainWindow* mw = new MainWindow();
-    mw->show();
+	mw->showMaximized();
+	splash.finish(mw);
+	mw->refresh();
+
     return a.exec();
 }

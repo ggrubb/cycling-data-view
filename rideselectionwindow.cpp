@@ -129,11 +129,10 @@ void RideSelectionWindow::setUser(User* user)
 			delete data_logs[i];
 	}
 
-	populateTableWithRides();
-
 	// Display information about the user 
 	_head_label->setText("<b>Ride Selector For: </b>" + user->name() + " (" + QString::number(_log_dir_summary->numLogs()) + " rides)");
-
+	
+	populateTableWithRides();
 }
 
 /******************************************************/
@@ -204,9 +203,16 @@ void RideSelectionWindow::populateTableWithRides()
 	
 	connect(_tree, SIGNAL(clicked(const QModelIndex&)),this,SLOT(rideSelected(const QModelIndex&)));
 	_tree->setCurrentIndex(_model->index(0,0));
-	
-	if (_log_dir_summary->numLogs() > 0)
-		rideSelected(_tree->currentIndex());
+}
+
+/******************************************************/
+void RideSelectionWindow::refresh()
+{
+	if (_log_dir_summary)
+	{
+		if (_log_dir_summary->numLogs() > 0)
+			rideSelected(_tree->currentIndex());
+	}
 }
 
 /******************************************************/
