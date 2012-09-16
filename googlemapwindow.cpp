@@ -218,6 +218,14 @@ void GoogleMapWindow::getSelectedIndecies(int& start_index, int& end_index) cons
 /******************************************************/
 void GoogleMapWindow::setStartEndMarkers(int idx_start, int idx_end)
 {
+	// First handle out of bounds conditions
+	if (idx_start < 0)
+		idx_start = 0;
+
+	if (idx_end < 1)
+		idx_end = 1;
+
+	// Now define coords between start and end
 	ostringstream stream;
 	stream << "var coords = [" << endl
 		<< defineStartEndCoords(idx_start, idx_end) << endl // create a path from GPS coords

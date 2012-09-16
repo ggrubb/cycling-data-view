@@ -230,59 +230,62 @@ void DataStatisticsWindow::displaySelectedRideStats(int idx_start, int idx_end)
 	assert(_user);
 	assert(_data_log);
 
-	_selection_begin_idx = idx_start;
-	_selection_end_idx = idx_end;
+	if (idx_start > 0 && idx_end > 0)
+	{
+		_selection_begin_idx = idx_start;
+		_selection_end_idx = idx_end;
 
-	// Compute totals
-	double time = _data_log->time(idx_end) - _data_log->time(idx_start);
-	double dist = _data_log->dist(idx_end) - _data_log->dist(idx_start);
-	double elev_gain = DataProcessing::computeGain(_data_log->altFltd().begin() + idx_start, _data_log->altFltd().begin() + idx_end);
-	double elev_loss = DataProcessing::computeLoss(_data_log->altFltd().begin() + idx_start, _data_log->altFltd().begin() + idx_end);
-	
-	// Compute avgs
-	double avg_speed = DataProcessing::computeAverage(_data_log->speedFltd().begin() + idx_start, _data_log->speedFltd().begin() + idx_end);
-	double avg_hr = DataProcessing::computeAverage(_data_log->heartRateFltd().begin() + idx_start, _data_log->heartRateFltd().begin() + idx_end);
-	double avg_grad = DataProcessing::computeAverage(_data_log->gradientFltd().begin() + idx_start, _data_log->gradientFltd().begin() + idx_end);
-	double avg_cadence = DataProcessing::computeAverage(_data_log->cadenceFltd().begin() + idx_start, _data_log->cadenceFltd().begin() + idx_end);
-	double avg_power = DataProcessing::computeAverage(_data_log->powerFltd().begin() + idx_start, _data_log->powerFltd().begin() + idx_end);
-	
-	// Compute maxs
-	double max_speed = DataProcessing::computeMax(_data_log->speedFltd().begin() + idx_start, _data_log->speedFltd().begin() + idx_end);
-	double max_hr = DataProcessing::computeMax(_data_log->heartRateFltd().begin() + idx_start, _data_log->heartRateFltd().begin() + idx_end);
-	double max_gradient = DataProcessing::computeMax(_data_log->gradientFltd().begin() + idx_start, _data_log->gradientFltd().begin() + idx_end);
-	double max_cadence = DataProcessing::computeMax(_data_log->cadenceFltd().begin() + idx_start, _data_log->cadenceFltd().begin() + idx_end);
-	double max_power = DataProcessing::computeMax(_data_log->powerFltd().begin() + idx_start, _data_log->powerFltd().begin() + idx_end);
-	
-	// Compute HR zone times
-	std::vector<double> sub_heart_rate(_data_log->heartRate().begin() + idx_start, _data_log->heartRate().begin() + idx_end);
-	std::vector<double> sub_time(_data_log->time().begin() + idx_start, _data_log->time().begin() + idx_end);
-	double hr_zone1 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone1(), _user->zone2());
-	double hr_zone2 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone2(), _user->zone3());
-	double hr_zone3 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone3(), _user->zone4());
-	double hr_zone4 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone4(), _user->zone5());
-	double hr_zone5 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone5(), 1000.0);
+		// Compute totals
+		double time = _data_log->time(idx_end) - _data_log->time(idx_start);
+		double dist = _data_log->dist(idx_end) - _data_log->dist(idx_start);
+		double elev_gain = DataProcessing::computeGain(_data_log->altFltd().begin() + idx_start, _data_log->altFltd().begin() + idx_end);
+		double elev_loss = DataProcessing::computeLoss(_data_log->altFltd().begin() + idx_start, _data_log->altFltd().begin() + idx_end);
+		
+		// Compute avgs
+		double avg_speed = DataProcessing::computeAverage(_data_log->speedFltd().begin() + idx_start, _data_log->speedFltd().begin() + idx_end);
+		double avg_hr = DataProcessing::computeAverage(_data_log->heartRateFltd().begin() + idx_start, _data_log->heartRateFltd().begin() + idx_end);
+		double avg_grad = DataProcessing::computeAverage(_data_log->gradientFltd().begin() + idx_start, _data_log->gradientFltd().begin() + idx_end);
+		double avg_cadence = DataProcessing::computeAverage(_data_log->cadenceFltd().begin() + idx_start, _data_log->cadenceFltd().begin() + idx_end);
+		double avg_power = DataProcessing::computeAverage(_data_log->powerFltd().begin() + idx_start, _data_log->powerFltd().begin() + idx_end);
+		
+		// Compute maxs
+		double max_speed = DataProcessing::computeMax(_data_log->speedFltd().begin() + idx_start, _data_log->speedFltd().begin() + idx_end);
+		double max_hr = DataProcessing::computeMax(_data_log->heartRateFltd().begin() + idx_start, _data_log->heartRateFltd().begin() + idx_end);
+		double max_gradient = DataProcessing::computeMax(_data_log->gradientFltd().begin() + idx_start, _data_log->gradientFltd().begin() + idx_end);
+		double max_cadence = DataProcessing::computeMax(_data_log->cadenceFltd().begin() + idx_start, _data_log->cadenceFltd().begin() + idx_end);
+		double max_power = DataProcessing::computeMax(_data_log->powerFltd().begin() + idx_start, _data_log->powerFltd().begin() + idx_end);
+		
+		// Compute HR zone times
+		std::vector<double> sub_heart_rate(_data_log->heartRate().begin() + idx_start, _data_log->heartRate().begin() + idx_end);
+		std::vector<double> sub_time(_data_log->time().begin() + idx_start, _data_log->time().begin() + idx_end);
+		double hr_zone1 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone1(), _user->zone2());
+		double hr_zone2 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone2(), _user->zone3());
+		double hr_zone3 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone3(), _user->zone4());
+		double hr_zone4 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone4(), _user->zone5());
+		double hr_zone5 = DataProcessing::computeTimeInHRZone(sub_heart_rate, sub_time, _user->zone5(), 1000.0);
 
-	// Set selection column
-	_table->item(0,1)->setText(DataProcessing::minsFromSecs(time));
-	_table->item(1,1)->setText(DataProcessing::kmFromMeters(dist));
-	_table->item(2,1)->setText(QString::number(elev_gain, 'f', 1));
-	_table->item(3,1)->setText(QString::number(elev_loss, 'f', 1));
+		// Set selection column
+		_table->item(0,1)->setText(DataProcessing::minsFromSecs(time));
+		_table->item(1,1)->setText(DataProcessing::kmFromMeters(dist));
+		_table->item(2,1)->setText(QString::number(elev_gain, 'f', 1));
+		_table->item(3,1)->setText(QString::number(elev_loss, 'f', 1));
 
-	_table->item(4,1)->setText(QString::number(avg_speed, 'f', 1));
-	_table->item(5,1)->setText(QString::number(avg_hr, 'f', 1));
-	_table->item(6,1)->setText(QString::number(avg_grad, 'f', 2));
-	_table->item(7,1)->setText(QString::number(avg_cadence, 'f', 1));
-	_table->item(8,1)->setText(QString::number(avg_power, 'f', 1));
+		_table->item(4,1)->setText(QString::number(avg_speed, 'f', 1));
+		_table->item(5,1)->setText(QString::number(avg_hr, 'f', 1));
+		_table->item(6,1)->setText(QString::number(avg_grad, 'f', 2));
+		_table->item(7,1)->setText(QString::number(avg_cadence, 'f', 1));
+		_table->item(8,1)->setText(QString::number(avg_power, 'f', 1));
 
-	_table->item(9,1)->setText(QString::number(max_speed, 'f', 1));
-	_table->item(10,1)->setText(QString::number(max_hr, 'f', 0));
-	_table->item(11,1)->setText(QString::number(max_gradient, 'f', 2));
-	_table->item(12,1)->setText(QString::number(max_cadence, 'f', 0));
-	_table->item(13,1)->setText(QString::number(max_power, 'f', 2));
+		_table->item(9,1)->setText(QString::number(max_speed, 'f', 1));
+		_table->item(10,1)->setText(QString::number(max_hr, 'f', 0));
+		_table->item(11,1)->setText(QString::number(max_gradient, 'f', 2));
+		_table->item(12,1)->setText(QString::number(max_cadence, 'f', 0));
+		_table->item(13,1)->setText(QString::number(max_power, 'f', 2));
 
-	_table->item(14,1)->setText(DataProcessing::minsFromSecs(hr_zone1));
-	_table->item(15,1)->setText(DataProcessing::minsFromSecs(hr_zone2));
-	_table->item(16,1)->setText(DataProcessing::minsFromSecs(hr_zone3));
-	_table->item(17,1)->setText(DataProcessing::minsFromSecs(hr_zone4));
-	_table->item(18,1)->setText(DataProcessing::minsFromSecs(hr_zone5));
+		_table->item(14,1)->setText(DataProcessing::minsFromSecs(hr_zone1));
+		_table->item(15,1)->setText(DataProcessing::minsFromSecs(hr_zone2));
+		_table->item(16,1)->setText(DataProcessing::minsFromSecs(hr_zone3));
+		_table->item(17,1)->setText(DataProcessing::minsFromSecs(hr_zone4));
+		_table->item(18,1)->setText(DataProcessing::minsFromSecs(hr_zone5));
+	}
 }
