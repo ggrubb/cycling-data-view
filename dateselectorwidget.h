@@ -2,14 +2,14 @@
 #define DATESELECTORWIDGET_H
 
 #include <qtxml/qdomdocument>
-#include <QWidget.h>
+#include <QGroupBox.h>
 #include <QDateTime.h>
 
 class QSlider;
 class QLabel;
 class QCheckBox;
 
-class DateSelectorWidget : public QWidget
+class DateSelectorWidget : public QGroupBox
 {
 	Q_OBJECT
  public:

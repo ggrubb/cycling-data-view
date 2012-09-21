@@ -4,6 +4,7 @@
 #include <QSlider.h>
 #include <QLabel.h>
 #include <QCheckBox.h>
+#include <QGroupBox.h>
 
 #include <cassert>
 #include <sstream>
@@ -11,7 +12,7 @@
 
 /******************************************************/
 DateSelectorWidget::DateSelectorWidget():
-QWidget(),
+QGroupBox("Date Selection"),
 _start_date(QDate(1979,7,18)),
 _end_date(QDate(2080,5,23))
 {
@@ -26,13 +27,15 @@ _end_date(QDate(2080,5,23))
 	_min_date_slider = new QSlider(Qt::Horizontal);
 	_min_date_slider->setRange(0,n_days);
 	_min_date_slider->setValue(0);
+	_min_date_slider->setMinimumWidth(300);
 	
 	_max_date_slider = new QSlider(Qt::Horizontal);
 	_max_date_slider->setRange(0,n_days);
 	_max_date_slider->setValue(n_days);
+	_min_date_slider->setMinimumWidth(300);
 	
-	_min_date_label = new QLabel("Start date: ");
-	_max_date_label = new QLabel("End date: ");
+	_min_date_label = new QLabel;
+	_max_date_label = new QLabel;
 	
 	// Connacet all signals/slots
 	connect(_all_dates_cb, SIGNAL(stateChanged(int)), this, SLOT(setSlidersDisabled(int)));
@@ -46,13 +49,14 @@ _end_date(QDate(2080,5,23))
 	updateLabels();
 	setSlidersDisabled(true);
 
-	QGridLayout* gridlayout1 = new QGridLayout(this);
-	gridlayout1->addWidget(_all_dates_cb, 0, 0);
+	QGridLayout* gridlayout1 = new QGridLayout;
+	gridlayout1->addWidget(_all_dates_cb, 0, 0,2,1);
 	gridlayout1->addWidget(_min_date_slider, 0, 1);
 	gridlayout1->addWidget(_min_date_label, 0, 2);
 	gridlayout1->addWidget(_max_date_slider, 1, 1);
 	gridlayout1->addWidget(_max_date_label, 1, 2);
 
+	setLayout(gridlayout1);
 }
 
 /******************************************************/

@@ -60,7 +60,7 @@ _google_map_window(google_map_window)
 	vlayout->addWidget(find_intervals_button);
 	vlayout->addWidget(_tree);
 
-	resize(650,400);
+	setMinimumSize(650,400);
 }
 
 /******************************************************/

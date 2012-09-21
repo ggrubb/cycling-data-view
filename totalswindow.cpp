@@ -138,7 +138,7 @@ QWidget()
 	log_dir_summary.readFromFile();
 	_date_selector_widget = new DateSelectorWidget();
 	_date_selector_widget->setRangeDates(log_dir_summary.firstLog().date(),log_dir_summary.lastLog().date());
-
+	
 	connect(_dist_cb, SIGNAL(stateChanged(int)),this,SLOT(updatePlot()));
 	connect(_time_cb, SIGNAL(stateChanged(int)),this,SLOT(updatePlot()));
 	connect(_time_group_selector, SIGNAL(currentIndexChanged(int)),this,SLOT(updatePlot()));
@@ -156,12 +156,11 @@ QWidget()
 	hlayout->addWidget(metric_ckboxs);
 	hlayout->addWidget(_time_group_selector);
 
-	QVBoxLayout* layout = new QVBoxLayout();
+	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addWidget(_plot);
 	layout->addWidget(controls);
-	setLayout(layout);
 
-	resize(800,400);
+	setMinimumSize(800,400);
 	show();
 
 	recomputePlotData();
