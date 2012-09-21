@@ -14,7 +14,7 @@
 DateSelectorWidget::DateSelectorWidget():
 QGroupBox("Date Selection"),
 _start_date(QDate(1979,7,18)),
-_end_date(QDate(2080,5,23))
+_end_date(QDate(2080,12,31))
 {
 	assert(end_date.daysTo(start_date) < 0);
 
@@ -78,6 +78,8 @@ void DateSelectorWidget::setRangeDates(
 	_min_date_slider->setRange(0,n_days);
 	_max_date_slider->setRange(0,n_days);
 	_max_date_slider->setValue(n_days);
+
+	updateLabels();
 }
 
 /******************************************************/
