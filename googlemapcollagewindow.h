@@ -16,17 +16,21 @@ class TcxParser;
 class FitParser;
 class QComboBox;
 class ColourBar;
+class DateSelectorWidget;
+class User;
+class LogDirectorySummary;
 
 class GoogleMapCollageWindow : public QWidget
 {
 	Q_OBJECT
 
  public:
-	GoogleMapCollageWindow();
+	GoogleMapCollageWindow(User* user);
 	~GoogleMapCollageWindow();
 
-	// Display all the rides in filenames on a google map
-	void displayRides(const std::vector<QString>& filenames);
+ private slots:
+	// Display selected the rides on a google map
+	void createCollage();
 
  private:
 	// Create the webpage to display google maps
@@ -47,6 +51,11 @@ class GoogleMapCollageWindow : public QWidget
 	std::vector<std::pair<int, double> > _accumulated_point_extra_info; // first=ride id, second=time
 	ColourBar* _colour_bar;
 	int _max_count;
+	
+	User* _user;
+	LogDirectorySummary* _log_dir_summary;
+
+	DateSelectorWidget* _date_selector_widget;
 };
 
 #endif // GOOGLEMAPCOLLAGE_H

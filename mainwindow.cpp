@@ -56,7 +56,6 @@ _ride_collage(0)
 	_stats_view = new DataStatisticsWindow();
 	_plot_window = new PlotWindow(_google_map, _stats_view);
 	_totals_window = 0;
-	_rider_interval_finder = new RideIntervalFinderWindow(_google_map);
 
 	_ride_selector = new RideSelectionWindow();
 	connect(_ride_selector, SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
@@ -213,9 +212,6 @@ void MainWindow::setRide(DataLog* data_log)
 
 	// Statistical viewer
 	_stats_view->displayRide(data_log, _current_user);
-
-	// Ride interval finder
-	_rider_interval_finder->setRide(data_log, _current_user);
 }
 
 /******************************************************/
@@ -321,18 +317,7 @@ void MainWindow::mapCollage()
 {
 	if (_current_user)
 	{
-		QMessageBox::information(this, tr("RideCollage"), tr("Warning! This can be slow, please be patient. You can abort at anytime to see partial results. Click OK to continue."));
-
-		LogDirectorySummary log_summary(_current_user->logDirectory());
-		log_summary.readFromFile();
-		std::vector<QString> filenames;
-		for (int j=0; j < log_summary.numLogs(); ++j)
-		{
-			filenames.push_back(log_summary.log(j)._filename);
-		}
-
-		_ride_collage = new GoogleMapCollageWindow();
-		_ride_collage->displayRides(filenames);
+		_ride_collage = new GoogleMapCollageWindow(_current_user);
 		_ride_collage->show();
 	}
 }
@@ -342,6 +327,8 @@ void MainWindow::rideIntervalFinder()
 {
 	if (_current_user)
 	{
+		_rider_interval_finder = 
+			new RideIntervalFinderWindow(_google_map, _current_user, _ride_selector->currentDataLog());
 		_rider_interval_finder->show();
 	}
 }

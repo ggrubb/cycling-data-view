@@ -22,11 +22,8 @@ class RideIntervalFinderWindow : public QWidget
 	Q_OBJECT
 
  public:
-	RideIntervalFinderWindow(GoogleMapWindow* google_map_window);
+	RideIntervalFinderWindow(GoogleMapWindow* google_map_window, User* user, DataLog* data_log);
 	~RideIntervalFinderWindow();
-
-	// Set the source data log and user
-	void setRide(DataLog* data_log, User* user);
 
  private slots:
 	 // Find all the routes defined by the user

@@ -3,12 +3,17 @@
 #include "dataprocessing.h"
 #include "tcxparser.h"
 #include "fitparser.h"
+#include "user.h"
+#include "dateselectorwidget.h"
+#include "logdirectorysummary.h"
 
 #include <QWebView.h>
 #include <QWebPage.h>
 #include <QWebFrame.h>
 #include <QDir.h>
 #include <QComboBox.h>
+#include <QPushButton.h>
+#include <QMessageBox.h>
 #include <QLabel.h>
 #include <QBoxLayout.h>
 #include <QProgressDialog.h>
@@ -80,32 +85,50 @@ private:
 };
 
 /******************************************************/
-GoogleMapCollageWindow::GoogleMapCollageWindow()
+GoogleMapCollageWindow::GoogleMapCollageWindow(User* user):
+_user(user)
 {
+	setWindowTitle("RideCollage");
+	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
+
 	_view = new QWebView();
 	_view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
 
 	_tcx_parser = new TcxParser();
 	_fit_parser = new FitParser();
 
+	// Create the widget for selecting dates
+	_date_selector_widget = new DateSelectorWidget();
+
+	// Load the user log directory to set dates for the date selector widget
+	_log_dir_summary = new LogDirectorySummary(_user->logDirectory());
+	_log_dir_summary->readFromFile();
+	_date_selector_widget->setRangeDates(_log_dir_summary->firstLog().date(),_log_dir_summary->lastLog().date());
+	
+	// Create pushbutton
+	QPushButton* create_collage_button = new QPushButton("Create Collage");
+	connect(create_collage_button, SIGNAL(clicked()),this,SLOT(createCollage()));
+
+	// Create label for a ledgend
 	QLabel* label = new QLabel("Path coloured to ride frequency");
 	label->setMaximumWidth(160);
 	
 	_colour_bar = new ColourBar();
-	QWidget* widget1 = new QWidget;
-	QHBoxLayout* hlayout = new QHBoxLayout(widget1);
+	QWidget* key_widget = new QWidget;
+	QHBoxLayout* hlayout = new QHBoxLayout(key_widget);
 	hlayout->addSpacing(20);
 	hlayout->addWidget(label);
 	hlayout->addSpacing(20);
 	hlayout->addWidget(_colour_bar);
 
 	QVBoxLayout* vlayout = new QVBoxLayout(this);
+	vlayout->addWidget(_date_selector_widget);
+	vlayout->addWidget(create_collage_button);
 	vlayout->addWidget(_view);
-	vlayout->addWidget(widget1);
+	vlayout->addWidget(key_widget);
 	vlayout->setSpacing(0);
 
-	setWindowTitle("RideCollage");
-	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
+	setMinimumSize(850,600);
 }
 
 /******************************************************/
@@ -113,8 +136,23 @@ GoogleMapCollageWindow::~GoogleMapCollageWindow()
 {}
 
 /******************************************************/
-void GoogleMapCollageWindow::displayRides(const std::vector<QString>& filenames)
+void GoogleMapCollageWindow::createCollage()
 {
+	// Warn user about slowness...
+	QMessageBox::information(this, tr("RideCollage"), tr("Warning! This can be slow, please be patient. You can abort at anytime to see partial results. Click OK to continue."));
+
+	// Get a list of the relevant log fles to work with (between selected dates)
+	std::vector<QString> filenames;
+	for (int j=0; j < _log_dir_summary->numLogs(); ++j)
+	{
+		const QDate date = _log_dir_summary->log(j).date();
+		if (date >= _date_selector_widget->minDate() && date <= _date_selector_widget->maxDate())
+		{
+			filenames.push_back(_log_dir_summary->log(j)._filename);
+		}
+	}
+
+	// Initialise
 	_accumulated_points.clear();
 	_accumulated_point_extra_info.clear();
 	_max_count=0;
@@ -285,7 +323,7 @@ void GoogleMapCollageWindow::createPage(std::ostringstream& page)
 		<< "{max_key = colour_key[i]; max_index = i;}" << endl
 		<< "}" << endl
 		
-		<< "var circle = new google.maps.Circle({center: ride_coords[max_index], radius: 70000});" << endl
+		<< "var circle = new google.maps.Circle({center: ride_coords[max_index], radius: 50000});" << endl
 		<< "map.fitBounds(circle.getBounds());" << endl
 		<< "}" << endl
 

@@ -27,9 +27,12 @@ using namespace std;
 
 /******************************************************/
 RideIntervalFinderWindow::RideIntervalFinderWindow(
-	GoogleMapWindow* google_map_window):
+	GoogleMapWindow* google_map_window, User* user, DataLog* data_log):
 QWidget(),
-_google_map_window(google_map_window)
+_google_map_window(google_map_window),
+_user(user),
+_current_data_log(data_log)
+
 {
 	// @todo: clean up this pointer mess!
 
@@ -42,6 +45,11 @@ _google_map_window(google_map_window)
 	// Create the widget for selecting dates
 	_date_selector_widget = new DateSelectorWidget();
 	
+	// Load the user log directory to set dates for the date selector widget
+	_log_dir_summary = new LogDirectorySummary(_user->logDirectory());
+	_log_dir_summary->readFromFile();
+	_date_selector_widget->setRangeDates(_log_dir_summary->firstLog().date(),_log_dir_summary->lastLog().date());
+
 	// Create pushbutton
 	QPushButton* find_intervals_button = new QPushButton("Find Intervals");
 	connect(find_intervals_button, SIGNAL(clicked()),this,SLOT(findIntervals()));
@@ -92,18 +100,6 @@ void RideIntervalFinderWindow::formatTreeView()
 	_tree->setColumnWidth(6,75);
 	_tree->sortByColumn(1,Qt::DescendingOrder);
 	_tree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-}
-	
-/******************************************************/
-void RideIntervalFinderWindow::setRide(DataLog* data_log, User* user)
-{
-	_user = user;
-	_current_data_log = data_log;
-
-	// Load the user log directory to set dates for the date selector widget
-	_log_dir_summary = new LogDirectorySummary(_user->logDirectory());
-	_log_dir_summary->readFromFile();
-	_date_selector_widget->setRangeDates(_log_dir_summary->firstLog().date(),_log_dir_summary->lastLog().date());
 }
 
 /******************************************************/

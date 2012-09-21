@@ -22,6 +22,7 @@ class RideSelectionWindow : public QWidget
 
 	void setUser(User* user);
 	void refresh();
+	DataLog* currentDataLog();
 
  signals:
 	void displayRide(DataLog* data_log);

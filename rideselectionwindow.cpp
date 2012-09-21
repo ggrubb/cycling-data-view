@@ -216,6 +216,12 @@ void RideSelectionWindow::refresh()
 }
 
 /******************************************************/
+DataLog* RideSelectionWindow::currentDataLog()
+{
+	return _current_data_log;
+}
+
+/******************************************************/
 void RideSelectionWindow::rideSelected(const QModelIndex& index)
 {
 	if (index.parent() == QModelIndex()) // user selected the entire ride
