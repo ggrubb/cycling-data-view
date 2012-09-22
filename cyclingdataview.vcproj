@@ -383,6 +383,24 @@
 				>
 			</File>
 			<File
+				RelativePath=".\logeditorwindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\logeditorwindow.h"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="moc&apos;ing file $(InputFileName)..."
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						Outputs="moc_$(InputName).cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\mainwindow.cpp"
 				>
 			</File>
@@ -479,7 +497,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -489,7 +507,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="moc&apos;ing file $(InputFileName)..."
-						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp"
+						CommandLine="moc $(InputFileName) -o moc_$(InputName).cpp&#x0D;&#x0A;"
 						Outputs="moc_$(InputName).cpp"
 					/>
 				</FileConfiguration>
@@ -597,6 +615,10 @@
 				</File>
 				<File
 					RelativePath=".\moc_googlemapwindow.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\moc_logeditorwindow.cpp"
 					>
 				</File>
 				<File

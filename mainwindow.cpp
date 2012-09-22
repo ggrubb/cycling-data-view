@@ -11,6 +11,7 @@
 #include "logdirectorysummary.h"
 #include "totalswindow.h"
 #include "rideintervalfinderwindow.h"
+#include "logeditorwindow.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -133,6 +134,11 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	{	
 		_rider_interval_finder->close();
 		delete _rider_interval_finder;
+	}
+	if (_log_file_editor)
+	{	
+		_log_file_editor->close();
+		delete _log_file_editor;
 	}
 	
 }
@@ -257,16 +263,6 @@ void MainWindow::setLap(int lap_index)
  }
 
 /******************************************************/
-void MainWindow::totals()
-{
-	if (_current_user)
-	{
-		_totals_window = new TotalsWindow(_current_user);
-		_totals_window->show();
-	}
-}
-
-/******************************************************/
 void MainWindow::retrieveLogs()
 {
 	bool garmin_found = false;
@@ -313,6 +309,16 @@ void MainWindow::retrieveLogs()
 }
 
 /******************************************************/
+void MainWindow::totals()
+{
+	if (_current_user)
+	{
+		_totals_window = new TotalsWindow(_current_user);
+		_totals_window->show();
+	}
+}
+
+/******************************************************/
 void MainWindow::mapCollage()
 {
 	if (_current_user)
@@ -336,6 +342,12 @@ void MainWindow::rideIntervalFinder()
 /******************************************************/
 void MainWindow::logFileEditor()
 {
+	if (_current_user)
+	{
+		_log_file_editor = 
+			new LogEditorWindow(_current_user, _ride_selector->currentDataLog());
+		_log_file_editor->show();
+	}
 }
 
 /******************************************************/
