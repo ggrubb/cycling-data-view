@@ -7,6 +7,8 @@ class QTableWidget;
 class QLabel;
 class DataLog;
 class User;
+class QComboBox;
+class QDoubleSpinBox;
 
 class LogEditorWindow : public QWidget
  {
@@ -24,6 +26,12 @@ class LogEditorWindow : public QWidget
 
 	QTableWidget* _table;
 	QLabel* _head_label;
+	QComboBox* _field_selection;
+	QComboBox* _equality_selection;
+	QDoubleSpinBox* _search_value;
+
+	std::vector<int> _search_result_indecies;
+
 	DataLog* _data_log;
 	User* _user;
  };
