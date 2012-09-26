@@ -233,12 +233,12 @@ void MainWindow::setLap(int lap_index)
 	 // Create and display about window
 	QPixmap about_image("resources/about_screen.png"); 
 	AboutWindow* about = new AboutWindow(about_image);
-	about->setMessageRect(QRect::QRect(10, 60, 250, 50), Qt::AlignLeft); // setting the message position
+	about->setMessageRect(QRect::QRect(10, 80, 250, 50), Qt::AlignLeft); // setting the message position
 	 
 	QFont about_font;
 	about_font.setFamily("Arial");
 	about_font.setPixelSize(12);
-	about_font.setBold(false);
+	about_font.setBold(true);
 	 
 	about->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::SplashScreen);
 	about->setFont(about_font);
