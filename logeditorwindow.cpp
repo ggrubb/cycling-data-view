@@ -2,41 +2,23 @@
 #include "dataprocessing.h"
 #include "datalog.h"
 #include "user.h"
+#include "fitencoder.h"
 
 #include <QTableWidget.h>
 #include <QBoxLayout.h>
 #include <QLabel.h>
 #include <QItemDelegate.h>
 #include <QPainter.h>
-#include <QMessageBox.h> // debug only
+#include <QMessageBox.h>
 #include <QProgressDialog.h>
 #include <QComboBox.h>
 #include <QSpinBox.h>
 #include <QPushButton.h>
 #include <QGroupBox.h>
+#include <QScrollBar.h>
 
 #include <iostream>
 #include <cassert>
-
-/******************************************************/
-class ItemDelegate: public QItemDelegate
-{
-public:
-	ItemDelegate()
-	{}
-
-	virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const 
-	{
-		QPalette pal = option.palette;
-		QStyleOptionViewItem  view_option(option);
-		if (index.row() <= 1) 
-		{
-			painter->fillRect(option.rect, QColor(233,233,233));
-		} 
-		
-		QItemDelegate::paint(painter, view_option, index);
-	}
-};
 
 /******************************************************/
 LogEditorWindow::LogEditorWindow(User* user, DataLog* data_log):
@@ -66,6 +48,9 @@ _user(user)
 	QPushButton* save = new QPushButton("Save");
 	QPushButton* split = new QPushButton("Split Log");
 	QPushButton* exit = new QPushButton("Exit");
+	connect(save, SIGNAL(clicked()),this, SLOT(save()));
+	connect(split, SIGNAL(clicked()),this, SLOT(split()));
+	connect(exit, SIGNAL(clicked()),this, SLOT(close()));
 
 	QWidget* file_operator_buttons = new QWidget;
 	QHBoxLayout* h_layout4 = new QHBoxLayout;
@@ -90,12 +75,16 @@ _user(user)
 	_equality_selection->insertItem(2, "is greater than");
 
 	_search_value = new QDoubleSpinBox();
+	_search_value->setRange(-500,3000);
 	_search_value->setDecimals(6);
 	_search_value->setSingleStep(1.0);
 
 	QPushButton* find = new QPushButton("Find");
 	QPushButton* next = new QPushButton("Next >>");
 	QPushButton* clear = new QPushButton("Clear");
+	connect(find, SIGNAL(clicked()),this, SLOT(find()));
+	connect(next, SIGNAL(clicked()),this, SLOT(next()));
+	connect(clear, SIGNAL(clicked()),this, SLOT(clear()));
 
 	QWidget* search_criteria = new QWidget;
 	QHBoxLayout* h_layout1 = new QHBoxLayout;
@@ -149,13 +138,22 @@ _user(user)
 	setWindowTitle("RideEditor");
 	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
 	
-	setMinimumSize(670,400);
+	setMinimumSize(640,400);
 	show();
 }
 
 /******************************************************/
 LogEditorWindow::~LogEditorWindow()
-{}
+{
+	for (int r=0; r < _table->rowCount(); ++r)
+	{
+		for (int c=2; c < _table->columnCount(); ++c)
+		{
+			delete _table->item(r, c);
+		}
+	}
+	delete _table;
+}
 
 /******************************************************/
 void LogEditorWindow::displayRide()
@@ -206,4 +204,95 @@ void LogEditorWindow::displayRide()
 		QTableWidgetItem *item9 = new QTableWidgetItem(QString::number(_data_log->temp(r), 'f', 0));
 		_table->setItem(r,8,item9);
 	}
+}
+
+/******************************************************/
+bool LogEditorWindow::searchComparison(double left, double right)
+{
+	// 0 = "equals"
+	// 1 = "is less than"
+	// 2 = "is greater than"
+	if (_equality_selection->currentIndex() == 0)
+		return left == right;
+	else if (_equality_selection->currentIndex() == 1)
+		return left < right;
+	else
+		return left > right;
+}
+
+/******************************************************/
+void LogEditorWindow::find()
+{
+	clear();
+
+	// 0 = "Speed"
+	// 1 = "Heart rate"
+	// 2 = "Cadence"
+	// 3 = "Altitude"
+	// 4 = "Latitude"
+	// 5 = "Longitude"
+	// 6 = "Temperature"
+	const int index = _field_selection->currentIndex();
+	const double value = _search_value->value();
+	_search_result_indecies.clear();
+
+	for (int r=0; r < _table->rowCount(); ++r)
+	{
+		QTableWidgetItem* item = _table->item(r, index + 2);
+		if (searchComparison(item->text().toDouble(), value))
+		{		
+			item->setBackgroundColor(Qt::red);
+			_search_result_indecies.push_back(r);
+		}
+	}
+
+	// Scroll to the first search result
+	if (_search_result_indecies.size() > 0)
+	{
+		_table->verticalScrollBar()->setValue(_search_result_indecies[0]);
+	}
+	_search_result_index = 0;
+
+}
+
+/******************************************************/
+void LogEditorWindow::clear()
+{
+	for (int r=0; r < _table->rowCount(); ++r)
+	{
+		for (int c=2; c < _table->columnCount(); ++c)
+		{
+			_table->item(r, c)->setBackgroundColor(Qt::white);
+		}
+	}
+	_search_result_indecies.clear();
+	_search_result_index = 0;
+	_table->verticalScrollBar()->setValue(0);
+}
+
+/******************************************************/
+void LogEditorWindow::next()
+{
+	_search_result_index++;
+	if (_search_result_index < (int)_search_result_indecies.size())
+		_table->verticalScrollBar()->setValue(_search_result_indecies[_search_result_index]);
+	else
+		QMessageBox::information(this, tr("RideLogEditor"), tr("Reached end of search results."));
+}
+
+/******************************************************/
+void LogEditorWindow::save()
+{
+	QMessageBox::information(this, tr("RideLogEditor"), tr("This will rename the original file to ") + _data_log->filename() + ".orig and save your edits in the current filename.");
+
+	FitEncoder fit_encoder;
+	
+	if (!fit_encoder.encode(tr("test.fit"), *_data_log))
+		QMessageBox::warning(this, tr("RideLogEditor"), tr("This will rename the original file to ") + _data_log->filename() + ".orig and save your edits in the current filename.");
+}
+
+/******************************************************/
+void LogEditorWindow::split()
+{
+	QMessageBox::information(this, tr("RideLogEditor"), tr("This will save a copy of the file to ") + _data_log->filename() + ".pt1 " + _data_log->filename() + ".pt2.");
 }

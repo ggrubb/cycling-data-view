@@ -19,19 +19,31 @@ class LogEditorWindow : public QWidget
 
  public slots:
 	void displayRide();
+
+ public slots:
+	void find();
+	void clear();
+	void next();
+
+	void save();
+	void split();
+	//void exit();
 	
  private:
-	void clearTable();
-	void clearTotalsColumn();
-
+	bool searchComparison(double left, double right);
+	
+	// GUI members
 	QTableWidget* _table;
 	QLabel* _head_label;
 	QComboBox* _field_selection;
 	QComboBox* _equality_selection;
 	QDoubleSpinBox* _search_value;
 
+	// Indecies for scrolling through search results
 	std::vector<int> _search_result_indecies;
+	int	_search_result_index;
 
+	// The data and user
 	DataLog* _data_log;
 	User* _user;
  };
