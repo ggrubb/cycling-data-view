@@ -16,7 +16,7 @@ QGroupBox("Date Selection"),
 _start_date(QDate(1979,7,18)),
 _end_date(QDate(2080,12,31))
 {
-	assert(end_date.daysTo(start_date) < 0);
+	assert(_end_date.daysTo(_start_date) < 0);
 
 	// Create GUI widgets
 	_all_dates_cb = new QCheckBox("All dates");
