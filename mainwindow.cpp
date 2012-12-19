@@ -38,7 +38,7 @@
 
 #define COMPANY_NAME "RideViewer"
 #define APP_NAME "RiderViewer"
-#define VERSION_INFO "Version 1.3 (October 2012)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
+#define VERSION_INFO "Version 1.3 beta (Dec 2012)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
 #define GARMIN_LOG_DIRECTORY "/garmin/activities/"
 
@@ -351,16 +351,6 @@ void MainWindow::logFileEditor()
 }
 
 /******************************************************/
-void MainWindow::setSingleLogMode()
-{
-}
-
-/******************************************************/
-void MainWindow::setDoubleLogMode()
-{
-}
-
-/******************************************************/
 void MainWindow::createActions()
 {
 	// Actions menu items
@@ -380,17 +370,6 @@ void MainWindow::createActions()
 
 	_exit_act = new QAction(tr("Exit"), this);
 	connect(_exit_act, SIGNAL(triggered()), this, SLOT(close()));
-
-	// Mode menu items
-	_single_log_mode_act = new QAction(tr("Single Log Mode"), this);
-	_single_log_mode_act->setCheckable(true);
-	_single_log_mode_act->setChecked(true);
-	connect(_single_log_mode_act, SIGNAL(triggered()), this, SLOT(setSingleLogMode()));
-	
-	_double_log_mode_act = new QAction(tr("Side-by-side Log Mode"), this);
-	_double_log_mode_act->setCheckable(true);
-	_double_log_mode_act->setChecked(false);
-	connect(_double_log_mode_act, SIGNAL(triggered()), this, SLOT(setDoubleLogMode()));
 
 	// Tools menu items
 	_totals_act = new QAction(tr("Total Metrics..."), this);
@@ -432,10 +411,6 @@ void MainWindow::createMenus()
 	_file_menu->addSeparator();
 	_file_menu->addAction(_exit_act);
 
-	_mode_menu = new QMenu(tr("&Mode"), this);
-	_mode_menu->addAction(_single_log_mode_act);
-	_mode_menu->addAction(_double_log_mode_act);
-
 	_tools_menu = new QMenu(tr("&Tools"), this);
 	_tools_menu->addAction(_totals_act);
 	_tools_menu->addAction(_map_collage_act); 
@@ -448,7 +423,6 @@ void MainWindow::createMenus()
 	_help_menu->addAction(_goto_project_page_act);
 
 	menuBar()->addMenu(_file_menu);
-	menuBar()->addMenu(_mode_menu);
 	menuBar()->addMenu(_tools_menu);
 	menuBar()->addMenu(_help_menu);
 }

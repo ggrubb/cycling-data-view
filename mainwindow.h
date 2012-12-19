@@ -34,8 +34,6 @@
     void promptForUser();
     void addUser();
     void editUser();
-	void setSingleLogMode();
-	void setDoubleLogMode();
 	void retrieveLogs();
     void totals();
 	void mapCollage();
@@ -57,8 +55,6 @@
     QAction* _add_act;
     QAction* _edit_act;
     QAction* _retrieve_logs_act;
-	QAction* _single_log_mode_act;
-	QAction* _double_log_mode_act;
     QAction* _totals_act;
     QAction* _map_collage_act;
     QAction* _ride_interval_finder_act;
@@ -69,7 +65,6 @@
 	QAction* _goto_project_page_act;
 
     QMenu* _file_menu;
-    QMenu* _mode_menu;
     QMenu* _tools_menu;
     QMenu* _help_menu;
 
