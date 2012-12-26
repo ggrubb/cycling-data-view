@@ -347,6 +347,7 @@ void MainWindow::logFileEditor()
 		_log_file_editor = 
 			new LogEditorWindow(_current_user, _ride_selector->currentDataLog());
 		_log_file_editor->show();
+		connect(_log_file_editor, SIGNAL(dataLogUpdated(DataLog*)), this, SLOT(setRide(DataLog*)));
 	}
 }
 

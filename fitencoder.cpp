@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cassert>
 #include <math.h>
+#include <fstream>
 
 #include "garminfitsdk/fit_encode.hpp"
 
@@ -18,22 +19,21 @@ FitEncoder::FitEncoder()
 /******************************************************/
 FitEncoder::~FitEncoder()
 {}
+
 /******************************************************/
 bool FitEncoder::encode(const QString& filename, DataLog& data_log)
 {
-	//bool read_success = false;
-
 	// Define the file to read
-	_file = new std::fstream;
-    _file->open(filename.toStdString().c_str(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+	std::fstream file;
+    file.open(filename.toStdString().c_str(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc );
 	
-	if (!_file->is_open())
+	if (!file.is_open())
 	{
 		return false;
 	}
 
 	fit::Encode encode;
-	encode.Open(*_file);
+	encode.Open(file);
 
 	const int secs_offset = _base_date.secsTo(data_log.date());
 	for (int i=0; i < data_log.numPoints(); ++i)
@@ -58,6 +58,8 @@ bool FitEncoder::encode(const QString& filename, DataLog& data_log)
 	for (int i=0; i < data_log.numLaps(); ++i)
 	{
 		fit::LapMesg msg;
+		msg.SetStartTime(data_log.lap(i).first + secs_offset);
+		msg.SetTimestamp(data_log.lap(i).second + secs_offset);
 
 		encode.Write(msg);
 	}
@@ -67,6 +69,6 @@ bool FitEncoder::encode(const QString& filename, DataLog& data_log)
 	  return false;
 	}
 
-	_file->close();
+	file.close();
 	return true;
 }

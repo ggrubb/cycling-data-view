@@ -17,17 +17,17 @@ class LogEditorWindow : public QWidget
 	LogEditorWindow(User* user, DataLog* data_log);
 	~LogEditorWindow();
 
- public slots:
-	void displayRide();
+ signals:
+	void dataLogUpdated(DataLog*);
 
  public slots:
+	void displayRide();
 	void find();
 	void clear();
 	void next();
 
 	void save();
 	void split();
-	//void exit();
 	
  private:
 	bool searchComparison(double left, double right);

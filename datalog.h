@@ -103,6 +103,14 @@ class DataLog
 	// Return the index at the specified distance
 	int indexFromDist(double dist);
 
+	// Save log to text file
+	void saveToTextFile(const QString& filename);
+
+	// Returns true if the data log has been modified, otherwise false
+	bool isModified() const;
+	// Sets the state of the modified flag for this log
+	void setModified(bool modified);
+
  private:
 	// Summary data
 	QString _filename;
@@ -167,6 +175,9 @@ class DataLog
 	bool _speed_fltd_valid;
 	bool _gradient_fltd_valid;
 	bool _power_fltd_valid;
+
+	// Holds the flag to indicate if the log has been modified
+	bool _modified;
  };
 
 #endif // DATALOG_H

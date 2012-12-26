@@ -133,7 +133,7 @@ void GoogleMapWindow::setEnabled(bool enabled)
 /******************************************************/
 void GoogleMapWindow::displayRide(DataLog* data_log)
 {
-	if (data_log != _data_log)
+	if (data_log != _data_log || data_log->isModified())
 	{
 		_data_log = data_log;
 

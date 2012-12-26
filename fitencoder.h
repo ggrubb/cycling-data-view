@@ -3,8 +3,6 @@
 
 #include "baseparser.h"
 
-#include <fstream>
-
 #include <QDateTime.h>
 
 #include "garminfitsdk/fit_mesg_broadcaster.hpp"
@@ -23,8 +21,6 @@ class FitEncoder
 	bool encode(const QString& filename, DataLog& data_log);
 
  private:
-	std::fstream* _file;
-
 	double _pos_factor;
 	QDateTime _base_date;
  };

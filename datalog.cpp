@@ -3,6 +3,9 @@
 #include <numeric>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
+
+#include <QDateTime.h>
 
 /****************************************/
 DataLog::DataLog():
@@ -18,7 +21,8 @@ _avg_speed(0.0),
 _avg_heart_rate(0.0),
 _avg_gradient(0.0),
 _avg_cadence(0.0),
-_lap_indecies()
+_lap_indecies(),
+_modified(false)
 {
 	// Initialise arrays of data
 	resize(0);
@@ -273,4 +277,43 @@ int DataLog::indexFromDist(double dist)
 		return numPoints()-1;
 	else
 		return it.value();
+}
+
+/****************************************/
+void DataLog::saveToTextFile(const QString& filename)
+{
+	std::ofstream file;
+	file.open(filename.toStdString().c_str());
+	file.precision(6);
+	file.setf(std::ios::fixed,std::ios::floatfield);
+
+	file << "time\t\tdist\t\tlat\t\tlong\t\talt\t\tspd\t\thr\t\tcad\t\tpwr\t\ttemp" << std::endl;
+	for (int i=0; i < numPoints(); ++i)
+	{
+		file << time(i) << "\t";
+		file << dist(i) << "\t";
+		file << ltd(i) << "\t";
+		file << lgd(i) << "\t";
+		file << alt(i) << "\t";
+		file << speed(i) << "\t";
+		file << heartRate(i) << "\t";
+		file << cadence(i) << "\t";
+		file << power(i) << "\t";
+		file << temp(i) << "\t";
+
+		file << std::endl;
+	}
+	file.close();
+}
+
+/****************************************/
+bool DataLog::isModified() const
+{
+	return _modified;
+}
+
+/****************************************/
+void DataLog::setModified(bool modified)
+{
+	_modified = modified;
 }

@@ -479,7 +479,7 @@ void PlotWindow::displayRide(DataLog* data_log, User* user)
 {
 	_user = user;
 
-	if (data_log != _data_log)
+	if (data_log != _data_log || data_log->isModified())
 	{
 		// Set the data
 		_data_log = data_log;

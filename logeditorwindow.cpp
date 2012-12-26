@@ -16,6 +16,8 @@
 #include <QPushButton.h>
 #include <QGroupBox.h>
 #include <QScrollBar.h>
+#include <QFile.h>
+#include <QString.h>
 
 #include <iostream>
 #include <cassert>
@@ -45,17 +47,17 @@ _user(user)
 	_head_label->setText("<b>Ride Data</b>");
 
 	// Log file options
-	QPushButton* save = new QPushButton("Save");
-	QPushButton* split = new QPushButton("Split Log");
-	QPushButton* exit = new QPushButton("Exit");
+	QPushButton* save = new QPushButton("Save Changes");
+	//QPushButton* split = new QPushButton("Split Log");
+	QPushButton* exit = new QPushButton("Exit Editor");
 	connect(save, SIGNAL(clicked()),this, SLOT(save()));
-	connect(split, SIGNAL(clicked()),this, SLOT(split()));
+	//connect(split, SIGNAL(clicked()),this, SLOT(split()));
 	connect(exit, SIGNAL(clicked()),this, SLOT(close()));
 
 	QWidget* file_operator_buttons = new QWidget;
 	QHBoxLayout* h_layout4 = new QHBoxLayout;
 	h_layout4->addWidget(save);
-	h_layout4->addWidget(split);
+	//h_layout4->addWidget(split);
 	h_layout4->addWidget(exit);
 	file_operator_buttons->setLayout(h_layout4);
 
@@ -91,7 +93,6 @@ _user(user)
 	h_layout1->addWidget(_field_selection);
 	h_layout1->addWidget(_equality_selection);
 	h_layout1->addWidget(_search_value);
-	//h_layout1->addStretch();
 	h_layout1->setSpacing(0);
 	h_layout1->setMargin(3);
 	search_criteria->setLayout(h_layout1);
@@ -101,7 +102,6 @@ _user(user)
 	h_layout2->addWidget(find);
 	h_layout2->addWidget(next);
 	h_layout2->addWidget(clear);
-	//h_layout2->addStretch();
 	h_layout2->setSpacing(0);
 	h_layout2->setMargin(3);
 	search_buttons->setLayout(h_layout2);
@@ -283,12 +283,76 @@ void LogEditorWindow::next()
 /******************************************************/
 void LogEditorWindow::save()
 {
-	QMessageBox::information(this, tr("RideLogEditor"), tr("This will rename the original file to ") + _data_log->filename() + ".orig and save your edits in the current filename.");
+	// Get the current values in the UI and store in the date log
+	int index = 0;
+	QTableWidgetItem* item;
+	for (int r=0; r < _table->rowCount(); ++r)
+	{
+		index = 0; // 0 = "Speed"
+		item = _table->item(r, index + 2);
+		_data_log->speed(r) = item->text().toDouble();
 
-	FitEncoder fit_encoder;
+		index = 1; // 1 = "Heart rate"
+		item = _table->item(r, index + 2);
+		_data_log->heartRate(r) = item->text().toDouble();
+
+		index = 2; // 2 = "Cadence"
+		item = _table->item(r, index + 2);
+		_data_log->cadence(r) = item->text().toDouble();
+
+		index = 3; // 3 = "Altitude"
+		item = _table->item(r, index + 2);
+		_data_log->alt(r) = item->text().toDouble();
+
+		index = 4; // 4 = "Latitude"
+		item = _table->item(r, index + 2);
+		_data_log->ltd(r) = item->text().toDouble();
+
+		index = 5; // 5 = "Longitude"
+		item = _table->item(r, index + 2);
+		_data_log->lgd(r) = item->text().toDouble();
+
+		index = 6; // 6 = "Temperature"
+		item = _table->item(r, index + 2);
+		_data_log->temp(r) = item->text().toDouble();
+	}
+
+	// Now write the log to disk
+	QString source_file = _data_log->filename();
+	source_file.replace("/", "\\");
+
+	QString target_file = _data_log->filename();
+	target_file.chop(3);
+	target_file.append("orig");
+	target_file.replace("/", "\\");
 	
-	if (!fit_encoder.encode(tr("test.fit"), *_data_log))
-		QMessageBox::warning(this, tr("RideLogEditor"), tr("This will rename the original file to ") + _data_log->filename() + ".orig and save your edits in the current filename.");
+	// Rename original file
+	bool original_backed_up = false;
+	if (QFile::exists(target_file))
+	{
+		original_backed_up = true;
+		QMessageBox::information(this, tr("RideLogEditor"), tr("Original file is already backed up - it will not be saved again"));
+	}
+
+	if (QFile::copy(source_file,target_file) && ! original_backed_up)
+	{
+		original_backed_up = true;
+		QMessageBox::information(this, tr("RideLogEditor"), tr("This will rename the original file:\n  ") + source_file + "\nto:\n  " + target_file +  "\nand save your edits in the current filename.");
+	}
+
+	if (original_backed_up)
+	{
+		// Encode to existing file
+		FitEncoder fit_encoder;
+		if (!fit_encoder.encode(_data_log->filename(), *_data_log))
+			QMessageBox::warning(this, tr("RideLogEditor"), tr("Failed to write file."));
+	}
+	//_data_log->saveToTextFile("saved_log.txt");
+
+	// Update the plots
+	_data_log->setModified(true); // log is modified so the plots will be updated
+	emit dataLogUpdated(_data_log);
+	_data_log->setModified(false); // plots are updated, so set modified flag back to false
 }
 
 /******************************************************/
