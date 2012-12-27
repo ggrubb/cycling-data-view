@@ -29,7 +29,7 @@ class PlotWindow : public QWidget
 
  public:
 	// Create plot and connect to google map and stats viewer
-	PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_view);
+	PlotWindow(boost::shared_ptr<GoogleMapWindow> google_map, boost::shared_ptr<DataStatisticsWindow> stats_view);
 	~PlotWindow();
 	
 	// Display the ride log in plots

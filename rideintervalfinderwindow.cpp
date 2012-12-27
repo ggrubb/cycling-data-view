@@ -27,12 +27,13 @@ using namespace std;
 
 /******************************************************/
 RideIntervalFinderWindow::RideIntervalFinderWindow(
-	GoogleMapWindow* google_map_window, boost::shared_ptr<User> user, DataLog* data_log):
+	boost::shared_ptr<GoogleMapWindow> google_map_window, 
+	boost::shared_ptr<User> user, 
+	DataLog* data_log):
 QWidget(),
 _google_map_window(google_map_window),
 _user(user),
 _current_data_log(data_log)
-
 {
 	// @todo: clean up this pointer mess!
 

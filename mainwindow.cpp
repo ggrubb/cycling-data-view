@@ -51,20 +51,20 @@ QMainWindow()
 
 	_current_user.reset(new User);
 
-	_google_map = new GoogleMapWindow();
-	_stats_view = new DataStatisticsWindow();
-	_plot_window = new PlotWindow(_google_map, _stats_view);
+	_google_map.reset(new GoogleMapWindow());
+	_stats_view.reset(new DataStatisticsWindow());
+	_plot_window.reset(new PlotWindow(_google_map, _stats_view));
 
-	_ride_selector = new RideSelectionWindow();
-	connect(_ride_selector, SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
-	connect(_ride_selector, SIGNAL(displayLap(int)),this,SLOT(setLap(int)));
+	_ride_selector.reset(new RideSelectionWindow());
+	connect(_ride_selector.get(), SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
+	connect(_ride_selector.get(), SIGNAL(displayLap(int)),this,SLOT(setLap(int)));
 
 	QWidget* central_widget = new QWidget;
 	QGridLayout* glayout1 = new QGridLayout(central_widget);
-	glayout1->addWidget(_ride_selector,0,0);
-	glayout1->addWidget(_plot_window,0,1);
-	glayout1->addWidget(_stats_view,1,0, Qt::AlignLeft | Qt::AlignTop);
-	glayout1->addWidget(_google_map,1,1);
+	glayout1->addWidget(_ride_selector.get(),0,0);
+	glayout1->addWidget(_plot_window.get(),0,1);
+	glayout1->addWidget(_stats_view.get(),1,0, Qt::AlignLeft | Qt::AlignTop);
+	glayout1->addWidget(_google_map.get(),1,1);
 
 	setCentralWidget(central_widget);
 	setWindowTitle("RideViewer");
@@ -110,12 +110,6 @@ void MainWindow::closeEvent(QCloseEvent* event)
 		QSettings settings(COMPANY_NAME, APP_NAME);
 		settings.setValue("Rider", _current_user->name());
 	}
-
-	// Delete members
-	delete _google_map;
-	delete _plot_window;
-	delete _stats_view;
-	delete _ride_selector;
 }
 
 /******************************************************/

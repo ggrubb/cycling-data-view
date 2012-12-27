@@ -230,7 +230,9 @@ void QwtCustomPlotPicker::xAxisUnitsChanged(int units)
 }
 
 /******************************************************/
-PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_view)
+PlotWindow::PlotWindow(
+	boost::shared_ptr<GoogleMapWindow> google_map, 
+	boost::shared_ptr<DataStatisticsWindow> stats_view)
 {
 	// Create the plot
 	_plot = new QwtPlot();
@@ -255,27 +257,27 @@ PlotWindow::PlotWindow(GoogleMapWindow* google_map, DataStatisticsWindow* stats_
 	_lap_markers.resize(0);
 	
 	// Connect this window to the google map
-	connect(this, SIGNAL(setMarkerPosition(int)), google_map, SLOT(setMarkerPosition(int)));
-	connect(this, SIGNAL(beginSelection(int)), google_map, SLOT(beginSelection(int)));
-	connect(this, SIGNAL(endSelection(int)), google_map, SLOT(endSelection(int)));
-	connect(this, SIGNAL(zoomSelection(int,int)), google_map, SLOT(zoomSelection(int,int)));
-	connect(this, SIGNAL(deleteSelection()), google_map, SLOT(deleteSelection()));
-	connect(this, SIGNAL(panSelection(int)), google_map, SLOT(moveSelection(int)));
-	connect(this, SIGNAL(panAndHoldSelection(int)), google_map, SLOT(moveAndHoldSelection(int)));
-	connect(this, SIGNAL(updateDataView()), google_map, SLOT(definePathColour()));
+	connect(this, SIGNAL(setMarkerPosition(int)), google_map.get(), SLOT(setMarkerPosition(int)));
+	connect(this, SIGNAL(beginSelection(int)), google_map.get(), SLOT(beginSelection(int)));
+	connect(this, SIGNAL(endSelection(int)), google_map.get(), SLOT(endSelection(int)));
+	connect(this, SIGNAL(zoomSelection(int,int)), google_map.get(), SLOT(zoomSelection(int,int)));
+	connect(this, SIGNAL(deleteSelection()), google_map.get(), SLOT(deleteSelection()));
+	connect(this, SIGNAL(panSelection(int)), google_map.get(), SLOT(moveSelection(int)));
+	connect(this, SIGNAL(panAndHoldSelection(int)), google_map.get(), SLOT(moveAndHoldSelection(int)));
+	connect(this, SIGNAL(updateDataView()), google_map.get(), SLOT(definePathColour()));
 
 	// Connect this window to the statistical viewer
-	connect(this, SIGNAL(zoomSelection(int,int)), stats_view, SLOT(displaySelectedRideStats(int,int)));
-	connect(this, SIGNAL(panAndHoldSelection(int)), stats_view, SLOT(moveSelection(int)));
-	connect(this, SIGNAL(deleteSelection()), stats_view, SLOT(deleteSelection()));
-	connect(this, SIGNAL(updateDataView()), stats_view, SLOT(displayCompleteRideStats()));
+	connect(this, SIGNAL(zoomSelection(int,int)), stats_view.get(), SLOT(displaySelectedRideStats(int,int)));
+	connect(this, SIGNAL(panAndHoldSelection(int)), stats_view.get(), SLOT(moveSelection(int)));
+	connect(this, SIGNAL(deleteSelection()), stats_view.get(), SLOT(deleteSelection()));
+	connect(this, SIGNAL(updateDataView()), stats_view.get(), SLOT(displayCompleteRideStats()));
 	
 	// Setup the axis
 	_plot->enableAxis(QwtPlot::yRight,true);
 	_plot->setAxisAutoScale(QwtPlot::xBottom,true);
 
 	QwtText axis_text;
-	QFont font =  _plot->axisFont(QwtPlot::xBottom);
+	QFont font = _plot->axisFont(QwtPlot::xBottom);
 	font.setPointSize(8);
 	axis_text.setFont(font);
 

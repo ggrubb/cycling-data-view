@@ -71,10 +71,11 @@
     QMenu* _tools_menu;
     QMenu* _help_menu;
 
-	GoogleMapWindow* _google_map;
-	PlotWindow* _plot_window;
-	DataStatisticsWindow* _stats_view;
-	RideSelectionWindow* _ride_selector;
+	boost::shared_ptr<GoogleMapWindow> _google_map;
+	boost::shared_ptr<PlotWindow> _plot_window;
+	boost::shared_ptr<DataStatisticsWindow> _stats_view;
+	boost::shared_ptr<RideSelectionWindow> _ride_selector;
+
 	boost::scoped_ptr<TotalsWindow> _totals_window;
 	boost::scoped_ptr<GoogleMapCollageWindow> _ride_collage;
 	boost::scoped_ptr<RideIntervalFinderWindow> _rider_interval_finder;

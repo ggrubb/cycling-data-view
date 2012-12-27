@@ -24,7 +24,10 @@ class RideIntervalFinderWindow : public QWidget
 	Q_OBJECT
 
  public:
-	RideIntervalFinderWindow(GoogleMapWindow* google_map_window, boost::shared_ptr<User> user, DataLog* data_log);
+	RideIntervalFinderWindow(
+		boost::shared_ptr<GoogleMapWindow> google_map_window, 
+		boost::shared_ptr<User> user, 
+		DataLog* data_log);
 	~RideIntervalFinderWindow();
 
  private slots:
@@ -69,7 +72,7 @@ class RideIntervalFinderWindow : public QWidget
 	LogDirectorySummary* _log_dir_summary;
 
 	// Maintain a handle to the Google map window to query it for current user route selection
-	GoogleMapWindow* _google_map_window;
+	boost::shared_ptr<GoogleMapWindow> _google_map_window;
 };
 
 #endif // RIDEINTERVALFINDERWINDOW_H
