@@ -85,7 +85,7 @@ private:
 };
 
 /******************************************************/
-GoogleMapCollageWindow::GoogleMapCollageWindow(User* user):
+GoogleMapCollageWindow::GoogleMapCollageWindow(boost::shared_ptr<User> user):
 _user(user)
 {
 	setWindowTitle("RideCollage");

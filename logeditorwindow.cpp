@@ -23,7 +23,7 @@
 #include <cassert>
 
 /******************************************************/
-LogEditorWindow::LogEditorWindow(User* user, DataLog* data_log):
+LogEditorWindow::LogEditorWindow(boost::shared_ptr<User> user, DataLog* data_log):
 _data_log(data_log),
 _user(user)
 {

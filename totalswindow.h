@@ -4,6 +4,8 @@
 #include <Qwidget.h>
 #include <QMap.h>
 
+#include <boost/shared_ptr.hpp>
+
 class User;
 class QwtPlotCurve;
 class QwtPlot;
@@ -16,7 +18,7 @@ class TotalsWindow : public QWidget
 {
 	Q_OBJECT
 public:
-	TotalsWindow(User* user);
+	TotalsWindow(boost::shared_ptr<User> user);
 	~TotalsWindow();
 
 private slots:
@@ -27,7 +29,7 @@ private:
 	void computeHistogramData();
 	void computeCurves();
 
-	User* _user;
+	boost::shared_ptr<User> _user;
 
 	BarChartItem* _hist_yearly_time;
 	BarChartItem* _hist_yearly_dist;

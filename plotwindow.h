@@ -6,6 +6,8 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 
+#include <boost/shared_ptr.hpp>
+
 class DataLog;
 class User;
 class GoogleMapWindow;
@@ -31,7 +33,7 @@ class PlotWindow : public QWidget
 	~PlotWindow();
 	
 	// Display the ride log in plots
-	void displayRide(DataLog* data_log, User* user);
+	void displayRide(DataLog* data_log, boost::shared_ptr<User> user);
 	
 	// Zoom to highlight a lap
 	void displayLap(int lap_index);
@@ -102,7 +104,7 @@ class PlotWindow : public QWidget
 	QwtPlotPanner* _plot_panner;
 
 	DataLog* _data_log;
-	User* _user;
+	boost::shared_ptr<User> _user;
 };
 
 #endif // PLOTWINDOW_H

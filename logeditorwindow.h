@@ -3,6 +3,8 @@
 
 #include <Qwidget.h>
 
+#include <boost/shared_ptr.hpp>
+
 class QTableWidget;
 class QLabel;
 class DataLog;
@@ -14,7 +16,7 @@ class LogEditorWindow : public QWidget
  {
 	 Q_OBJECT
  public:
-	LogEditorWindow(User* user, DataLog* data_log);
+	LogEditorWindow(boost::shared_ptr<User> user, DataLog* data_log);
 	~LogEditorWindow();
 
  signals:
@@ -45,7 +47,7 @@ class LogEditorWindow : public QWidget
 
 	// The data and user
 	DataLog* _data_log;
-	User* _user;
+	boost::shared_ptr<User> _user;
  };
 
 #endif // LOGEDITORWINDOW_H

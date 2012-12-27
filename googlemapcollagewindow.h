@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#include <boost/shared_ptr.hpp>
+
 class DataLog;
 class TcxParser;
 class FitParser;
@@ -25,7 +27,7 @@ class GoogleMapCollageWindow : public QWidget
 	Q_OBJECT
 
  public:
-	GoogleMapCollageWindow(User* user);
+	GoogleMapCollageWindow(boost::shared_ptr<User> user);
 	~GoogleMapCollageWindow();
 
  private slots:
@@ -52,7 +54,7 @@ class GoogleMapCollageWindow : public QWidget
 	ColourBar* _colour_bar;
 	int _max_count;
 	
-	User* _user;
+	boost::shared_ptr<User> _user;
 	LogDirectorySummary* _log_dir_summary;
 
 	DateSelectorWidget* _date_selector_widget;

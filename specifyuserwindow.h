@@ -3,12 +3,15 @@
  
 #include <Qwidget.h>
 
+#include <boost/shared_ptr.hpp>
+
 class QLineEdit;
 class QLabel;
 class QDoubleSpinBox;
 class QDoubleSpinBox;
 class QSpinBox;
 class User;
+#include <boost/shared_ptr.hpp>
 
 class SpecifyUserWindow : public QWidget
 {
@@ -17,7 +20,7 @@ public:
 	SpecifyUserWindow();
 	~SpecifyUserWindow();
 
-	void setUser(User* user);
+	void setUser(boost::shared_ptr<User> user);
 
 signals:
 	void userSelected(User* user);

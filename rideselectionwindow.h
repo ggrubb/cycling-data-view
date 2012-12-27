@@ -3,6 +3,8 @@
 
 #include <QWidget.h>
 
+#include <boost/shared_ptr.hpp>
+
 class QTreeView;
 class QStandardItemModel;
 class QModelIndex;
@@ -20,7 +22,7 @@ class RideSelectionWindow : public QWidget
 	RideSelectionWindow();
 	~RideSelectionWindow();
 
-	void setUser(User* user);
+	void setUser(boost::shared_ptr<User> user);
 	void refresh();
 	DataLog* currentDataLog();
 

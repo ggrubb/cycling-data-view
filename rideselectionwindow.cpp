@@ -70,7 +70,7 @@ void RideSelectionWindow::formatTreeView()
 }
 
 /******************************************************/
-void RideSelectionWindow::setUser(User* user)
+void RideSelectionWindow::setUser(boost::shared_ptr<User> user)
 {
 	const QString path = user->logDirectory();
 

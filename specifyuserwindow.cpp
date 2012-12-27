@@ -106,7 +106,7 @@ SpecifyUserWindow::~SpecifyUserWindow()
 }
 
 /******************************************************/
-void SpecifyUserWindow::setUser(User* user)
+void SpecifyUserWindow::setUser(boost::shared_ptr<User> user)
 {
 	_name_input->setText(user->name());
 	_log_directory_input->setText(user->logDirectory());

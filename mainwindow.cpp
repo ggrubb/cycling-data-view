@@ -44,19 +44,16 @@
 
 /******************************************************/
 MainWindow::MainWindow():
-QMainWindow(),
-_totals_window(0),
-_ride_collage(0)
+QMainWindow()
  {
 	createActions();
 	createMenus();
 
-	_current_user = new User();
+	_current_user.reset(new User);
 
 	_google_map = new GoogleMapWindow();
 	_stats_view = new DataStatisticsWindow();
 	_plot_window = new PlotWindow(_google_map, _stats_view);
-	_totals_window = 0;
 
 	_ride_selector = new RideSelectionWindow();
 	connect(_ride_selector, SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
@@ -119,28 +116,6 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	delete _plot_window;
 	delete _stats_view;
 	delete _ride_selector;
-	delete _current_user;
-	if (_totals_window)
-	{
-		_totals_window->close();
-		delete _totals_window;
-	}
-	if (_ride_collage)
-	{
-		_ride_collage->close();
-		delete _ride_collage;
-	}
-	if (_rider_interval_finder)
-	{	
-		_rider_interval_finder->close();
-		delete _rider_interval_finder;
-	}
-	if (_log_file_editor)
-	{	
-		_log_file_editor->close();
-		delete _log_file_editor;
-	}
-	
 }
 
 /******************************************************/
@@ -156,11 +131,11 @@ void MainWindow::promptForUser()
 	if (user_filenames.length() > 0)
 	{
 		// Load the users from file
-		std::vector<User*> users;
+		std::vector<boost::shared_ptr<User> > users;
 		QStringList user_names;
 		for (int i = 0; i < user_filenames.length(); ++i)
 		{
-			User* user = new User;
+			boost::shared_ptr<User> user(new User);
 			user->readFromFile(QDir::currentPath() + USER_DIRECTORY + user_filenames[i]);
 			users.push_back(user);
 
@@ -193,7 +168,7 @@ void MainWindow::editUser()
 }
 
 /******************************************************/
-void MainWindow::setUser(User* user)
+void MainWindow::setUser(boost::shared_ptr<User> user)
 {
 	_current_user = user;
 	_ride_selector->setUser(_current_user);
@@ -313,7 +288,7 @@ void MainWindow::totals()
 {
 	if (_current_user)
 	{
-		_totals_window = new TotalsWindow(_current_user);
+		_totals_window.reset(new TotalsWindow(_current_user));
 		_totals_window->show();
 	}
 }
@@ -323,7 +298,7 @@ void MainWindow::mapCollage()
 {
 	if (_current_user)
 	{
-		_ride_collage = new GoogleMapCollageWindow(_current_user);
+		_ride_collage.reset(new GoogleMapCollageWindow(_current_user));
 		_ride_collage->show();
 	}
 }
@@ -333,8 +308,7 @@ void MainWindow::rideIntervalFinder()
 {
 	if (_current_user)
 	{
-		_rider_interval_finder = 
-			new RideIntervalFinderWindow(_google_map, _current_user, _ride_selector->currentDataLog());
+		_rider_interval_finder.reset(new RideIntervalFinderWindow(_google_map, _current_user, _ride_selector->currentDataLog()));
 		_rider_interval_finder->show();
 	}
 }
@@ -344,10 +318,9 @@ void MainWindow::logFileEditor()
 {
 	if (_current_user)
 	{
-		_log_file_editor = 
-			new LogEditorWindow(_current_user, _ride_selector->currentDataLog());
+		_log_file_editor.reset(new LogEditorWindow(_current_user, _ride_selector->currentDataLog()));
 		_log_file_editor->show();
-		connect(_log_file_editor, SIGNAL(dataLogUpdated(DataLog*)), this, SLOT(setRide(DataLog*)));
+		connect(_log_file_editor.get(), SIGNAL(dataLogUpdated(DataLog*)), this, SLOT(setRide(DataLog*)));
 	}
 }
 

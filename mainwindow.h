@@ -1,6 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
+
 #include <QMainWindow.h>
 
  class QAction;
@@ -42,7 +45,7 @@
     void about();
     void help();
 	void goToProjectPage();
-	void setUser(User* user);
+	void setUser(boost::shared_ptr<User> user);
 	void setRide(DataLog* data_log);
 	void setLap(int lap_index);
 	
@@ -72,12 +75,12 @@
 	PlotWindow* _plot_window;
 	DataStatisticsWindow* _stats_view;
 	RideSelectionWindow* _ride_selector;
-	TotalsWindow* _totals_window;
-	GoogleMapCollageWindow* _ride_collage;
-	RideIntervalFinderWindow* _rider_interval_finder;
-	LogEditorWindow* _log_file_editor;
+	boost::scoped_ptr<TotalsWindow> _totals_window;
+	boost::scoped_ptr<GoogleMapCollageWindow> _ride_collage;
+	boost::scoped_ptr<RideIntervalFinderWindow> _rider_interval_finder;
+	boost::scoped_ptr<LogEditorWindow> _log_file_editor;
 
-	User* _current_user;
+	boost::shared_ptr<User> _current_user;
  };
 
  #endif // MAINWINDOW_H

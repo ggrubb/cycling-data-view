@@ -27,7 +27,7 @@ using namespace std;
 
 /******************************************************/
 RideIntervalFinderWindow::RideIntervalFinderWindow(
-	GoogleMapWindow* google_map_window, User* user, DataLog* data_log):
+	GoogleMapWindow* google_map_window, boost::shared_ptr<User> user, DataLog* data_log):
 QWidget(),
 _google_map_window(google_map_window),
 _user(user),

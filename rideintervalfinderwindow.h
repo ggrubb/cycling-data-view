@@ -5,6 +5,8 @@
 #include <QWidget.h>
 #include <QMap.h>
 
+#include <boost/shared_ptr.hpp>
+
 class DataLog;
 class TcxParser;
 class FitParser;
@@ -22,7 +24,7 @@ class RideIntervalFinderWindow : public QWidget
 	Q_OBJECT
 
  public:
-	RideIntervalFinderWindow(GoogleMapWindow* google_map_window, User* user, DataLog* data_log);
+	RideIntervalFinderWindow(GoogleMapWindow* google_map_window, boost::shared_ptr<User> user, DataLog* data_log);
 	~RideIntervalFinderWindow();
 
  private slots:
@@ -62,7 +64,7 @@ class RideIntervalFinderWindow : public QWidget
 	QTreeView* _tree;
 	QStandardItemModel* _model;
 
-	User* _user;
+	boost::shared_ptr<User> _user;
 	DataLog* _current_data_log;
 	LogDirectorySummary* _log_dir_summary;
 

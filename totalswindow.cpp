@@ -57,7 +57,7 @@ private:
 };
 
 /******************************************************/
-TotalsWindow::TotalsWindow(User* user):
+TotalsWindow::TotalsWindow(boost::shared_ptr<User> user):
 QWidget()
 {
 	_user = user;

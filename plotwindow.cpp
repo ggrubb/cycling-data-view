@@ -475,7 +475,7 @@ void PlotWindow::setEnabled(bool enabled)
 }
 
 /******************************************************/
-void PlotWindow::displayRide(DataLog* data_log, User* user)
+void PlotWindow::displayRide(DataLog* data_log, boost::shared_ptr<User> user)
 {
 	_user = user;
 

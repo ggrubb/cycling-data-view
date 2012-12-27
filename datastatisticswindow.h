@@ -3,6 +3,8 @@
 
 #include <Qwidget.h>
 
+#include <boost/shared_ptr.hpp>
+
 class QTableWidget;
 class QLabel;
 class DataLog;
@@ -15,7 +17,7 @@ class DataStatisticsWindow : public QWidget
 	DataStatisticsWindow();
 	~DataStatisticsWindow();
 
-	void displayRide(DataLog* data_log, User* user);
+	void displayRide(DataLog* data_log, boost::shared_ptr<User> user);
 
  public slots:
 	void displayCompleteRideStats();
@@ -31,7 +33,7 @@ class DataStatisticsWindow : public QWidget
 	QTableWidget* _table;
 	QLabel* _head_label;
 	DataLog* _data_log;
-	User* _user;
+	boost::shared_ptr<User> _user;
 
 	// The start index of selection to highlight
 	int _selection_begin_idx;

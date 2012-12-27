@@ -85,7 +85,7 @@ DataStatisticsWindow::~DataStatisticsWindow()
 }
 
 /******************************************************/
-void DataStatisticsWindow::displayRide(DataLog* data_log, User* user)
+void DataStatisticsWindow::displayRide(DataLog* data_log, boost::shared_ptr<User> user)
 {
 	_user = user;
 
