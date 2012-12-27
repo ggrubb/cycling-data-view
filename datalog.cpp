@@ -236,7 +236,7 @@ std::pair<int, int>& DataLog::lap(int lap_index)
 /****************************************/
 void DataLog::addLap(std::pair<int, int>& lap)
 {
-	assert(lap.first < lap.second);
+	assert(lap.first < lap.second || (lap.second == lap.first && lap.first == 0) );
 	assert(lap.first >= 0);
 	assert(lap.second < numPoints());
 
