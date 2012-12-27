@@ -3,6 +3,8 @@
 
 #include <qwt_plot_picker.h>
 
+#include <boost/shared_ptr.hpp>
+
 class DataLog;
 
 // A custom plot picker to highligh the value of curve closest to the pointer
@@ -16,10 +18,10 @@ class QwtCustomPlotPicker : public QwtPlotPicker
 	};
 
 	public:
-		QwtCustomPlotPicker(int x_axis, int y_axis, DataLog* data_log, QwtPlotCanvas* canvas);
+		QwtCustomPlotPicker(int x_axis, int y_axis, boost::shared_ptr<DataLog> data_log, QwtPlotCanvas* canvas);
 
 		// Set the data log for this picker
-		void setDataLog(DataLog* data_log);
+		void setDataLog(boost::shared_ptr<DataLog> data_log);
 
 	protected:
 		// Surpress default tracker drawing
@@ -32,7 +34,7 @@ class QwtCustomPlotPicker : public QwtPlotPicker
 		void xAxisUnitsChanged(int units);
 
 	private:
-		DataLog* _data_log;
+		boost::shared_ptr<DataLog> _data_log;
 		AxisUnits _x_axis_units;
 };
 

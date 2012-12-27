@@ -27,7 +27,7 @@ const QString& LogDirectorySummary::logDirectory() const
 /****************************************/
 const LogSummary& LogDirectorySummary::log(int idx) const
 {
-	assert(idx < _logs.size());
+	assert(idx < (int)_logs.size());
 	assert(idx >= 0);
 
 	return _logs[idx];
@@ -154,7 +154,7 @@ void LogDirectorySummary::writeToFile() const
 }
 
 /******************************************************/
-void LogDirectorySummary::addLogsToSummary(const std::vector<DataLog*> data_logs)
+void LogDirectorySummary::addLogsToSummary(const std::vector<boost::shared_ptr<DataLog> > data_logs)
 {
 	for (unsigned int lg = 0; lg < data_logs.size(); ++lg)
 	{

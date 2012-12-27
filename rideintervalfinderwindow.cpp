@@ -29,14 +29,12 @@ using namespace std;
 RideIntervalFinderWindow::RideIntervalFinderWindow(
 	boost::shared_ptr<GoogleMapWindow> google_map_window, 
 	boost::shared_ptr<User> user, 
-	DataLog* data_log):
+	boost::shared_ptr<DataLog> data_log):
 QWidget(),
 _google_map_window(google_map_window),
 _user(user),
 _current_data_log(data_log)
 {
-	// @todo: clean up this pointer mess!
-
 	setWindowTitle("RideIntervalFinder");
 	setWindowIcon(QIcon("./resources/rideviewer_head128x128.ico")); 
 
@@ -104,15 +102,15 @@ void RideIntervalFinderWindow::formatTreeView()
 }
 
 /******************************************************/
-bool RideIntervalFinderWindow::parse(const QString filename, DataLog* data_log)
+bool RideIntervalFinderWindow::parse(const QString filename, boost::shared_ptr<DataLog> data_log)
 {
 	if (filename.contains(".fit"))
 	{
-		return _fit_parser->parse(filename, *data_log);
+		return _fit_parser->parse(filename, data_log);
 	}
 	else if (filename.contains(".tcx"))
 	{
-		return _tcx_parser->parse(filename, *data_log);
+		return _tcx_parser->parse(filename, data_log);
 	}
 	else
 	{
@@ -160,7 +158,7 @@ void RideIntervalFinderWindow::findIntervals()
 		const QDate date = _log_dir_summary->log(i).date();
 		if (date >= _date_selector_widget->minDate() && date <= _date_selector_widget->maxDate())
 		{
-			DataLog* data_log = new DataLog;	
+			boost::shared_ptr<DataLog> data_log(new DataLog);	
 			if (parse(filename, data_log)) // if the log files is successfully parsed
 			{	
 				if (data_log->lgdValid() && data_log->ltdValid()) // if we have gps data in this log
@@ -210,7 +208,6 @@ void RideIntervalFinderWindow::findIntervals()
 					}
 				}
 			}
-			delete data_log;
 		}
 	}
 }
@@ -287,7 +284,7 @@ bool RideIntervalFinderWindow::verifyRoute(
 {
 	const int num_verification_pts = 10; // we use this many points along route to verify them
 
-	// We select points evenly along route and verify they are all found
+	// We select points evenly along route
 	int pts_verified = 0;
 	const int increment = (end_index1 - start_index1)/num_verification_pts;
 	for (int pt1 = start_index1; pt1 < end_index1; pt1+=increment)

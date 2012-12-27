@@ -17,7 +17,7 @@ class DataStatisticsWindow : public QWidget
 	DataStatisticsWindow();
 	~DataStatisticsWindow();
 
-	void displayRide(DataLog* data_log, boost::shared_ptr<User> user);
+	void displayRide(boost::shared_ptr<DataLog> data_log, boost::shared_ptr<User> user);
 
  public slots:
 	void displayCompleteRideStats();
@@ -32,7 +32,7 @@ class DataStatisticsWindow : public QWidget
 
 	QTableWidget* _table;
 	QLabel* _head_label;
-	DataLog* _data_log;
+	boost::shared_ptr<DataLog> _data_log;
 	boost::shared_ptr<User> _user;
 
 	// The start index of selection to highlight

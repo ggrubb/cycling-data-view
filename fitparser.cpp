@@ -9,7 +9,7 @@
 #include "garminfitsdk/fit_decode.hpp"
 
 /******************************************************/
-Listener::Listener(DataLog* data_log):
+Listener::Listener(boost::shared_ptr<DataLog> data_log):
 	_data_log(data_log),
 	_track_point_index(0),
 	_start_time(0)
@@ -96,7 +96,7 @@ FitParser::~FitParser()
 {}
 
 /******************************************************/
-bool FitParser::parseRideDetails(DataLog& data_log)
+bool FitParser::parseRideDetails(boost::shared_ptr<DataLog> data_log)
 {
 	try
 	{
@@ -106,27 +106,27 @@ bool FitParser::parseRideDetails(DataLog& data_log)
 		// Perform some clean up on the data
 
 		// Cull unused points
-		data_log.resize(_listener->numPointsRead());
-		data_log.computeMaps();
+		data_log->resize(_listener->numPointsRead());
+		data_log->computeMaps();
 
 		// Convert laps from time to index
-		for (int i=0; i < data_log.numLaps(); ++i)
+		for (int i=0; i < data_log->numLaps(); ++i)
 		{
-			data_log.lap(i).first = data_log.indexFromTime(data_log.lap(i).first);
-			data_log.lap(i).second = data_log.indexFromTime(data_log.lap(i).second);
+			data_log->lap(i).first = data_log->indexFromTime(data_log->lap(i).first);
+			data_log->lap(i).second = data_log->indexFromTime(data_log->lap(i).second);
 		}
 
 		// Clean up sporadic empty GPS points
-		for (int i=1; i < data_log.numPoints(); ++i)
+		for (int i=1; i < data_log->numPoints(); ++i)
 		{
-			if (data_log.lgd(i) == 0 && data_log.ltd(i) == 0 && data_log.dist(i) != 0)
+			if (data_log->lgd(i) == 0 && data_log->ltd(i) == 0 && data_log->dist(i) != 0)
 			{
-				data_log.lgd(i) = data_log.lgd(i-1);
-				data_log.ltd(i) = data_log.ltd(i-1);
+				data_log->lgd(i) = data_log->lgd(i-1);
+				data_log->ltd(i) = data_log->ltd(i-1);
 			}
 		}
 
-		setDataValidFlags(data_log);
+		setDataValidFlags(*data_log);
 
 		return true;
 	}
@@ -137,30 +137,30 @@ bool FitParser::parseRideDetails(DataLog& data_log)
 }
 
 /******************************************************/
-bool FitParser::parse(const QString& filename, DataLog& data_log)
+bool FitParser::parse(const QString& filename, boost::shared_ptr<DataLog> data_log)
 {
 	bool read_success = false;
 
 	// Define the file to read
-	_file = new std::fstream;
+	_file.reset(new std::fstream);
     _file->open(filename.toStdString().c_str(), std::ios::in | std::ios::binary);
 	
 	fit::Decode decode;
 	read_success = _file->is_open() && decode.CheckIntegrity(*_file);
 	
-	_mesg_broadcaster = new fit::MesgBroadcaster;
-	_listener = new Listener(&data_log);
+	_mesg_broadcaster.reset(new fit::MesgBroadcaster);
+	_listener.reset(new Listener(data_log));
 	_mesg_broadcaster->AddListener((fit::RecordMesgListener &)*_listener);
 	_mesg_broadcaster->AddListener((fit::LapMesgListener &)*_listener);
 	
 	// Extract the data
 	if (read_success)
 	{
-		data_log.filename() = filename;
+		data_log->filename() = filename;
 		read_success = parseRideDetails(data_log);
 		if (read_success)
 		{
-			computeAdditionalDetailts(data_log);
+			computeAdditionalDetailts(*data_log);
 		}
 	}
 

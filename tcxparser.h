@@ -5,6 +5,8 @@
 
 #include <qtxml/qdomdocument>
 
+#include <boost/shared_ptr.hpp>
+
 class DataLog;
 
 class TcxParser : public BaseParser
@@ -14,10 +16,10 @@ class TcxParser : public BaseParser
 	~TcxParser();
 
 	// Parses data from .tcx in filename. Returns true if file was parsed successfully
-	bool parse(const QString& filename, DataLog& data_log);
+	bool parse(const QString& filename, boost::shared_ptr<DataLog> data_log);
 
  protected:
-	bool parseRideDetails(DataLog& data_log);
+	bool parseRideDetails(boost::shared_ptr<DataLog> data_log);
 
  private:
 	QDomDocument _dom_document;

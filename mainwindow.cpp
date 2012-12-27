@@ -38,7 +38,7 @@
 
 #define COMPANY_NAME "RideViewer"
 #define APP_NAME "RiderViewer"
-#define VERSION_INFO "Version 1.3 beta (Dec 2012)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
+#define VERSION_INFO "Version 1.3 (Dec 2012)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
 #define USER_DIRECTORY "/riders/"
 #define GARMIN_LOG_DIRECTORY "/garmin/activities/"
 
@@ -56,7 +56,7 @@ QMainWindow()
 	_plot_window.reset(new PlotWindow(_google_map, _stats_view));
 
 	_ride_selector.reset(new RideSelectionWindow());
-	connect(_ride_selector.get(), SIGNAL(displayRide(DataLog*)),this,SLOT(setRide(DataLog*)));
+	connect(_ride_selector.get(), SIGNAL(displayRide(boost::shared_ptr<DataLog>)),this,SLOT(setRide(boost::shared_ptr<DataLog>)));
 	connect(_ride_selector.get(), SIGNAL(displayLap(int)),this,SLOT(setLap(int)));
 
 	QWidget* central_widget = new QWidget;
@@ -177,7 +177,7 @@ void MainWindow::setUser(boost::shared_ptr<User> user)
 }
 
 /******************************************************/
-void MainWindow::setRide(DataLog* data_log)
+void MainWindow::setRide(boost::shared_ptr<DataLog> data_log)
 {
 	// Plot 2d curves (important to be called first since it is responsible for signal filtering)
 	_plot_window->displayRide(data_log, _current_user);
@@ -314,7 +314,7 @@ void MainWindow::logFileEditor()
 	{
 		_log_file_editor.reset(new LogEditorWindow(_current_user, _ride_selector->currentDataLog()));
 		_log_file_editor->show();
-		connect(_log_file_editor.get(), SIGNAL(dataLogUpdated(DataLog*)), this, SLOT(setRide(DataLog*)));
+		connect(_log_file_editor.get(), SIGNAL(dataLogUpdated(boost::shared_ptr<DataLog>)), this, SLOT(setRide(boost::shared_ptr<DataLog>)));
 	}
 }
 

@@ -46,7 +46,7 @@
     void help();
 	void goToProjectPage();
 	void setUser(boost::shared_ptr<User> user);
-	void setRide(DataLog* data_log);
+	void setRide(boost::shared_ptr<DataLog> data_log);
 	void setLap(int lap_index);
 	
  private:

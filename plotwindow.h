@@ -29,11 +29,15 @@ class PlotWindow : public QWidget
 
  public:
 	// Create plot and connect to google map and stats viewer
-	PlotWindow(boost::shared_ptr<GoogleMapWindow> google_map, boost::shared_ptr<DataStatisticsWindow> stats_view);
+	PlotWindow(
+		boost::shared_ptr<GoogleMapWindow> google_map, 
+		boost::shared_ptr<DataStatisticsWindow> stats_view);
 	~PlotWindow();
 	
 	// Display the ride log in plots
-	void displayRide(DataLog* data_log, boost::shared_ptr<User> user);
+	void displayRide(
+		boost::shared_ptr<DataLog> data_log, 
+		boost::shared_ptr<User> user);
 	
 	// Zoom to highlight a lap
 	void displayLap(int lap_index);
@@ -103,7 +107,7 @@ class PlotWindow : public QWidget
 	QwtCustomPlotZoomer* _plot_zoomer;
 	QwtPlotPanner* _plot_panner;
 
-	DataLog* _data_log;
+	boost::shared_ptr<DataLog> _data_log;
 	boost::shared_ptr<User> _user;
 };
 

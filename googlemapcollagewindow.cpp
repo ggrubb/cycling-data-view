@@ -171,7 +171,7 @@ void GoogleMapCollageWindow::createCollage()
 		if (load_progress.wasCanceled())
 			break;
 
-		DataLog* data_log = new DataLog;	
+		boost::shared_ptr<DataLog> data_log(new DataLog);	
 		if (parse(filenames[i], data_log))
 		{	
 			if (data_log->lgdValid() && data_log->ltdValid())
@@ -211,7 +211,6 @@ void GoogleMapCollageWindow::createCollage()
 				}
 			}
 		}
-		delete data_log;
 	}
 	
 	if (_accumulated_points.size() > 0) // we have a valid path to show
@@ -225,15 +224,15 @@ void GoogleMapCollageWindow::createCollage()
 }
 
 /******************************************************/
-bool GoogleMapCollageWindow::parse(const QString filename, DataLog* data_log)
+bool GoogleMapCollageWindow::parse(const QString filename, boost::shared_ptr<DataLog> data_log)
 {
 	if (filename.contains(".fit"))
 	{
-		return _fit_parser->parse(filename, *data_log);
+		return _fit_parser->parse(filename, data_log);
 	}
 	else if (filename.contains(".tcx"))
 	{
-		return _tcx_parser->parse(filename, *data_log);
+		return _tcx_parser->parse(filename, data_log);
 	}
 	else
 	{

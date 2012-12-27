@@ -79,7 +79,8 @@ private:
 };
 
 /******************************************************/
-GoogleMapWindow::GoogleMapWindow()
+GoogleMapWindow::GoogleMapWindow():
+_data_log()
 {
 	_view = new QWebView();
 	_view->setPage(new ChromePage()); // hack required to get google maps to display for a desktop, not touchscreen
@@ -131,9 +132,9 @@ void GoogleMapWindow::setEnabled(bool enabled)
 }
 
 /******************************************************/
-void GoogleMapWindow::displayRide(DataLog* data_log)
+void GoogleMapWindow::displayRide(boost::shared_ptr<DataLog> data_log)
 {
-	if (data_log != _data_log || data_log->isModified())
+	if (data_log.get() != _data_log.get() || data_log->isModified())
 	{
 		_data_log = data_log;
 

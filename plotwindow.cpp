@@ -112,7 +112,7 @@ void QwtCustomPlotZoomer::drawRubberBand(QPainter* painter) const
 }
 
 /******************************************************/
-QwtCustomPlotPicker::QwtCustomPlotPicker(int x_axis, int y_axis, DataLog* data_log, QwtPlotCanvas* canvas):
+QwtCustomPlotPicker::QwtCustomPlotPicker(int x_axis, int y_axis, boost::shared_ptr<DataLog> data_log, QwtPlotCanvas* canvas):
 	QwtPlotPicker(x_axis,y_axis,QwtPlotPicker::UserRubberBand, QwtPicker::AlwaysOn, canvas),
 	_data_log(data_log),
 	_x_axis_units(DistAxis)
@@ -120,7 +120,7 @@ QwtCustomPlotPicker::QwtCustomPlotPicker(int x_axis, int y_axis, DataLog* data_l
 
 /******************************************************/
 void QwtCustomPlotPicker::setDataLog(
-	DataLog* data_log)
+	boost::shared_ptr<DataLog> data_log)
 {
 	_data_log = data_log;
 }
@@ -477,11 +477,13 @@ void PlotWindow::setEnabled(bool enabled)
 }
 
 /******************************************************/
-void PlotWindow::displayRide(DataLog* data_log, boost::shared_ptr<User> user)
+void PlotWindow::displayRide(
+	boost::shared_ptr<DataLog> data_log, 
+	boost::shared_ptr<User> user)
 {
 	_user = user;
 
-	if (data_log != _data_log || data_log->isModified())
+	if (data_log.get() != _data_log.get() || data_log->isModified())
 	{
 		// Set the data
 		_data_log = data_log;

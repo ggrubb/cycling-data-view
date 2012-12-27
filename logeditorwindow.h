@@ -16,11 +16,11 @@ class LogEditorWindow : public QWidget
  {
 	 Q_OBJECT
  public:
-	LogEditorWindow(boost::shared_ptr<User> user, DataLog* data_log);
+	LogEditorWindow(boost::shared_ptr<User> user, boost::shared_ptr<DataLog> data_log);
 	~LogEditorWindow();
 
  signals:
-	void dataLogUpdated(DataLog*);
+	void dataLogUpdated(boost::shared_ptr<DataLog>);
 
  public slots:
 	void displayRide();
@@ -46,7 +46,7 @@ class LogEditorWindow : public QWidget
 	int	_search_result_index;
 
 	// The data and user
-	DataLog* _data_log;
+	boost::shared_ptr<DataLog> _data_log;
 	boost::shared_ptr<User> _user;
  };
 

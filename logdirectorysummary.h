@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 class DataLog;
 
 /**********************************/
@@ -46,7 +48,7 @@ class LogDirectorySummary
 
 	void readFromFile();
 	void writeToFile() const;
-	void addLogsToSummary(const std::vector<DataLog*> data_logs);
+	void addLogsToSummary(const std::vector<boost::shared_ptr<DataLog> > data_logs);
 
 	LogSummary firstLog() const; // chronologically first log
 	LogSummary lastLog() const; // chronologically last log

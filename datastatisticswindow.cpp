@@ -85,11 +85,11 @@ DataStatisticsWindow::~DataStatisticsWindow()
 }
 
 /******************************************************/
-void DataStatisticsWindow::displayRide(DataLog* data_log, boost::shared_ptr<User> user)
+void DataStatisticsWindow::displayRide(boost::shared_ptr<DataLog> data_log, boost::shared_ptr<User> user)
 {
 	_user = user;
 
-	if (data_log != _data_log || data_log->isModified())
+	if (data_log.get() != _data_log.get() || data_log->isModified())
 	{
 		_data_log = data_log;
 

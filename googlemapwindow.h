@@ -7,6 +7,8 @@
 #include <QWebView.h>
 #include <QMap.h>
 
+#include <boost/shared_ptr.hpp>
+
 class DataLog;
 class QComboBox;
 class ColourBar;
@@ -20,7 +22,7 @@ class GoogleMapWindow : public QWidget
 	~GoogleMapWindow();
 
 	// Display the ride route on a google map
-	void displayRide(DataLog* data_log);
+	void displayRide(boost::shared_ptr<DataLog> data_log);
 
 	// Enable/disable all the user controls
 	void setEnabled(bool enabled);
@@ -81,7 +83,7 @@ private slots:
 	// The end index of selection to highlight
 	int _selection_end_idx;
 	// Pointer to the data log
-	DataLog* _data_log;
+	boost::shared_ptr<DataLog> _data_log;
 	// GUI controls
 	QComboBox* _path_colour_scheme;
 	ColourBar* _colour_bar;

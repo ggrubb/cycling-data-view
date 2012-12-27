@@ -4,6 +4,7 @@
 #include <QWidget.h>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 class QTreeView;
 class QStandardItemModel;
@@ -24,10 +25,10 @@ class RideSelectionWindow : public QWidget
 
 	void setUser(boost::shared_ptr<User> user);
 	void refresh();
-	DataLog* currentDataLog();
+	boost::shared_ptr<DataLog> currentDataLog();
 
  signals:
-	void displayRide(DataLog* data_log);
+	void displayRide(boost::shared_ptr<DataLog> data_log);
 	void displayLap(int lap_index);
 
 private slots:
@@ -36,7 +37,7 @@ private slots:
  private:
 	void populateTableWithRides();
 	void formatTreeView();
-	bool parse(const QString filename, DataLog* data_log);
+	bool parse(const QString filename, boost::shared_ptr<DataLog> data_log);
 
 	QTreeView* _tree;
 	QStandardItemModel* _model;
@@ -45,8 +46,8 @@ private slots:
 	TcxParser* _tcx_parser;
 	FitParser* _fit_parser;
 
-	DataLog* _current_data_log;
-	LogDirectorySummary* _log_dir_summary;
+	boost::shared_ptr<DataLog> _current_data_log;
+	boost::scoped_ptr<LogDirectorySummary> _log_dir_summary;
  };
 
 #endif // RIDESELECTIONWINDOW_H

@@ -41,7 +41,7 @@ class GoogleMapCollageWindow : public QWidget
 	std::string defineColours();
 	std::string defineCoords();
 
-	bool parse(const QString filename, DataLog* data_log);
+	bool parse(const QString filename, boost::shared_ptr<DataLog> data_log);
 
 	TcxParser* _tcx_parser;
 	FitParser* _fit_parser;

@@ -16,7 +16,9 @@
 #include <iostream>
 
 /******************************************************/
-RideSelectionWindow::RideSelectionWindow()
+RideSelectionWindow::RideSelectionWindow():
+_current_data_log(),
+_log_dir_summary()
 {
 	// Create dummy model with just the headers
 	QStandardItemModel* model = new QStandardItemModel;
@@ -46,9 +48,6 @@ RideSelectionWindow::RideSelectionWindow()
 	// Create parser and setup log directory summary
 	_tcx_parser = new TcxParser();
 	_fit_parser = new FitParser();
-	_current_data_log = 0;
-	_log_dir_summary = 0;
-
 }
 
 /******************************************************/
@@ -83,7 +82,7 @@ void RideSelectionWindow::setUser(boost::shared_ptr<User> user)
 	QStringList filenames = log_directory.entryList();
 
 	// Try to load log summary file if it exists
-	_log_dir_summary = new LogDirectorySummary(path);
+	_log_dir_summary.reset(new LogDirectorySummary(path));
 	_log_dir_summary->readFromFile();
 
 	// Compare files in directory with those in summary and remove if already in summary
@@ -101,10 +100,10 @@ void RideSelectionWindow::setUser(boost::shared_ptr<User> user)
 	load_progress.setWindowTitle("RideViewer");
 
 	// Load new log files in the directory
-	std::vector<DataLog*> data_logs;
+	std::vector<boost::shared_ptr<DataLog> > data_logs;
 	for (int i=0; i < filenames.size(); ++i)
 	{
-		DataLog* data_log = new DataLog;
+		boost::shared_ptr<DataLog> data_log(new DataLog);
 		const QString filename_with_path = log_directory.path() + "/" + filenames[i];
 		
 		if (parse(filename_with_path, data_log))
@@ -122,12 +121,6 @@ void RideSelectionWindow::setUser(boost::shared_ptr<User> user)
 	// Add the newly read rides to the summary
 	_log_dir_summary->addLogsToSummary(data_logs);
 	_log_dir_summary->writeToFile();
-
-	for (unsigned int i = 0; i < data_logs.size(); ++i)
-	{
-		if (_current_data_log != data_logs[i])
-			delete data_logs[i];
-	}
 
 	// Display information about the user 
 	_head_label->setText("<b>Ride Selector For: </b>" + user->name() + " (" + QString::number(_log_dir_summary->numLogs()) + " rides)");
@@ -216,7 +209,7 @@ void RideSelectionWindow::refresh()
 }
 
 /******************************************************/
-DataLog* RideSelectionWindow::currentDataLog()
+boost::shared_ptr<DataLog> RideSelectionWindow::currentDataLog()
 {
 	return _current_data_log;
 }
@@ -233,7 +226,7 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 		if (_current_data_log == 0 ||
 			_current_data_log->filename() != _log_dir_summary->log(item->text().toInt())._filename)
 		{
-			_current_data_log = new DataLog;
+			_current_data_log.reset(new DataLog);
 			parse(_log_dir_summary->log(item->text().toInt())._filename, _current_data_log);
 		}
 
@@ -248,7 +241,7 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 		if (_current_data_log == 0 ||
 			_current_data_log->filename() != _log_dir_summary->log(ride_item->text().toInt())._filename)
 		{
-			_current_data_log = new DataLog;
+			_current_data_log.reset(new DataLog);
 			parse(_log_dir_summary->log(ride_item->text().toInt())._filename, _current_data_log);
 			
 			// Notify to display the selected ride
@@ -264,15 +257,15 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 }
 
 /******************************************************/
-bool RideSelectionWindow::parse(const QString filename, DataLog* data_log)
+bool RideSelectionWindow::parse(const QString filename, boost::shared_ptr<DataLog> data_log)
 {
 	if (filename.contains(".fit"))
 	{
-		return _fit_parser->parse(filename, *data_log);
+		return _fit_parser->parse(filename, data_log);
 	}
 	else if (filename.contains(".tcx"))
 	{
-		return _tcx_parser->parse(filename, *data_log);
+		return _tcx_parser->parse(filename, data_log);
 	}
 	else
 	{

@@ -27,7 +27,7 @@ class RideIntervalFinderWindow : public QWidget
 	RideIntervalFinderWindow(
 		boost::shared_ptr<GoogleMapWindow> google_map_window, 
 		boost::shared_ptr<User> user, 
-		DataLog* data_log);
+		boost::shared_ptr<DataLog> data_log);
 	~RideIntervalFinderWindow();
 
  private slots:
@@ -40,7 +40,7 @@ class RideIntervalFinderWindow : public QWidget
 	void setModelColumnHeadings(QStandardItemModel& model) const;
 
 	// Parse the given logfile, resulting data is in data_log
-	bool parse(const QString filename, DataLog* data_log);
+	bool parse(const QString filename, boost::shared_ptr<DataLog> data_log);
 
 	// Populate table item with interval data
 	void populateIntervalData(
@@ -68,7 +68,7 @@ class RideIntervalFinderWindow : public QWidget
 	QStandardItemModel* _model;
 
 	boost::shared_ptr<User> _user;
-	DataLog* _current_data_log;
+	boost::shared_ptr<DataLog> _current_data_log;
 	LogDirectorySummary* _log_dir_summary;
 
 	// Maintain a handle to the Google map window to query it for current user route selection
