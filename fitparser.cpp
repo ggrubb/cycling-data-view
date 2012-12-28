@@ -29,7 +29,6 @@ void Listener::OnMesg(fit::RecordMesg& mesg)
 {
 	if (mesg.GetTimestamp() != FIT_DATE_TIME_INVALID)
 	{
-		QDateTime date_time = _base_date.addSecs((int)mesg.GetTimestamp());
 		if (_track_point_index == 0)
 		{
 			const int max_size = 40000; // 11.1 hrs, 1 sample per sec
@@ -84,7 +83,8 @@ void Listener::OnMesg(fit::LapMesg& mesg)
 		lap_start_time = (int)mesg.GetStartTime() - _start_time + 1;
 	}
 
-	_data_log->addLap(std::make_pair(lap_start_time, lap_end_time));
+	if (lap_start_time >= 0 && lap_end_time >= 0 && lap_start_time < _data_log->numPoints() && lap_end_time < _data_log->numPoints()) // sanity check
+		_data_log->addLap(std::make_pair(lap_start_time, lap_end_time));
 }
 
 /******************************************************/
