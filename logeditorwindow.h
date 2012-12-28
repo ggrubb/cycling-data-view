@@ -11,6 +11,7 @@ class DataLog;
 class User;
 class QComboBox;
 class QDoubleSpinBox;
+class QSpinBox;
 
 class LogEditorWindow : public QWidget
  {
@@ -40,6 +41,7 @@ class LogEditorWindow : public QWidget
 	QComboBox* _field_selection;
 	QComboBox* _equality_selection;
 	QDoubleSpinBox* _search_value;
+	QSpinBox* _split_index;
 
 	// Indecies for scrolling through search results
 	std::vector<int> _search_result_indecies;

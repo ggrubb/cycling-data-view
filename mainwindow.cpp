@@ -99,7 +99,12 @@ void MainWindow::checkForSaveUser()
 
 /******************************************************/
 MainWindow::~MainWindow()
-{}
+{
+	_totals_window->close();
+	_ride_collage->close();
+	_rider_interval_finder->close();
+	_log_file_editor->close();
+}
 
 /******************************************************/
 void MainWindow::closeEvent(QCloseEvent* event) 

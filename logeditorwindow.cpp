@@ -3,6 +3,7 @@
 #include "datalog.h"
 #include "user.h"
 #include "fitencoder.h"
+#include "baseparser.h"
 
 #include <QTableWidget.h>
 #include <QBoxLayout.h>
@@ -48,16 +49,13 @@ _user(user)
 
 	// Log file options
 	QPushButton* save = new QPushButton("Save Changes");
-	//QPushButton* split = new QPushButton("Split Log");
 	QPushButton* exit = new QPushButton("Exit Editor");
 	connect(save, SIGNAL(clicked()),this, SLOT(save()));
-	//connect(split, SIGNAL(clicked()),this, SLOT(split()));
 	connect(exit, SIGNAL(clicked()),this, SLOT(close()));
 
 	QWidget* file_operator_buttons = new QWidget;
 	QHBoxLayout* h_layout4 = new QHBoxLayout;
 	h_layout4->addWidget(save);
-	//h_layout4->addWidget(split);
 	h_layout4->addWidget(exit);
 	file_operator_buttons->setLayout(h_layout4);
 
@@ -78,7 +76,7 @@ _user(user)
 
 	_search_value = new QDoubleSpinBox();
 	_search_value->setRange(-500,3000);
-	_search_value->setDecimals(6);
+	_search_value->setDecimals(4);
 	_search_value->setSingleStep(1.0);
 
 	QPushButton* find = new QPushButton("Find");
@@ -115,6 +113,21 @@ _user(user)
 	QGroupBox* search_box = new QGroupBox("Search");
 	search_box->setLayout(v_layout);
 
+	// Setup the split box
+	QPushButton* split = new QPushButton("Split Log");
+	connect(split, SIGNAL(clicked()),this, SLOT(split()));
+
+	_split_index = new QSpinBox;
+	_split_index->setRange(1,data_log->numPoints());
+	_split_index->setPrefix("Index: ");
+
+	QVBoxLayout* v_split_layout = new QVBoxLayout();
+	v_split_layout->addWidget(split);
+	v_split_layout->addWidget(_split_index);
+
+	QGroupBox* split_box = new QGroupBox("Split");
+	split_box->setLayout(v_split_layout);
+
 	// Format the table
 	displayRide();
 	_table->resizeColumnsToContents();
@@ -123,6 +136,7 @@ _user(user)
 	QWidget* user_controls = new QWidget;
 	QHBoxLayout* h_layout3 = new QHBoxLayout;
 	h_layout3->addWidget(search_box);
+	h_layout3->addWidget(split_box);
 	h_layout3->addWidget(file_operator_buttons,0,Qt::AlignTop);
 	h_layout3->addStretch();
 	user_controls->setLayout(h_layout3);
@@ -358,5 +372,95 @@ void LogEditorWindow::save()
 /******************************************************/
 void LogEditorWindow::split()
 {
-	QMessageBox::information(this, tr("RideLogEditor"), tr("This will save a copy of the file to ") + _data_log->filename() + ".pt1 " + _data_log->filename() + ".pt2.");
+	enum QMessageBox::StandardButton answer = 
+	
+		QMessageBox::question(
+		this, 
+		tr("RideLogEditor"), 
+		tr("This will split the log at the index selected (index is first data point of new log).\n\nThe first file will be called: ") + _data_log->filename() + ".\n\nClick Ok to continue, or Cancel to abort.",
+		QMessageBox::Ok | QMessageBox::Cancel );
+
+	if (answer == QMessageBox::Ok)
+	{
+		const int split_value = _split_index->value() - 1;
+
+		boost::shared_ptr<DataLog> data_log_pt1(new DataLog);
+		boost::shared_ptr<DataLog> data_log_pt2(new DataLog);
+
+		// Create filenames
+		QString filename_pt1 = _data_log->filename(); 
+		filename_pt1.chop(4);
+		filename_pt1.append("_pt1.fit");
+
+		QString filename_pt2 = _data_log->filename(); 
+		filename_pt2.chop(4);
+		filename_pt2.append("_pt2.fit");
+
+		data_log_pt1->filename() = filename_pt1;
+		data_log_pt2->filename() = filename_pt2;
+
+		// Setup data point sizes
+		data_log_pt1->resize(split_value);
+		data_log_pt2->resize(_data_log->numPoints() - split_value);
+
+		// Copy the data
+		for (int i=0; i < split_value; ++i)
+		{
+			data_log_pt1->time(i) = _data_log->time(i);
+			data_log_pt1->ltd(i) = _data_log->ltd(i);
+			data_log_pt1->lgd(i) = _data_log->lgd(i);
+			data_log_pt1->alt(i) = _data_log->alt(i);
+			data_log_pt1->dist(i) = _data_log->dist(i);
+			data_log_pt1->heartRate(i) = _data_log->heartRate(i);
+			data_log_pt1->cadence(i) = _data_log->cadence(i);
+			data_log_pt1->speed(i) = _data_log->speed(i);
+			data_log_pt1->gradient(i) = _data_log->gradient(i);
+			data_log_pt1->power(i) = _data_log->power(i);
+			data_log_pt1->temp(i) = _data_log->temp(i);
+		}
+
+		const int start_time_pt2 = _data_log->time(split_value); // time offset for all time in pt2
+		const double start_dist_pt2 = _data_log->dist(split_value); // dist offset for all dist in pt2
+		const int num_pts_pt2 = _data_log->numPoints() - split_value;
+		for (int i=0; i < num_pts_pt2; ++i)
+		{
+			const int idx = split_value + i;
+			data_log_pt2->time(i) = _data_log->time(idx) - start_time_pt2;
+			data_log_pt2->ltd(i) = _data_log->ltd(idx);
+			data_log_pt2->lgd(i) = _data_log->lgd(idx);
+			data_log_pt2->alt(i) = _data_log->alt(idx);
+			data_log_pt2->dist(i) = _data_log->dist(idx) - start_dist_pt2;
+			data_log_pt2->heartRate(i) = _data_log->heartRate(idx);
+			data_log_pt2->cadence(i) = _data_log->cadence(idx);
+			data_log_pt2->speed(i) = _data_log->speed(idx);
+			data_log_pt2->gradient(i) = _data_log->gradient(idx);
+			data_log_pt2->power(i) = _data_log->power(idx);
+			data_log_pt2->temp(i) = _data_log->temp(idx);
+		}
+
+		// Dates
+		data_log_pt1->date() = _data_log->date();
+		data_log_pt2->date() = _data_log->date().addSecs(start_time_pt2);
+
+		// Laps
+
+		// Additional bits and pieces
+		data_log_pt1->computeMaps();
+		data_log_pt2->computeMaps();
+		BaseParser::setDataValidFlags(*data_log_pt1);
+		BaseParser::setDataValidFlags(*data_log_pt2);
+		BaseParser::computeAdditionalDetailts(*data_log_pt1);
+		BaseParser::computeAdditionalDetailts(*data_log_pt2);
+
+		// Encode to first file
+		FitEncoder fit_encoder;
+		if (!fit_encoder.encode(data_log_pt1->filename(), *data_log_pt1))
+			QMessageBox::warning(this, tr("RideLogEditor"), tr("Failed to write 1st part."));
+
+		if (!fit_encoder.encode(data_log_pt2->filename(), *data_log_pt2))
+			QMessageBox::warning(this, tr("RideLogEditor"), tr("Failed to write 2nd part."));
+
+		QMessageBox::information(this, tr("RideLogEditor"), tr("File split successful!"));
+	}
+	
 }
