@@ -4,6 +4,7 @@
 #include "user.h"
 #include "fitencoder.h"
 #include "baseparser.h"
+#include "logdirectorysummary.h"
 
 #include <QTableWidget.h>
 #include <QBoxLayout.h>
@@ -19,6 +20,7 @@
 #include <QScrollBar.h>
 #include <QFile.h>
 #include <QString.h>
+#include <QProcess.h>
 
 #include <iostream>
 #include <cassert>
@@ -333,12 +335,9 @@ void LogEditorWindow::save()
 
 	// Now write the log to disk
 	QString source_file = _data_log->filename();
-	source_file.replace("/", "\\");
-
 	QString target_file = _data_log->filename();
 	target_file.chop(3);
 	target_file.append("orig");
-	target_file.replace("/", "\\");
 	
 	// Rename original file
 	bool original_backed_up = false;
@@ -372,12 +371,21 @@ void LogEditorWindow::save()
 /******************************************************/
 void LogEditorWindow::split()
 {
+	// Create filenames
+	QString filename_pt1 = _data_log->filename(); 
+	filename_pt1.chop(4);
+	filename_pt1.append("_pt1.fit");
+
+	QString filename_pt2 = _data_log->filename(); 
+	filename_pt2.chop(4);
+	filename_pt2.append("_pt2.fit");
+
+	// Prompt user to accept spliting of file
 	enum QMessageBox::StandardButton answer = 
-	
 		QMessageBox::question(
 		this, 
 		tr("RideLogEditor"), 
-		tr("This will split the log at the index selected (index is first data point of new log).\n\nThe first file will be called: ") + _data_log->filename() + ".\n\nClick Ok to continue, or Cancel to abort.",
+		tr("This will split the log at the index selected (index is first data point of new log).\n\nTwo new files will be created:\n") + filename_pt1 + "\n" + filename_pt2 + "\n\nClick Ok to continue, or Cancel to abort.",
 		QMessageBox::Ok | QMessageBox::Cancel );
 
 	if (answer == QMessageBox::Ok)
@@ -386,15 +394,6 @@ void LogEditorWindow::split()
 
 		boost::shared_ptr<DataLog> data_log_pt1(new DataLog);
 		boost::shared_ptr<DataLog> data_log_pt2(new DataLog);
-
-		// Create filenames
-		QString filename_pt1 = _data_log->filename(); 
-		filename_pt1.chop(4);
-		filename_pt1.append("_pt1.fit");
-
-		QString filename_pt2 = _data_log->filename(); 
-		filename_pt2.chop(4);
-		filename_pt2.append("_pt2.fit");
 
 		data_log_pt1->filename() = filename_pt1;
 		data_log_pt2->filename() = filename_pt2;
@@ -443,6 +442,20 @@ void LogEditorWindow::split()
 		data_log_pt2->date() = _data_log->date().addSecs(start_time_pt2);
 
 		// Laps
+		for (int i=0; i < _data_log->numLaps(); ++i)
+		{
+			// Copy laps to first and second logs. Ignore laps which straddle over the split boundary 
+			
+			if ( (_data_log->lap(i).first < split_value) && (_data_log->lap(i).second < split_value) ) // lap is in first part of log
+			{
+				data_log_pt1->addLap(_data_log->lap(i));
+			}
+
+			if ( (_data_log->lap(i).first > split_value) && (_data_log->lap(i).second > split_value) ) // lap is in second part of log
+			{
+				data_log_pt2->addLap(_data_log->lap(i));
+			}
+		}
 
 		// Additional bits and pieces
 		data_log_pt1->computeMaps();
@@ -452,15 +465,54 @@ void LogEditorWindow::split()
 		BaseParser::computeAdditionalDetailts(*data_log_pt1);
 		BaseParser::computeAdditionalDetailts(*data_log_pt2);
 
-		// Encode to first file
+		// Encode the first file
+		bool encoding_successful = true;
 		FitEncoder fit_encoder;
 		if (!fit_encoder.encode(data_log_pt1->filename(), *data_log_pt1))
+		{
 			QMessageBox::warning(this, tr("RideLogEditor"), tr("Failed to write 1st part."));
+			encoding_successful = false;
+		}
 
+		// Encode the second file
 		if (!fit_encoder.encode(data_log_pt2->filename(), *data_log_pt2))
+		{
 			QMessageBox::warning(this, tr("RideLogEditor"), tr("Failed to write 2nd part."));
+			encoding_successful = false;
+		}
 
-		QMessageBox::information(this, tr("RideLogEditor"), tr("File split successful!"));
+		if (encoding_successful)
+		{
+			QMessageBox::information(this, tr("RideLogEditor"), tr("File split successful!"));
+			
+			// Reanme the original log so it is no longer loaded by the application
+			QString target_file = _data_log->filename();
+			target_file.chop(3);
+			target_file.append("orig");
+			QFile::rename(_data_log->filename(), target_file);
+			
+			// Now update the log directory summary with the new logs
+			LogDirectorySummary log_dir_summary(_user->logDirectory());
+			log_dir_summary.readFromFile();
+			
+			std::vector<boost::shared_ptr<DataLog> > data_logs(2);
+			data_logs[0] = data_log_pt1;
+			data_logs[1] = data_log_pt2;
+			log_dir_summary.addLogsToSummary(data_logs);
+
+			log_dir_summary.removeLogByName(_data_log->filename());
+			log_dir_summary.writeToFile();
+
+			// Signal to the rest of the application the log directory has been updated
+			emit logSummaryUpdated(_user);
+			_data_log = data_log_pt1;
+			emit dataLogUpdated(_data_log);
+			close();
+		}
+		else
+		{
+			QMessageBox::information(this, tr("RideLogEditor"), tr("File split failed! Please check integrity of files in your log directory."));
+		}
 	}
 	
 }

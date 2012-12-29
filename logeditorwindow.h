@@ -22,6 +22,7 @@ class LogEditorWindow : public QWidget
 
  signals:
 	void dataLogUpdated(boost::shared_ptr<DataLog>);
+	void logSummaryUpdated(boost::shared_ptr<User> user);
 
  public slots:
 	void displayRide();

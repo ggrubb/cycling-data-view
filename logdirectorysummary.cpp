@@ -46,6 +46,22 @@ void LogDirectorySummary::addLog(const LogSummary& log_summary)
 }
 
 /****************************************/
+bool LogDirectorySummary::removeLogByName(const QString& filename)
+{
+	bool removed = false;
+	for (std::vector<LogSummary>::iterator it=_logs.begin(); it != _logs.end(); ++it)
+	{
+		if (it->_filename.compare(filename) == 0) // are equal
+		{
+			it = _logs.erase(it);
+			removed = true;
+			break;
+		}
+	}
+	return removed;
+}
+
+/****************************************/
 void LogDirectorySummary::readFromFile()
 {
 	const QString filename = _log_directory + "/" LOG_SUMMARY_FILENAME;

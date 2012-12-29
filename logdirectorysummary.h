@@ -44,15 +44,18 @@ class LogDirectorySummary
 	const QString& logDirectory() const;
 	const LogSummary& log(int idx) const;
 	int numLogs() const;
-	void addLog(const LogSummary& log_summary);
+
+	void addLogsToSummary(const std::vector<boost::shared_ptr<DataLog> > data_logs);
+	bool removeLogByName(const QString& filename);
 
 	void readFromFile();
 	void writeToFile() const;
-	void addLogsToSummary(const std::vector<boost::shared_ptr<DataLog> > data_logs);
 
 	LogSummary firstLog() const; // chronologically first log
 	LogSummary lastLog() const; // chronologically last log
+
  private:
+	void addLog(const LogSummary& log_summary);
 
 	QString _log_directory;
 	std::vector<LogSummary> _logs;

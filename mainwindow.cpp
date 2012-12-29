@@ -320,6 +320,7 @@ void MainWindow::logFileEditor()
 		_log_file_editor.reset(new LogEditorWindow(_current_user, _ride_selector->currentDataLog()));
 		_log_file_editor->show();
 		connect(_log_file_editor.get(), SIGNAL(dataLogUpdated(boost::shared_ptr<DataLog>)), this, SLOT(setRide(boost::shared_ptr<DataLog>)));
+		connect(_log_file_editor.get(), SIGNAL(logSummaryUpdated(boost::shared_ptr<User>)), this, SLOT(setUser(boost::shared_ptr<User>)));
 	}
 }
 
