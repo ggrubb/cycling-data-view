@@ -1,5 +1,5 @@
-Release Notes for RiderViewer 1.3 beta
---------------------------------------
+Release Notes for RiderViewer 1.3
+---------------------------------
 
 Version 1.3 (December 2012)
 -Completed log file editor, including function to split log files.
