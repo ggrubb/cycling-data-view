@@ -12,6 +12,7 @@
 #include <QProgressDialog.h>
 #include <QBoxLayout.h>
 #include <QLabel.h>
+#include <QMessageBox.h>
 
 #include <iostream>
 
@@ -227,7 +228,8 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 			_current_data_log->filename() != _log_dir_summary->log(item->text().toInt())._filename)
 		{
 			_current_data_log.reset(new DataLog);
-			parse(_log_dir_summary->log(item->text().toInt())._filename, _current_data_log);
+			if (!parse(_log_dir_summary->log(item->text().toInt())._filename, _current_data_log))
+				QMessageBox::warning(this, tr("RideViewer"), tr("Log file doesn't exist! Suggest you manually delete it from the logsummary.xml"));
 		}
 
 		// Notify to display the selected ride
@@ -242,7 +244,8 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 			_current_data_log->filename() != _log_dir_summary->log(ride_item->text().toInt())._filename)
 		{
 			_current_data_log.reset(new DataLog);
-			parse(_log_dir_summary->log(ride_item->text().toInt())._filename, _current_data_log);
+			if (!parse(_log_dir_summary->log(ride_item->text().toInt())._filename, _current_data_log))
+				QMessageBox::warning(this, tr("RideViewer"), tr("Log file doesn't exist! Suggest you manually delete it from the logsummary.xml"));
 			
 			// Notify to display the selected ride
 			emit displayRide(_current_data_log);
