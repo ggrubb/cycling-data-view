@@ -1,6 +1,12 @@
 Release Notes for RiderViewer 1.3 beta
 --------------------------------------
 
+Version 1.3 (December 2012)
+-Completed log file editor, including function to split log files.
+-Fixed detect 20:	Use smart pointers. Application is now much more stable.
+-Fixed defect 34:	Handle log files which do no load/parse (eg rename)
+-Fixed defect 35:	Crash on close
+
 Version 1.3 beta (December 2012)
 -This is a beta release! Only partially tested...full release expected early 2013.
 -Added interval finder. Select (ie highlight) a portion of a ride, and find all segments in your training history which match, to compare against.
