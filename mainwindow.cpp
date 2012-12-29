@@ -75,6 +75,22 @@ QMainWindow()
  }
 
 /******************************************************/
+MainWindow::~MainWindow()
+{}
+
+/******************************************************/
+void MainWindow::closeEvent(QCloseEvent* event) 
+{
+	// Save current user
+	if (!_current_user->name().isEmpty())
+	{
+		QSettings settings(COMPANY_NAME, APP_NAME);
+		settings.setValue("Rider", _current_user->name());
+	}
+	qApp->quit();
+}
+
+/******************************************************/
 void MainWindow::refresh()
 {
 	_ride_selector->refresh();
@@ -94,26 +110,6 @@ void MainWindow::checkForSaveUser()
 	{
 		QMessageBox::information(this, tr("First Start"), tr("Ciao! You need to create a rider profile before using RideViewer."));
 		addUser();
-	}
-}
-
-/******************************************************/
-MainWindow::~MainWindow()
-{
-	_totals_window->close();
-	_ride_collage->close();
-	_rider_interval_finder->close();
-	_log_file_editor->close();
-}
-
-/******************************************************/
-void MainWindow::closeEvent(QCloseEvent* event) 
-{
-	// Save current user
-	if (!_current_user->name().isEmpty())
-	{
-		QSettings settings(COMPANY_NAME, APP_NAME);
-		settings.setValue("Rider", _current_user->name());
 	}
 }
 
