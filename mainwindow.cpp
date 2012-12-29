@@ -275,7 +275,7 @@ void MainWindow::retrieveLogs()
 	if (garmin_found)
 		setUser(_current_user);
 	else
-		QMessageBox::information (this, "RideViewer", "No Garmin device found. Is it plugged in?");
+		QMessageBox::information(this, "RideViewer", "No Garmin device found. Is it plugged in?");
 }
 
 /******************************************************/
@@ -303,6 +303,7 @@ void MainWindow::rideIntervalFinder()
 {
 	if (_current_user)
 	{
+		QMessageBox::information(this, "RideViewer", "Ensure you have selected the interval you want to find (simply click and drag in the graph view).");
 		_rider_interval_finder.reset(new RideIntervalFinderWindow(_google_map, _current_user, _ride_selector->currentDataLog()));
 		_rider_interval_finder->show();
 	}
