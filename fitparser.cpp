@@ -163,6 +163,7 @@ bool FitParser::parse(const QString& filename, boost::shared_ptr<DataLog> data_l
 			computeAdditionalDetailts(*data_log);
 		}
 	}
-
+	_file->close();
+	
 	return read_success;
 }

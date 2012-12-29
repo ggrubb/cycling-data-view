@@ -152,6 +152,7 @@ bool TcxParser::parse(const QString& filename, boost::shared_ptr<DataLog> data_l
 			data_log->computeMaps();
 		}
 	}
+	file.close();
 
 	return read_success;
 }
