@@ -151,7 +151,7 @@ void MainWindow::promptForUser()
 void MainWindow::addUser()
 {
 	SpecifyUserWindow* add_user_window = new SpecifyUserWindow();
-	connect(add_user_window, SIGNAL(userSelected(User*)), this, SLOT(setUser(User*)));
+	connect(add_user_window, SIGNAL(userSelected(boost::shared_ptr<User>)), this, SLOT(setUser(boost::shared_ptr<User>)));
 }
 
 /******************************************************/
@@ -159,7 +159,7 @@ void MainWindow::editUser()
 {
 	SpecifyUserWindow* edit_user_window = new SpecifyUserWindow();
 	edit_user_window->setUser(_current_user);
-	connect(edit_user_window, SIGNAL(userSelected(User*)), this, SLOT(setUser(User*)));
+	connect(edit_user_window, SIGNAL(userSelected(boost::shared_ptr<User>)), this, SLOT(setUser(boost::shared_ptr<User>)));
 }
 
 /******************************************************/

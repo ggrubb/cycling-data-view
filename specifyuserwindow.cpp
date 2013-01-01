@@ -131,7 +131,7 @@ void SpecifyUserWindow::createRider()
 {
 	if (!_name_input->text().isEmpty())
 	{
-		User* new_user = new User(
+		boost::shared_ptr<User> new_user(new User(
 			_name_input->text(),
 			_log_directory_input->text(),
 			_weight_input->value(),
@@ -139,7 +139,7 @@ void SpecifyUserWindow::createRider()
 			_hr_zone2_input->value(),
 			_hr_zone3_input->value(),
 			_hr_zone4_input->value(),
-			_hr_zone5_input->value());
+			_hr_zone5_input->value()));
 
 		emit userSelected(new_user);
 	}

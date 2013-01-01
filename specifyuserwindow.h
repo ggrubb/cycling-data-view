@@ -11,7 +11,6 @@ class QDoubleSpinBox;
 class QDoubleSpinBox;
 class QSpinBox;
 class User;
-#include <boost/shared_ptr.hpp>
 
 class SpecifyUserWindow : public QWidget
 {
@@ -23,7 +22,7 @@ public:
 	void setUser(boost::shared_ptr<User> user);
 
 signals:
-	void userSelected(User* user);
+	void userSelected(boost::shared_ptr<User> user);
 
 private slots:
 	void selectDirectory();
