@@ -374,7 +374,7 @@ void LogEditorWindow::split()
 	// Create filenames
 	QString filename_pt1 = _data_log->filename(); 
 	filename_pt1.chop(4);
-	filename_pt1.append("_pt1.fit");
+	filename_pt1.append(".fit");
 
 	QString filename_pt2 = _data_log->filename(); 
 	filename_pt2.chop(4);
@@ -385,7 +385,7 @@ void LogEditorWindow::split()
 		QMessageBox::question(
 		this, 
 		tr("RideLogEditor"), 
-		tr("This will split the log at the index selected (index is first data point of new log).\n\nTwo new files will be created:\n") + filename_pt1 + "\n" + filename_pt2 + "\n\nClick Ok to continue, or Cancel to abort.",
+		tr("This will split the log at the index selected (index is first data point of new log).\n\nTwo  files will be created:\n") + filename_pt1 + "\n" + filename_pt2 + "\n\nClick Ok to continue, or Cancel to abort.",
 		QMessageBox::Ok | QMessageBox::Cancel );
 
 	if (answer == QMessageBox::Ok)
@@ -483,12 +483,12 @@ void LogEditorWindow::split()
 
 		if (encoding_successful)
 		{
-			QMessageBox::information(this, tr("RideLogEditor"), tr("File split successful!"));
-			
 			// Reanme the original log so it is no longer loaded by the application
 			QString target_file = _data_log->filename();
 			target_file.chop(3);
 			target_file.append("orig");
+		
+			QMessageBox::information(this, tr("RideLogEditor"), tr("File split successful! Original saved as: ") + target_file);
 			QFile::rename(_data_log->filename(), target_file);
 			
 			// Now update the log directory summary with the new logs
