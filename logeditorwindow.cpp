@@ -28,7 +28,9 @@
 /******************************************************/
 LogEditorWindow::LogEditorWindow(boost::shared_ptr<User> user, boost::shared_ptr<DataLog> data_log):
 _data_log(data_log),
-_user(user)
+_user(user),
+_search_result_indecies(0),
+_search_result_index(0)
 {
 	const int num_data_pts = data_log->numPoints();
 	const int num_columns = 9;
@@ -39,7 +41,7 @@ _user(user)
 
 	QStringList column_headers, row_headers;
 	column_headers 
-		<< "Time" << "Distance" << "Speed" << "Heart rate" << "Cadence" << "Altitude" << "Latitude" << "Longitude" << "Temperature";
+		<< "Time" << "Distance" << "Speed" << "Heart rate" << "Power" << "Cadence" << "Altitude" << "Latitude" << "Longitude" << "Temperature";
 
 	_table->setVerticalHeaderLabels(row_headers);
 	_table->setHorizontalHeaderLabels(column_headers);
@@ -56,20 +58,21 @@ _user(user)
 	connect(exit, SIGNAL(clicked()),this, SLOT(close()));
 
 	QWidget* file_operator_buttons = new QWidget;
-	QHBoxLayout* h_layout4 = new QHBoxLayout;
-	h_layout4->addWidget(save);
-	h_layout4->addWidget(exit);
-	file_operator_buttons->setLayout(h_layout4);
+	QVBoxLayout* v_layout4 = new QVBoxLayout;
+	v_layout4->addWidget(save);
+	v_layout4->addWidget(exit);
+	file_operator_buttons->setLayout(v_layout4);
 
 	// Setup the search box
 	_field_selection = new QComboBox();
 	_field_selection->insertItem(0, "Speed");
 	_field_selection->insertItem(1, "Heart rate");
-	_field_selection->insertItem(2, "Cadence");
-	_field_selection->insertItem(3, "Altitude");
-	_field_selection->insertItem(4, "Latitude");
-	_field_selection->insertItem(5, "Longitude");
-	_field_selection->insertItem(6, "Temperature");
+	_field_selection->insertItem(2, "Power");
+	_field_selection->insertItem(3, "Cadence");
+	_field_selection->insertItem(4, "Altitude");
+	_field_selection->insertItem(5, "Latitude");
+	_field_selection->insertItem(6, "Longitude");
+	_field_selection->insertItem(7, "Temperature");
 
 	_equality_selection = new QComboBox();
 	_equality_selection->insertItem(0, "equals");
@@ -130,6 +133,27 @@ _user(user)
 	QGroupBox* split_box = new QGroupBox("Split");
 	split_box->setLayout(v_split_layout);
 
+	// Setup the trim box
+	QPushButton* trim = new QPushButton("Trim Log");
+	connect(trim, SIGNAL(clicked()),this, SLOT(trim()));
+
+	_trim_start_index = new QSpinBox;
+	_trim_start_index->setRange(1,data_log->numPoints());
+	_trim_start_index->setPrefix("Start Index: ");
+
+	_trim_end_index = new QSpinBox;
+	_trim_end_index->setRange(1,data_log->numPoints());
+	_trim_end_index->setValue(data_log->numPoints());
+	_trim_end_index->setPrefix("End Index: ");
+
+	QVBoxLayout* v_trim_layout = new QVBoxLayout();
+	v_trim_layout->addWidget(trim);
+	v_trim_layout->addWidget(_trim_start_index);
+	v_trim_layout->addWidget(_trim_end_index);
+
+	QGroupBox* trim_box = new QGroupBox("Trim");
+	trim_box->setLayout(v_trim_layout);
+
 	// Format the table
 	displayRide();
 	_table->resizeColumnsToContents();
@@ -139,6 +163,7 @@ _user(user)
 	QHBoxLayout* h_layout3 = new QHBoxLayout;
 	h_layout3->addWidget(search_box);
 	h_layout3->addWidget(split_box);
+	h_layout3->addWidget(trim_box);
 	h_layout3->addWidget(file_operator_buttons,0,Qt::AlignTop);
 	h_layout3->addStretch();
 	user_controls->setLayout(h_layout3);
@@ -205,20 +230,23 @@ void LogEditorWindow::displayRide()
 		QTableWidgetItem *item4 = new QTableWidgetItem(QString::number(_data_log->heartRate(r), 'f', 0));
 		_table->setItem(r,3,item4);
 
-		QTableWidgetItem *item5 = new QTableWidgetItem(QString::number(_data_log->cadence(r), 'f', 0));
+		QTableWidgetItem *item5 = new QTableWidgetItem(QString::number(_data_log->power(r), 'f', 0));
 		_table->setItem(r,4,item5);
 
-		QTableWidgetItem *item6 = new QTableWidgetItem(QString::number(_data_log->alt(r), 'f', 0));
+		QTableWidgetItem *item6 = new QTableWidgetItem(QString::number(_data_log->cadence(r), 'f', 0));
 		_table->setItem(r,5,item6);
 
-		QTableWidgetItem *item7 = new QTableWidgetItem(QString::number(_data_log->ltd(r), 'f', 6));
+		QTableWidgetItem *item7 = new QTableWidgetItem(QString::number(_data_log->alt(r), 'f', 0));
 		_table->setItem(r,6,item7);
 
-		QTableWidgetItem *item8 = new QTableWidgetItem(QString::number(_data_log->lgd(r), 'f', 6));
+		QTableWidgetItem *item8 = new QTableWidgetItem(QString::number(_data_log->ltd(r), 'f', 6));
 		_table->setItem(r,7,item8);
 
-		QTableWidgetItem *item9 = new QTableWidgetItem(QString::number(_data_log->temp(r), 'f', 0));
+		QTableWidgetItem *item9 = new QTableWidgetItem(QString::number(_data_log->lgd(r), 'f', 6));
 		_table->setItem(r,8,item9);
+
+		QTableWidgetItem *item10 = new QTableWidgetItem(QString::number(_data_log->temp(r), 'f', 0));
+		_table->setItem(r,9,item10);
 	}
 }
 
@@ -243,11 +271,12 @@ void LogEditorWindow::find()
 
 	// 0 = "Speed"
 	// 1 = "Heart rate"
-	// 2 = "Cadence"
-	// 3 = "Altitude"
-	// 4 = "Latitude"
-	// 5 = "Longitude"
-	// 6 = "Temperature"
+	// 2 = "Power"
+	// 3 = "Cadence"
+	// 4 = "Altitude"
+	// 5 = "Latitude"
+	// 6 = "Longitude"
+	// 7 = "Temperature"
 	const int index = _field_selection->currentIndex();
 	const double value = _search_value->value();
 	_search_result_indecies.clear();
@@ -299,7 +328,7 @@ void LogEditorWindow::next()
 /******************************************************/
 void LogEditorWindow::save()
 {
-	// Get the current values in the UI and store in the date log
+	// Get the current values in the UI and store in the data log
 	int index = 0;
 	QTableWidgetItem* item;
 	for (int r=0; r < _table->rowCount(); ++r)
@@ -312,23 +341,27 @@ void LogEditorWindow::save()
 		item = _table->item(r, index + 2);
 		_data_log->heartRate(r) = item->text().toDouble();
 
-		index = 2; // 2 = "Cadence"
+		index = 2; // 2 = "Power"
+		item = _table->item(r, index + 2);
+		_data_log->heartRate(r) = item->text().toDouble();
+
+		index = 3; // 3 = "Cadence"
 		item = _table->item(r, index + 2);
 		_data_log->cadence(r) = item->text().toDouble();
 
-		index = 3; // 3 = "Altitude"
+		index = 4; // 4 = "Altitude"
 		item = _table->item(r, index + 2);
 		_data_log->alt(r) = item->text().toDouble();
 
-		index = 4; // 4 = "Latitude"
+		index = 5; // 5 = "Latitude"
 		item = _table->item(r, index + 2);
 		_data_log->ltd(r) = item->text().toDouble();
 
-		index = 5; // 5 = "Longitude"
+		index = 6; // 6 = "Longitude"
 		item = _table->item(r, index + 2);
 		_data_log->lgd(r) = item->text().toDouble();
 
-		index = 6; // 6 = "Temperature"
+		index = 7; // 7 = "Temperature"
 		item = _table->item(r, index + 2);
 		_data_log->temp(r) = item->text().toDouble();
 	}
@@ -385,7 +418,7 @@ void LogEditorWindow::split()
 		QMessageBox::question(
 		this, 
 		tr("RideLogEditor"), 
-		tr("This will split the log at the index selected (index is first data point of new log).\n\nTwo  files will be created:\n") + filename_pt1 + "\n" + filename_pt2 + "\n\nClick Ok to continue, or Cancel to abort.",
+		tr("This will split the log at the index selected (index is first data point of new log).\n\nTwo files will be created:\n") + filename_pt1 + "\n" + filename_pt2 + "\n\nClick Ok to continue, or Cancel to abort.",
 		QMessageBox::Ok | QMessageBox::Cancel );
 
 	if (answer == QMessageBox::Ok)
@@ -488,8 +521,8 @@ void LogEditorWindow::split()
 			target_file.chop(3);
 			target_file.append("orig");
 		
-			QMessageBox::information(this, tr("RideLogEditor"), tr("File split successful! Original saved as: ") + target_file);
 			QFile::rename(_data_log->filename(), target_file);
+			QMessageBox::information(this, tr("RideLogEditor"), tr("File split successful! Original saved as: ") + target_file);
 			
 			// Now update the log directory summary with the new logs
 			LogDirectorySummary log_dir_summary(_user->logDirectory());
@@ -515,4 +548,128 @@ void LogEditorWindow::split()
 		}
 	}
 	
+}
+
+/******************************************************/
+void LogEditorWindow::trimLimitsSet(int begin_idx, int end_idx)
+{
+	_trim_start_index->setValue(begin_idx);
+	_trim_end_index->setValue(end_idx);
+}
+
+/******************************************************/
+void LogEditorWindow::trim()
+{
+	// Create filenames 
+	QString source_file = _data_log->filename();
+	QString target_file = _data_log->filename();
+	target_file.chop(3);
+	target_file.append("orig");
+	
+	// Prompt user to accept spliting of file
+	enum QMessageBox::StandardButton answer = 
+		QMessageBox::question(
+		this, 
+		tr("RideLogEditor"), 
+		tr("This will trim the log between the start and end index (inclusive).\n\nYour original file will be saved in:\n ") + target_file + "\n\nand trimmed file in:\n" + source_file + "\n\nClick Ok to continue, or Cancel to abort.",
+		QMessageBox::Ok | QMessageBox::Cancel );
+
+	const int start_idx = _trim_start_index->value();
+	const int end_idx = _trim_end_index->value();
+
+	if (start_idx >= end_idx)
+	{
+		QMessageBox::warning(this, tr("RideLogEditor"), tr("Start index is larger or equal to end index. No files writen."));
+		return;
+	}
+
+	if (answer == QMessageBox::Ok)
+	{
+		// Create new data log for the trimming
+		boost::shared_ptr<DataLog> data_log_trim(new DataLog);
+
+		data_log_trim->filename() = source_file;
+
+		// Setup data point sizes
+		data_log_trim->resize(end_idx - start_idx);
+
+		// Trim the data
+		const int start_time_trim = _data_log->time(start_idx); // time offset for all time in trim
+		const double start_dist_trim = _data_log->dist(start_idx); // dist offset for all dist in trim
+		for (int i=start_idx; i < end_idx; ++i)
+		{
+			const int trim_idx = i - start_idx;
+			data_log_trim->time(trim_idx) = _data_log->time(i) - start_time_trim;
+			data_log_trim->ltd(trim_idx) = _data_log->ltd(i);
+			data_log_trim->lgd(trim_idx) = _data_log->lgd(i);
+			data_log_trim->alt(trim_idx) = _data_log->alt(i);
+			data_log_trim->dist(trim_idx) = _data_log->dist(i) - start_dist_trim;
+			data_log_trim->heartRate(trim_idx) = _data_log->heartRate(i);
+			data_log_trim->cadence(trim_idx) = _data_log->cadence(i);
+			data_log_trim->speed(trim_idx) = _data_log->speed(i);
+			data_log_trim->gradient(trim_idx) = _data_log->gradient(i);
+			data_log_trim->power(trim_idx) = _data_log->power(i);
+			data_log_trim->temp(trim_idx) = _data_log->temp(i);
+		}
+
+		// Dates
+		data_log_trim->date() = _data_log->date().addSecs(start_time_trim);
+
+		// Laps
+		for (int i=0; i < _data_log->numLaps(); ++i)
+		{
+			// Copy laps to trimmed log. Ignore laps which straddle over the trim boundary 
+			if ( (_data_log->lap(i).first > start_idx) && (_data_log->lap(i).second < end_idx) ) // lap is in non-trimmed part of log
+			{
+				data_log_trim->addLap(_data_log->lap(i));
+			}
+		}
+
+		// Additional bits and pieces
+		data_log_trim->computeMaps();
+		BaseParser::setDataValidFlags(*data_log_trim);
+		BaseParser::computeAdditionalDetailts(*data_log_trim);
+
+		// Rename original file
+		bool original_backed_up = false;
+		if (QFile::exists(target_file))
+		{
+			original_backed_up = true;
+			QMessageBox::information(this, tr("RideLogEditor"), tr("Original file is already backed up - it will not be saved again"));
+		}
+
+		if (QFile::copy(source_file,target_file) && ! original_backed_up)
+		{
+			original_backed_up = true;
+		}
+
+		if (original_backed_up)
+		{
+			// Encode to existing file
+			FitEncoder fit_encoder;
+			if (!fit_encoder.encode(data_log_trim->filename(), *data_log_trim))
+				QMessageBox::warning(this, tr("RideLogEditor"), tr("Failed to write file."));
+			else
+			{
+				QMessageBox::information(this, tr("RideLogEditor"), tr("File trim successful!"));
+
+				// Now update the log directory summary with the new logs
+				LogDirectorySummary log_dir_summary(_user->logDirectory());
+				log_dir_summary.readFromFile();
+				
+				log_dir_summary.removeLogByName(_data_log->filename()); // remove current log
+				std::vector<boost::shared_ptr<DataLog> > data_logs(1);
+				data_logs[0] = data_log_trim;
+				log_dir_summary.addLogsToSummary(data_logs); // add new log
+				
+				log_dir_summary.writeToFile();	
+				//_data_log->saveToTextFile("saved_log.txt");
+
+				// Signal to the rest of the application the log has been updated
+				emit logSummaryUpdated(_user);
+				_data_log = data_log_trim;
+				emit dataLogUpdated(_data_log);
+			}
+		}
+	}
 }

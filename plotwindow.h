@@ -90,13 +90,13 @@ class PlotWindow : public QWidget
 	std::vector<QwtPlotMarker* > _lap_markers;
 	std::vector<HRZoneItem* > _hr_zone_markers;
 	
+	boost::shared_ptr<QCheckBox> _hr_cb;
+	boost::shared_ptr<QCheckBox> _speed_cb;
+	boost::shared_ptr<QCheckBox> _alt_cb;
+	boost::shared_ptr<QCheckBox> _cadence_cb;
+	boost::shared_ptr<QCheckBox> _power_cb;
+	boost::shared_ptr<QCheckBox> _temp_cb;
 	QComboBox* _x_axis_measurement;
-	QCheckBox* _hr_cb;
-	QCheckBox* _speed_cb;
-	QCheckBox* _alt_cb;
-	QCheckBox* _cadence_cb;
-	QCheckBox* _power_cb;
-	QCheckBox* _temp_cb;
 	QSlider* _smoothing_selection;
 	QLabel* _smoothing_label;
 	QCheckBox* _hr_zones_cb;

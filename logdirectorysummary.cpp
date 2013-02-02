@@ -64,7 +64,7 @@ bool LogDirectorySummary::removeLogByName(const QString& filename)
 /****************************************/
 void LogDirectorySummary::readFromFile()
 {
-	const QString filename = _log_directory + "/" LOG_SUMMARY_FILENAME;
+	const QString filename = _log_directory + "/" + LOG_SUMMARY_FILENAME;
 
 	QDomDocument dom_document;
 	QString error_msg;

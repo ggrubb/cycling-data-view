@@ -162,7 +162,12 @@ void RideSelectionWindow::populateTableWithRides()
 		{
 			for (unsigned int lap = 0; lap < _log_dir_summary->log(i)._laps.size(); ++lap)
 			{
-				QStandardItem *lap_name = new QStandardItem("Lap " + QString::number(lap+1));
+				// Format lap text so they display in numerical order (prepend a 0)
+				QString lap_number = QString::number(lap+1);
+				if (_log_dir_summary->log(i)._laps.size() > 10 && lap+1 < 10)
+					lap_number.prepend('0');
+
+				QStandardItem *lap_name = new QStandardItem("Lap " + lap_number);
 				lap_name->setFlags(lap_name->flags() & ~Qt::ItemIsEditable);
 				
 				// Compute lap summary info

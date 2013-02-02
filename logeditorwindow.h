@@ -32,6 +32,9 @@ class LogEditorWindow : public QWidget
 
 	void save();
 	void split();
+	void trim();
+
+	void trimLimitsSet(int begin_idx, int end_idx);
 	
  private:
 	bool searchComparison(double left, double right);
@@ -43,7 +46,9 @@ class LogEditorWindow : public QWidget
 	QComboBox* _equality_selection;
 	QDoubleSpinBox* _search_value;
 	QSpinBox* _split_index;
-
+	QSpinBox* _trim_start_index;
+	QSpinBox* _trim_end_index;
+	
 	// Indecies for scrolling through search results
 	std::vector<int> _search_result_indecies;
 	int	_search_result_index;

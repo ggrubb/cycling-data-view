@@ -112,10 +112,25 @@ void QwtCustomPlotZoomer::drawRubberBand(QPainter* painter) const
 }
 
 /******************************************************/
-QwtCustomPlotPicker::QwtCustomPlotPicker(int x_axis, int y_axis, boost::shared_ptr<DataLog> data_log, QwtPlotCanvas* canvas):
+QwtCustomPlotPicker::QwtCustomPlotPicker(
+	int x_axis, int y_axis, 
+	boost::shared_ptr<DataLog> data_log, 
+	QwtPlotCanvas* canvas, 
+	boost::shared_ptr<QCheckBox> hr_cb,
+	boost::shared_ptr<QCheckBox> speed_cb,
+	boost::shared_ptr<QCheckBox> alt_cb,
+	boost::shared_ptr<QCheckBox> cadence_cb,
+	boost::shared_ptr<QCheckBox> power_cb,
+	boost::shared_ptr<QCheckBox> temp_cb):
 	QwtPlotPicker(x_axis,y_axis,QwtPlotPicker::UserRubberBand, QwtPicker::AlwaysOn, canvas),
 	_data_log(data_log),
-	_x_axis_units(DistAxis)
+	_x_axis_units(DistAxis),
+	_hr_cb(hr_cb),
+	_speed_cb(speed_cb),
+	_alt_cb(alt_cb),
+	_cadence_cb(cadence_cb),
+	_power_cb(power_cb),
+	_temp_cb(temp_cb)
 {}
 
 /******************************************************/
@@ -219,6 +234,32 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 				painter->drawLine(pt1_temp.x(), pt1_temp.y(), pt1_temp.x()+6, pt1_temp.y());
 				painter->drawText(pt1_temp + offset, QString::number(temp,'g',3));
 			}
+
+			// Draw current values on graph labels
+			if (_hr_cb->isChecked())
+				_hr_cb->setText("Heart Rate " + QString::number(hr,'g',3) + " bpm");
+			else
+				_hr_cb->setText("Heart Rate");
+			if (_speed_cb->isChecked())
+				_speed_cb->setText("Speed " + QString::number(speed,'g',3) + " km/h");
+			else
+				_speed_cb->setText("Speed");
+			if (_alt_cb->isChecked())
+				_alt_cb->setText("Elevation " + QString::number(alt,'g',3) + " m");
+			else
+				_alt_cb->setText("Elevation");
+			if (_cadence_cb->isChecked())
+				_cadence_cb->setText("Cadence " + QString::number(cadence,'g',3) + " rpm");
+			else
+				_cadence_cb->setText("Cadence");
+			if (_power_cb->isChecked())
+				_power_cb->setText("Power " + QString::number(power,'g',3) + " W");
+			else
+				_power_cb->setText("Power");
+			if (_temp_cb->isChecked())
+				_temp_cb->setText("Temp " + QString::number(temp,'g',3) + " C");
+			else
+				_temp_cb->setText("Temp");
 		}
 	}
 }
@@ -333,9 +374,55 @@ PlotWindow::PlotWindow(
 	_curve_power->attach(_plot);
 	_curve_temp->attach(_plot);
 
+	// Checkboxes for graph plots
+	_hr_cb.reset(new QCheckBox("Heart Rate"));
+	_speed_cb.reset(new QCheckBox("Speed"));
+	_alt_cb.reset(new QCheckBox("Elevation"));
+	_cadence_cb.reset(new QCheckBox("Cadence"));
+	_power_cb.reset(new QCheckBox("Power"));
+	_temp_cb.reset(new QCheckBox("Temp"));
+	_laps_cb = new QCheckBox("Laps");
+	_hr_zones_cb = new QCheckBox("HR Zones");
+	_hr_cb->setChecked(true);
+	_speed_cb->setChecked(true);
+	_alt_cb->setChecked(true);
+	_cadence_cb->setChecked(true);
+	_power_cb->setChecked(false);
+	_temp_cb->setChecked(false);
+	_laps_cb->setChecked(true);
+	_hr_zones_cb->setChecked(false);
+
+	QPalette plt;
+	plt.setColor(QPalette::WindowText, HR_COLOUR);
+	_hr_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, SPEED_COLOUR);
+	_speed_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, ALT_COLOUR);
+	_alt_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, CADENCE_COLOUR);
+	_cadence_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, POWER_COLOUR);
+	_power_cb->setPalette(plt);
+	plt.setColor(QPalette::WindowText, TEMP_COLOUR);
+	_temp_cb->setPalette(plt);
+
+	connect(_hr_cb.get(), SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_speed_cb.get(), SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_alt_cb.get(), SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_cadence_cb.get(), SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_power_cb.get(), SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_temp_cb.get(), SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
+	connect(_laps_cb, SIGNAL(stateChanged(int)),this,SLOT(lapSelectionChanged()));
+	connect(_hr_zones_cb, SIGNAL(stateChanged(int)),this,SLOT(hrZoneSelectionChanged()));
+
 	// Plot picker for numerical display
 	_plot_picker1 = 
-		new QwtCustomPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, _data_log, _plot->canvas());
+		new QwtCustomPlotPicker(
+		QwtPlot::xBottom, QwtPlot::yLeft, 
+		_data_log, 
+		_plot->canvas(), 
+		_hr_cb, _speed_cb, _alt_cb, _cadence_cb, _power_cb, _temp_cb);
+		
 	_plot_picker1->setRubberBandPen(QColor(Qt::white));
     _plot_picker1->setTrackerPen(QColor(Qt::black));
 	_plot_picker1->setStateMachine(new QwtPickerTrackerMachine());
@@ -372,47 +459,6 @@ PlotWindow::PlotWindow(
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisUnitsChanged(int)));
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
 
-	// Checkboxes for graph plots
-	_hr_cb = new QCheckBox("Heart Rate");
-	_speed_cb = new QCheckBox("Speed");
-	_alt_cb = new QCheckBox("Elevation");
-	_cadence_cb = new QCheckBox("Cadence");
-	_power_cb = new QCheckBox("Power");
-	_temp_cb = new QCheckBox("Temp");
-	_laps_cb = new QCheckBox("Laps");
-	_hr_zones_cb = new QCheckBox("HR Zones");
-	_hr_cb->setChecked(true);
-	_speed_cb->setChecked(true);
-	_alt_cb->setChecked(true);
-	_cadence_cb->setChecked(true);
-	_power_cb->setChecked(false);
-	_temp_cb->setChecked(false);
-	_laps_cb->setChecked(true);
-	_hr_zones_cb->setChecked(false);
-
-	QPalette plt;
-	plt.setColor(QPalette::WindowText, HR_COLOUR);
-	_hr_cb->setPalette(plt);
-	plt.setColor(QPalette::WindowText, SPEED_COLOUR);
-	_speed_cb->setPalette(plt);
-	plt.setColor(QPalette::WindowText, ALT_COLOUR);
-	_alt_cb->setPalette(plt);
-	plt.setColor(QPalette::WindowText, CADENCE_COLOUR);
-	_cadence_cb->setPalette(plt);
-	plt.setColor(QPalette::WindowText, POWER_COLOUR);
-	_power_cb->setPalette(plt);
-	plt.setColor(QPalette::WindowText, TEMP_COLOUR);
-	_temp_cb->setPalette(plt);
-
-	connect(_hr_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
-	connect(_speed_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
-	connect(_alt_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
-	connect(_cadence_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
-	connect(_power_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
-	connect(_temp_cb, SIGNAL(stateChanged(int)),this,SLOT(curveSelectionChanged()));
-	connect(_laps_cb, SIGNAL(stateChanged(int)),this,SLOT(lapSelectionChanged()));
-	connect(_hr_zones_cb, SIGNAL(stateChanged(int)),this,SLOT(hrZoneSelectionChanged()));
-
 	// Slider for signal smoothing
 	_smoothing_selection = new QSlider(Qt::Horizontal);
 	_smoothing_selection->setRange(0,50);
@@ -430,12 +476,12 @@ PlotWindow::PlotWindow(
 	// Layout the GUI
 	QWidget* plot_options_widget = new QWidget;
 	QVBoxLayout* vlayout1 = new QVBoxLayout(plot_options_widget);
-	vlayout1->addWidget(_hr_cb);
-	vlayout1->addWidget(_speed_cb);
-	vlayout1->addWidget(_alt_cb);
-	vlayout1->addWidget(_cadence_cb);
-	vlayout1->addWidget(_power_cb);
-	vlayout1->addWidget(_temp_cb);
+	vlayout1->addWidget(_hr_cb.get());
+	vlayout1->addWidget(_speed_cb.get());
+	vlayout1->addWidget(_alt_cb.get());
+	vlayout1->addWidget(_cadence_cb.get());
+	vlayout1->addWidget(_power_cb.get());
+	vlayout1->addWidget(_temp_cb.get());
 	vlayout1->addWidget(_x_axis_measurement);
 	vlayout1->addWidget(smoothing_widget);
 	vlayout1->addWidget(_laps_cb);
