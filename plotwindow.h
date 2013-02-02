@@ -20,7 +20,7 @@ class QwtPlotPanner;
 class QwtPlotMarker;
 class QComboBox;
 class QCheckBox;
-class QSlider;
+class QSpinBox;
 class QLabel;
 
 class PlotWindow : public QWidget
@@ -97,8 +97,7 @@ class PlotWindow : public QWidget
 	boost::shared_ptr<QCheckBox> _power_cb;
 	boost::shared_ptr<QCheckBox> _temp_cb;
 	QComboBox* _x_axis_measurement;
-	QSlider* _smoothing_selection;
-	QLabel* _smoothing_label;
+	QSpinBox *_smoothing_selection;
 	QCheckBox* _hr_zones_cb;
 	QCheckBox* _laps_cb;
 	

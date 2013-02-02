@@ -24,7 +24,7 @@
 #include <QCheckBox.h>
 #include <QLabel.h>
 #include <QComboBox.h>
-#include <QSlider.h>
+#include <QSpinBox.h>
 #include <QMessageBox.h>
 
 #include <cassert>
@@ -460,17 +460,10 @@ PlotWindow::PlotWindow(
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
 
 	// Slider for signal smoothing
-	_smoothing_selection = new QSlider(Qt::Horizontal);
-	_smoothing_selection->setRange(0,50);
-	_smoothing_selection->setFixedSize(80,15);
-	const int default_smoothing = 5;
-	_smoothing_selection->setValue(default_smoothing);
-	_smoothing_selection->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed));
-	_smoothing_label = new QLabel("Smoothing: " + QString::number(default_smoothing));
-	QWidget* smoothing_widget = new QWidget;
-	QVBoxLayout* vlayout2 = new QVBoxLayout(smoothing_widget);
-	vlayout2->addWidget(_smoothing_label);
-	vlayout2->addWidget(_smoothing_selection);
+	_smoothing_selection = new QSpinBox;
+	_smoothing_selection->setRange(1,50);
+	_smoothing_selection->setPrefix("Smoothing: ");
+	_smoothing_selection->setValue(5); // default value
 	connect(_smoothing_selection, SIGNAL(valueChanged(int)),this,SLOT(signalSmoothingChanged()));
 
 	// Layout the GUI
@@ -483,7 +476,7 @@ PlotWindow::PlotWindow(
 	vlayout1->addWidget(_power_cb.get());
 	vlayout1->addWidget(_temp_cb.get());
 	vlayout1->addWidget(_x_axis_measurement);
-	vlayout1->addWidget(smoothing_widget);
+	vlayout1->addWidget(_smoothing_selection);
 	vlayout1->addWidget(_laps_cb);
 	vlayout1->addWidget(_hr_zones_cb);
 	vlayout1->addStretch();
@@ -511,7 +504,6 @@ void PlotWindow::setEnabled(bool enabled)
 	_plot_panner->setEnabled(enabled);
 	_x_axis_measurement->setEnabled(enabled);
 	_smoothing_selection->setEnabled(enabled);
-	_smoothing_label->setEnabled(enabled);
 	_hr_cb->setEnabled(enabled);
 	_speed_cb->setEnabled(enabled);
 	_alt_cb->setEnabled(enabled);
@@ -862,7 +854,6 @@ void PlotWindow::signalSmoothingChanged()
 	// Update the plots
 	setCurveData();
 	_plot->replot();
-	_smoothing_label->setText("Smoothing: " + QString::number(_smoothing_selection->value()));
 
 	// Update other windows viewing this data
 	emit updateDataView();
