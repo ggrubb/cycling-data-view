@@ -399,7 +399,8 @@ std::string GoogleMapWindow::defineCoords(int idx_start, int idx_end)
 
 	for (int i = idx_start; i < idx_end; ++i)
 	{
-		stream << "new google.maps.LatLng(" << _data_log->ltd(i) << "," << _data_log->lgd(i) << ")," << endl;
+		if (_data_log->ltd(i) != 0.0 && _data_log->lgd(i) != 0.0) // only plot non-zero values
+			stream << "new google.maps.LatLng(" << _data_log->ltd(i) << "," << _data_log->lgd(i) << ")," << endl;
 	}
 
 	return stream.str();
