@@ -158,7 +158,7 @@ _data_log()
 	_path_colour_scheme->setMaximumWidth(120);
 	_path_colour_scheme->insertItem(0,"None");
 	_path_colour_scheme->insertItem(1,"Heart Rate (bpm)");
-	_path_colour_scheme->insertItem(2,"Heart Rate zones");
+	_path_colour_scheme->insertItem(2,"Heart Rate Zones");
 	_path_colour_scheme->insertItem(3,"Speed (km/h)");
 	_path_colour_scheme->insertItem(4,"Gradient (%)");
 	_path_colour_scheme->insertItem(5,"Cadence (rpm)");
