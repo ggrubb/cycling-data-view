@@ -29,8 +29,8 @@ std::string hexFromColour(const QColor& c)
 {
 	QString r,g,b;
 	r = r.setNum(c.red(),16).rightJustified(2,'0');
-	g = g.setNum(c.blue(),16).rightJustified(2,'0');
-	b = b.setNum(c.green(),16).rightJustified(2,'0');
+	g = g.setNum(c.green(),16).rightJustified(2,'0');
+	b = b.setNum(c.blue(),16).rightJustified(2,'0');
 
 	return r.append(g).append(b).toStdString();
 }
@@ -93,6 +93,58 @@ private:
 };
 
 /******************************************************/
+// A horizontal bar which shows the colour scale of path colour for HR zones
+class ColourBarHRZones : public QWidget
+{
+public:
+	ColourBarHRZones(): 
+	  QWidget()
+	{
+		QLabel* label_hr_z0 = new QLabel;
+		label_hr_z0->setText("  < Zone 1  ");
+		label_hr_z0->setAlignment(Qt::AlignHCenter);
+		label_hr_z0->setStyleSheet("QLabel { background-color : blue; color : white; }");
+
+		QLabel* label_hr_z1 = new QLabel;
+		label_hr_z1->setText("   Zone 1   ");
+		label_hr_z0->setAlignment(Qt::AlignHCenter);
+		label_hr_z1->setStyleSheet("QLabel { background-color : green; color : white; }");
+
+		QLabel* label_hr_z2 = new QLabel;
+		label_hr_z2->setText("   Zone 2   ");
+		label_hr_z0->setAlignment(Qt::AlignHCenter);
+		label_hr_z2->setStyleSheet("QLabel { background-color : yellow; color : black; }");
+
+		QLabel* label_hr_z3 = new QLabel;
+		label_hr_z3->setText("   Zone 3   ");
+		label_hr_z0->setAlignment(Qt::AlignHCenter);
+		label_hr_z3->setStyleSheet("QLabel { background-color : magenta; color : black; }");
+		
+		QLabel* label_hr_z4 = new QLabel;
+		label_hr_z4->setText("   Zone 4   ");
+		label_hr_z0->setAlignment(Qt::AlignHCenter);
+		label_hr_z4->setStyleSheet("QLabel { background-color : red; color : black; }");
+
+		QLabel* label_hr_z5 = new QLabel;
+		label_hr_z5->setText("   Zone 5   ");
+		label_hr_z0->setAlignment(Qt::AlignHCenter);
+		label_hr_z5->setStyleSheet("QLabel { background-color : darkred; color : white; }");
+
+		QHBoxLayout* layout = new QHBoxLayout(this);
+		layout->addWidget(label_hr_z0);
+		layout->addWidget(label_hr_z1);
+		layout->addWidget(label_hr_z2);
+		layout->addWidget(label_hr_z3);
+		layout->addWidget(label_hr_z4);
+		layout->addWidget(label_hr_z5);
+		layout->addStretch();
+		layout->setSpacing(0);
+		//this->setFixedWidth(300);
+	}
+};
+	
+
+/******************************************************/
 GoogleMapWindow::GoogleMapWindow():
 _data_log()
 {
@@ -116,18 +168,21 @@ _data_log()
 	QLabel* label = new QLabel("Path coloured to: ");
 	label->setMaximumWidth(90);
 	
+	_colour_bar_hr_zones = new ColourBarHRZones();
 	_colour_bar = new ColourBar();
-	QWidget* widget1 = new QWidget;
-	QHBoxLayout* hlayout = new QHBoxLayout(widget1);
+	QWidget* path_stroke_selection_widget = new QWidget;
+	QHBoxLayout* hlayout = new QHBoxLayout(path_stroke_selection_widget);
 	hlayout->addSpacing(20);
 	hlayout->addWidget(label);
 	hlayout->addWidget(_path_colour_scheme);
 	hlayout->addSpacing(20);
 	hlayout->addWidget(_colour_bar);
+	hlayout->addWidget(_colour_bar_hr_zones);
+	_colour_bar_hr_zones->hide();
 
 	QVBoxLayout* vlayout = new QVBoxLayout(this);
 	vlayout->addWidget(_view);
-	vlayout->addWidget(widget1);
+	vlayout->addWidget(path_stroke_selection_widget);
 	vlayout->setSpacing(0);
 
 	// Disable user interface until a ride is loaded
@@ -363,7 +418,7 @@ void GoogleMapWindow::definePathColour()
 				key = ((_data_log->heartRateFltd(i)/_data_log->maxHeartRate())*(1.0+factor) ) - factor;
 			break;
 		case 2: // heart rate zone
-			if (_data_log->heartRateFltd(i) < _user->zone1())
+			if (_data_log->heartRateFltd(i) <= _user->zone1())
 				key = 0.0;
 			else if (_data_log->heartRateFltd(i) > _user->zone1() && _data_log->heartRateFltd(i) <= _user->zone2())
 				key = 0.1;
@@ -413,12 +468,23 @@ void GoogleMapWindow::definePathColour()
 		stream << "strokeRidePath(key);";
 	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
 
-	// Draw the colour bar appropriately, depending on the max key value
-	if (min_key < 1.0)
-		_colour_bar->setColourRange(Qt::green, Qt::yellow, Qt::red, min, max);
-	else
-		_colour_bar->setColourRange(Qt::red, Qt::red, Qt::red, 0.0, 0.0);
-	_colour_bar->update();
+	// Draw the colour bar appropriately
+	if (_path_colour_scheme->currentIndex() == 2) // HR zone colour bar
+	{
+		_colour_bar_hr_zones->show();
+		_colour_bar->hide();
+	}
+	else // all other colour bars
+	{
+		_colour_bar_hr_zones->hide();
+		_colour_bar->show();
+
+		if (min_key < 1.0)
+			_colour_bar->setColourRange(Qt::green, Qt::yellow, Qt::red, min, max);
+		else
+			_colour_bar->setColourRange(Qt::red, Qt::red, Qt::red, 0.0, 0.0);
+		_colour_bar->update();
+	}
 }
 
 /******************************************************/
@@ -596,17 +662,17 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 		<< "if (key.length == ride_path.length) {" << endl
 		<< "for (i=0; i<ride_path.length; i++) {" << endl
 		<< "if (key[i] == 0.0)" << endl
-		<< "{ride_path[i].setOptions({strokeColor: hr_colours[0], strokeOpacity: 0.3});}" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[0], strokeOpacity: 0.4});}" << endl
 		<< "else if (key[i] == 0.1)" << endl
-		<< "{ride_path[i].setOptions({strokeColor: hr_colours[1], strokeOpacity: 0.3});}" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[1], strokeOpacity: 0.4});}" << endl
 		<< "else if (key[i] == 0.2)" << endl
-		<< "{ride_path[i].setOptions({strokeColor: hr_colours[2], strokeOpacity: 0.3});}" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[2], strokeOpacity: 0.4});}" << endl
 		<< "else if (key[i] == 0.3)" << endl
-		<< "{ride_path[i].setOptions({strokeColor: hr_colours[3], strokeOpacity: 0.3});}" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[3], strokeOpacity: 0.4});}" << endl
 		<< "else if (key[i] == 0.4)" << endl
-		<< "{ride_path[i].setOptions({strokeColor: hr_colours[4], strokeOpacity: 0.3});}" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[4], strokeOpacity: 0.4});}" << endl
 		<< "else if (key[i] == 0.5)" << endl
-		<< "{ride_path[i].setOptions({strokeColor: hr_colours[5], strokeOpacity: 0.3});}" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[5], strokeOpacity: 0.4});}" << endl
 		<< "}" << endl
 		<< "}" << endl
 		<< "}" << endl

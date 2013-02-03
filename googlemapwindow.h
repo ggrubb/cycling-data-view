@@ -13,6 +13,7 @@ class DataLog;
 class User;
 class QComboBox;
 class ColourBar;
+class ColourBarHRZones;
 
 class GoogleMapWindow : public QWidget
 {
@@ -90,6 +91,7 @@ private slots:
 	// GUI controls
 	QComboBox* _path_colour_scheme;
 	ColourBar* _colour_bar;
+	ColourBarHRZones* _colour_bar_hr_zones;
 };
 
 #endif // GOOGLEMAP_H
