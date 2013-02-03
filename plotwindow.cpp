@@ -186,13 +186,13 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 		}
 		
 		// Using the index, determine the curve values
-		const double hr = _data_log->heartRateFltd(idx);
+		const double hr = (int)_data_log->heartRateFltd(idx);
 		const QPoint pt1_hr(pt1.x(),plot()->transform(QwtPlot::yLeft,hr));
 		const double speed = _data_log->speedFltd(idx);
 		const QPoint pt1_speed(pt1.x(),plot()->transform(QwtPlot::yLeft,speed));
-		const double alt = _data_log->altFltd(idx);
+		const double alt = (int)_data_log->altFltd(idx);
 		const QPoint pt1_alt(pt1.x(),plot()->transform(QwtPlot::yRight,alt));
-		const double cadence = _data_log->cadenceFltd(idx);
+		const double cadence = (int)_data_log->cadenceFltd(idx);
 		const QPoint pt1_cadence(pt1.x(),plot()->transform(QwtPlot::yLeft,cadence));
 		const double power = _data_log->powerFltd(idx);
 		const QPoint pt1_power(pt1.x(),plot()->transform(QwtPlot::yLeft,power));
@@ -237,7 +237,7 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 
 			// Draw current values on graph labels
 			if (_hr_cb->isChecked())
-				_hr_cb->setText("Heart Rate " + QString::number(hr,'g',3) + " bpm");
+				_hr_cb->setText("Heart Rate " + QString::number(hr,'g',3).leftJustified(3,' ') + " bpm");
 			else
 				_hr_cb->setText("Heart Rate");
 			if (_speed_cb->isChecked())
@@ -245,7 +245,7 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 			else
 				_speed_cb->setText("Speed");
 			if (_alt_cb->isChecked())
-				_alt_cb->setText("Elevation " + QString::number(alt,'g',3) + " m");
+				_alt_cb->setText("Elevation " + QString::number(alt,'g',4).leftJustified(4,' ') + " m");
 			else
 				_alt_cb->setText("Elevation");
 			if (_cadence_cb->isChecked())
