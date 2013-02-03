@@ -453,7 +453,7 @@ PlotWindow::PlotWindow(
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisUnitsChanged(int)));
 	connect(_x_axis_measurement,SIGNAL(currentIndexChanged(int)), _plot_picker1, SLOT(xAxisUnitsChanged(int)));
 
-	// Slider for signal smoothing
+	// Selection for signal smoothing
 	_smoothing_selection = new QSpinBox;
 	_smoothing_selection->setRange(1,50);
 	_smoothing_selection->setPrefix("Smoothing: ");
@@ -573,8 +573,8 @@ void PlotWindow::drawGraphs()
 	{
 		_plot->setAxisScale(QwtPlot::xBottom, 0, _data_log->totalDist());
 	}
-	_plot->replot();
-	_plot_zoomer->setZoomBase();
+	_plot->setAxisScale(QwtPlot::yLeft,-15,230,0);
+	_plot_zoomer->setZoomBase(true);
 }
 
 /******************************************************/
