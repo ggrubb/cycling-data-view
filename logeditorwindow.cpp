@@ -216,7 +216,7 @@ void LogEditorWindow::displayRide()
 		if (load_progress.wasCanceled())
 			break;
 
-		_table->setRowHeight(r,16);
+		_table->setRowHeight(r,18);
 
 		QTableWidgetItem *item1 = new QTableWidgetItem(DataProcessing::minsFromSecs(_data_log->time(r)));
 		_table->setItem(r,0,item1);
