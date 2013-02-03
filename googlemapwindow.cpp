@@ -1,6 +1,8 @@
 #include "googlemapwindow.h"
 #include "datalog.h"
+#include "user.h"
 #include "dataprocessing.h"
+#include "colours.h"
 
 #include <QWebView.h>
 #include <QWebPage.h>
@@ -20,6 +22,18 @@
 using namespace std;
 
 #define UNDEFINED_IDX -1
+
+/******************************************************/
+// Function to convert a QColor into a hex rgb representation
+std::string hexFromColour(const QColor& c)
+{
+	QString r,g,b;
+	r = r.setNum(c.red(),16).rightJustified(2,'0');
+	g = g.setNum(c.blue(),16).rightJustified(2,'0');
+	b = b.setNum(c.green(),16).rightJustified(2,'0');
+
+	return r.append(g).append(b).toStdString();
+}
 
 /******************************************************/
 // Helper class to fool google maps to give desktop view
@@ -92,10 +106,11 @@ _data_log()
 	_path_colour_scheme->setMaximumWidth(120);
 	_path_colour_scheme->insertItem(0,"None");
 	_path_colour_scheme->insertItem(1,"Heart Rate (bpm)");
-	_path_colour_scheme->insertItem(2,"Speed (km/h)");
-	_path_colour_scheme->insertItem(3,"Gradient (%)");
-	_path_colour_scheme->insertItem(4,"Cadence (rpm)");
-	_path_colour_scheme->insertItem(5,"Power (W)");
+	_path_colour_scheme->insertItem(2,"Heart Rate zones");
+	_path_colour_scheme->insertItem(3,"Speed (km/h)");
+	_path_colour_scheme->insertItem(4,"Gradient (%)");
+	_path_colour_scheme->insertItem(5,"Cadence (rpm)");
+	_path_colour_scheme->insertItem(6,"Power (W)");
 	connect(_path_colour_scheme,SIGNAL(currentIndexChanged(int)), this, SLOT(definePathColour()));
 
 	QLabel* label = new QLabel("Path coloured to: ");
@@ -132,11 +147,12 @@ void GoogleMapWindow::setEnabled(bool enabled)
 }
 
 /******************************************************/
-void GoogleMapWindow::displayRide(boost::shared_ptr<DataLog> data_log)
+void GoogleMapWindow::displayRide(boost::shared_ptr<DataLog> data_log, boost::shared_ptr<User> user)
 {
 	if (data_log.get() != _data_log.get() || data_log->isModified())
 	{
 		_data_log = data_log;
+		_user = user;
 
 		if (_data_log->lgdValid() && _data_log->ltdValid()) // we have a valid path to show
 		{
@@ -310,19 +326,21 @@ void GoogleMapWindow::definePathColour()
 		max = _data_log->maxHeartRate();
 		min = DataProcessing::computeMin(_data_log->heartRateFltd().begin(), _data_log->heartRateFltd().end());
 		break;
-	case 2: // speed
+	case 2: // heart rate zones
+		break;
+	case 3: // speed
 		max = _data_log->maxSpeed();
 		min = DataProcessing::computeMin(_data_log->speedFltd().begin(), _data_log->speedFltd().end());
 		break;
-	case 3: // gradient
+	case 4: // gradient
 		max = _data_log->maxGradient();
 		min = DataProcessing::computeMin(_data_log->gradientFltd().begin(), _data_log->gradientFltd().end());
 		break;
-	case 4: // cadence
+	case 5: // cadence
 		max = _data_log->maxCadence();//DataProcessing::computeNthPercentile(_data_log->cadence().begin(), _data_log->cadence().end(), 0.95);  // large spikes in cadence can exist, so be harsher when choosing max
 		min = DataProcessing::computeMin(_data_log->cadenceFltd().begin(), _data_log->cadenceFltd().end());
 		break;
-	case 5: // power
+	case 6: // power
 		max = _data_log->maxPower();
 		min = DataProcessing::computeMin(_data_log->powerFltd().begin(), _data_log->powerFltd().end());
 		break;
@@ -344,23 +362,37 @@ void GoogleMapWindow::definePathColour()
 			if (max > 0.0)
 				key = ((_data_log->heartRateFltd(i)/_data_log->maxHeartRate())*(1.0+factor) ) - factor;
 			break;
-		case 2: // speed
+		case 2: // heart rate zone
+			if (_data_log->heartRateFltd(i) < _user->zone1())
+				key = 0.0;
+			else if (_data_log->heartRateFltd(i) > _user->zone1() && _data_log->heartRateFltd(i) <= _user->zone2())
+				key = 0.1;
+			else if (_data_log->heartRateFltd(i) > _user->zone2() && _data_log->heartRateFltd(i) <= _user->zone3())
+				key = 0.2;
+			else if (_data_log->heartRateFltd(i) > _user->zone3() && _data_log->heartRateFltd(i) <= _user->zone4())
+				key = 0.3;
+			else if (_data_log->heartRateFltd(i) > _user->zone4() && _data_log->heartRateFltd(i) <= _user->zone5())
+				key = 0.4;
+			else if (_data_log->heartRateFltd(i) > _user->zone5())
+				key = 0.5;
+			break;
+		case 3: // speed
 			factor = 0.1;
 			if (max > 0.0)
 				key = ((_data_log->speedFltd(i)/_data_log->maxSpeed())*(1.0+factor) ) - factor;
 			break;
-		case 3: // gradient
+		case 4: // gradient
 			if (max > 0.0)
 				key = (_data_log->gradientFltd(i)/(_data_log->maxGradient()*0.5 + 0.00001) ) + 0.5;
 			break;
-		case 4: // cadence
+		case 5: // cadence
 			{
 			factor = 0.0;
 			if (max > 0.0)
 				key = std::min( _data_log->cadenceFltd(i)/max, 1.0);
 			}
 			break;
-		case 5: // power
+		case 6: // power
 			factor = 0.7;
 			if (max > 0.0)
 				key = ((_data_log->powerFltd(i)/_data_log->maxPower())*(1.0+factor) ) - factor;
@@ -375,18 +407,17 @@ void GoogleMapWindow::definePathColour()
 	}
 
 	stream << "];" << endl; 
-	stream << "strokeRidePath(key);";
+	if (_path_colour_scheme->currentIndex() == 2) // handle HR zones differently to all other atributes
+		stream << "strokeRidePathHRZones(key);";
+	else
+		stream << "strokeRidePath(key);";
 	_view->page()->mainFrame()->evaluateJavaScript(QString::fromStdString(stream.str()));
 
 	// Draw the colour bar appropriately, depending on the max key value
 	if (min_key < 1.0)
-	{
 		_colour_bar->setColourRange(Qt::green, Qt::yellow, Qt::red, min, max);
-	}
 	else
-	{
 		_colour_bar->setColourRange(Qt::red, Qt::red, Qt::red, 0.0, 0.0);
-	}
 	_colour_bar->update();
 }
 
@@ -444,6 +475,7 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 		<< "var map;" << endl
 		<< "var selected_path;" << endl
 		<< "var colours = [\"00FF00\", \"19FF00\", \"32FF00\", \"4CFF00\", \"66FF00\", \"7FFF00\", \"99FF00\", \"B2FF00\", \"CCFF00\", \"E5FF00\", \"FFFF00\", \"FFE500\", \"FFCC00\", \"FFB200\", \"FF9900\", \"FF7F00\", \"FF6600\", \"FF4C00\", \"FF3300\", \"FF1900\", \"FF0000\"];" << endl // colour table, from green to red in 20 steps
+		<< "var hr_colours = [\"" << hexFromColour(HR_ZONE0_COLOUR) << "\", \"" << hexFromColour(HR_ZONE1_COLOUR) << "\", \"" << hexFromColour(HR_ZONE2_COLOUR) << "\", \"" << hexFromColour(HR_ZONE3_COLOUR) << "\", \"" << hexFromColour(HR_ZONE4_COLOUR) << "\", \"" << hexFromColour(HR_ZONE5_COLOUR) << "\"];" << endl // colour table for hr, from green to red in 20 steps
 		<< "var ride_path = new Array();" << endl
 		<< "var ride_bounds = new google.maps.LatLngBounds();" << endl
 		<< "var ride_coords;" << endl
@@ -553,8 +585,28 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 		// Function to stroke ride path (ie colour it) according to key vector (0 <= key[i] <= 1)
 		<< "function strokeRidePath(key) {" << endl
 		<< "if (key.length == ride_path.length) {" << endl
-		<< "for (i=0; i<ride_path.length-1; i++) {" << endl
-		<< "ride_path[i].setOptions({strokeColor: colourFromFraction(key[i])});" << endl
+		<< "for (i=0; i<ride_path.length; i++) {" << endl
+		<< "ride_path[i].setOptions({strokeColor: colourFromFraction(key[i]),strokeOpacity: 1.0});" << endl
+		<< "}" << endl
+		<< "}" << endl
+		<< "}" << endl
+
+		// Function to stroke ride path (ie colour it) according to key vector (0 <= key[i] <= 1), specific for HR zones
+		<< "function strokeRidePathHRZones(key) {" << endl
+		<< "if (key.length == ride_path.length) {" << endl
+		<< "for (i=0; i<ride_path.length; i++) {" << endl
+		<< "if (key[i] == 0.0)" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[0], strokeOpacity: 0.3});}" << endl
+		<< "else if (key[i] == 0.1)" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[1], strokeOpacity: 0.3});}" << endl
+		<< "else if (key[i] == 0.2)" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[2], strokeOpacity: 0.3});}" << endl
+		<< "else if (key[i] == 0.3)" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[3], strokeOpacity: 0.3});}" << endl
+		<< "else if (key[i] == 0.4)" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[4], strokeOpacity: 0.3});}" << endl
+		<< "else if (key[i] == 0.5)" << endl
+		<< "{ride_path[i].setOptions({strokeColor: hr_colours[5], strokeOpacity: 0.3});}" << endl
 		<< "}" << endl
 		<< "}" << endl
 		<< "}" << endl
@@ -566,16 +618,6 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 		<< "return colours[colours.length-1];" << endl
 		<< "else" << endl
 		<< "return colours[Math.round(index)];" << endl
-		<< "}" << endl
-
-		// Function to convert num to hex
-		<< "function decimalToHex(d, padding) {" << endl
-		<< "var hex = Number(d).toString(16);" << endl
-		<< "padding = typeof (padding) === \"undefined\" || padding === null ? padding = 2 : padding;" << endl
-		<< "while (hex.length < padding) {" << endl
-		<< "hex = \"0\" + hex;" << endl
-		<< "}" << endl
-		<< "return hex;" << endl
 		<< "}" << endl
 		
 		<< "</script>" << endl

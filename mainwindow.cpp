@@ -184,7 +184,7 @@ void MainWindow::setRide(boost::shared_ptr<DataLog> data_log)
 	_plot_window->displayRide(data_log, _current_user);
 
 	// Overlay route in Google maps
-	_google_map->displayRide(data_log);
+	_google_map->displayRide(data_log, _current_user);
 
 	// Statistical viewer
 	_stats_view->displayRide(data_log, _current_user);

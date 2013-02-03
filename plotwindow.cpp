@@ -7,6 +7,7 @@
 #include "hrzoneitem.h"
 #include "qwtcustomplotpicker.h"
 #include "qwtcustomplotzoomer.h"
+#include "colours.h"
 
 #include <qwt_plot_picker.h>
 #include <qwt_plot_zoomer.h>
@@ -30,14 +31,6 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
-
-// Define colour of plot curves
-#define HR_COLOUR Qt::darkGreen
-#define ALT_COLOUR QColor(170,150,95)
-#define CADENCE_COLOUR Qt::darkBlue
-#define SPEED_COLOUR QColor(245,245,40)
-#define POWER_COLOUR QColor(250,150,20)
-#define TEMP_COLOUR QColor(120,170,190)
 
 /******************************************************/
 class XAxisScaleDraw: public QwtScaleDraw
@@ -279,7 +272,8 @@ PlotWindow::PlotWindow(
 	_plot = new QwtPlot();
 
 	// Create HR zone markers
-	const QColor hr_zone_colours[5] = {Qt::green, Qt::yellow, Qt::magenta, Qt::red, Qt::darkRed};
+	const QColor hr_zone_colours[5] = 
+		{HR_ZONE1_COLOUR, HR_ZONE2_COLOUR, HR_ZONE3_COLOUR, HR_ZONE4_COLOUR, HR_ZONE5_COLOUR};
 	_hr_zone_markers.resize(5);
 	for (unsigned int i=0; i < _hr_zone_markers.size(); ++i)
 	{

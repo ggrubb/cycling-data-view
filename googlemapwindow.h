@@ -10,6 +10,7 @@
 #include <boost/shared_ptr.hpp>
 
 class DataLog;
+class User;
 class QComboBox;
 class ColourBar;
 
@@ -22,7 +23,7 @@ class GoogleMapWindow : public QWidget
 	~GoogleMapWindow();
 
 	// Display the ride route on a google map
-	void displayRide(boost::shared_ptr<DataLog> data_log);
+	void displayRide(boost::shared_ptr<DataLog> data_log, boost::shared_ptr<User> user);
 
 	// Enable/disable all the user controls
 	void setEnabled(bool enabled);
@@ -84,6 +85,8 @@ private slots:
 	int _selection_end_idx;
 	// Pointer to the data log
 	boost::shared_ptr<DataLog> _data_log;
+	// Pointer to the urser
+	boost::shared_ptr<User> _user;
 	// GUI controls
 	QComboBox* _path_colour_scheme;
 	ColourBar* _colour_bar;
