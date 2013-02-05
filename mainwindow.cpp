@@ -39,7 +39,7 @@
 #define COMPANY_NAME "RideViewer"
 #define APP_NAME "RiderViewer"
 #define VERSION_INFO "Version 1.3 (Dec 2012)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
-#define USER_DIRECTORY "/riders/"
+#define USER_DIRECTORY QDir::homePath() + "/RideViewer/"
 #define GARMIN_LOG_DIRECTORY "/garmin/activities/"
 
 /******************************************************/
@@ -103,7 +103,7 @@ void MainWindow::checkForSaveUser()
 	if (settings.contains("Rider"))
 	{
 		QString user_name = settings.value("Rider").toString();
-		_current_user->readFromFile(QDir::currentPath() + USER_DIRECTORY + user_name + ".rider");
+		_current_user->readFromFile(USER_DIRECTORY + user_name + ".rider");
 		setUser(_current_user);
 	}
 	else
@@ -120,7 +120,7 @@ void MainWindow::promptForUser()
 	QStringList filter;
 	filter << "*.rider";
 	directory.setNameFilters(filter);
-	directory.setPath(QDir::currentPath() + USER_DIRECTORY);
+	directory.setPath(USER_DIRECTORY);
 	QStringList user_filenames = directory.entryList();
 
 	if (user_filenames.length() > 0)
@@ -131,7 +131,7 @@ void MainWindow::promptForUser()
 		for (int i = 0; i < user_filenames.length(); ++i)
 		{
 			boost::shared_ptr<User> user(new User);
-			user->readFromFile(QDir::currentPath() + USER_DIRECTORY + user_filenames[i]);
+			user->readFromFile(USER_DIRECTORY + user_filenames[i]);
 			users.push_back(user);
 
 			user_names.append(user->name());
@@ -150,6 +150,14 @@ void MainWindow::promptForUser()
 /******************************************************/
 void MainWindow::addUser()
 {
+	// Create rider directory if it doesn't exist
+	QDir directory;
+	directory.setPath(USER_DIRECTORY);
+	if (!directory.exists())
+	{
+		directory.mkpath(directory.absolutePath());
+	}
+
 	SpecifyUserWindow* add_user_window = new SpecifyUserWindow();
 	connect(add_user_window, SIGNAL(userSelected(boost::shared_ptr<User>)), this, SLOT(setUser(boost::shared_ptr<User>)));
 }
@@ -174,7 +182,7 @@ void MainWindow::setUser(boost::shared_ptr<User> user)
 	_ride_interval_finder_act->setEnabled(true);
 	_log_file_editor_act->setEnabled(true);
 	_retrieve_logs_act->setEnabled(true);
-	user->writeToFile(QString(".") + USER_DIRECTORY + user->name() + QString(".rider"));
+	user->writeToFile(USER_DIRECTORY + user->name() + QString(".rider"));
 }
 
 /******************************************************/
