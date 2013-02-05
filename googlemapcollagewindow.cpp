@@ -303,7 +303,7 @@ void GoogleMapCollageWindow::createPage(std::ostringstream& page)
 
 		// Function initialise
 		<< "function initialize() {" << endl
-		<< "var map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeControlOptions: {mapTypeIds: ['colour', 'grey', google.maps.MapTypeId.TERRAIN]}} );" << endl
+		<< "var map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeControlOptions: {mapTypeIds: ['colour', 'grey', google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.SATELLITE]}} );" << endl
 		<< "var map_type_grey = new google.maps.StyledMapType(grey_style, { name:\"Grey\" });" << endl
 		<< "var map_type_colour = new google.maps.StyledMapType(colour_style, { name:\"Colour\" });" << endl
 		<< "map.mapTypes.set('grey', map_type_grey);" << endl

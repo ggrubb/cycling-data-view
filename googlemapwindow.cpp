@@ -101,7 +101,7 @@ public:
 	  QWidget()
 	{
 		QLabel* label_hr_z0 = new QLabel;
-		label_hr_z0->setText("  < Zone 1  ");
+		label_hr_z0->setText("   Zone 0   ");
 		label_hr_z0->setAlignment(Qt::AlignHCenter);
 		label_hr_z0->setStyleSheet("QLabel { background-color : blue; color : white; }");
 
@@ -591,7 +591,7 @@ void GoogleMapWindow::createPage(std::ostringstream& page)
 
 		// Function initialise
 		<< "function initialize() {" << endl
-		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeControlOptions: {mapTypeIds: ['colour', 'grey', google.maps.MapTypeId.TERRAIN]}} );" << endl
+		<< "map = new google.maps.Map(document.getElementById(\"map_canvas\"), {mapTypeControlOptions: {mapTypeIds: ['colour', 'grey', google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.SATELLITE]}} );" << endl
 		<< "var map_type_grey = new google.maps.StyledMapType(grey_style, { name:\"Grey\" });" << endl
 		<< "var map_type_colour = new google.maps.StyledMapType(colour_style, { name:\"Colour\" });" << endl
 		<< "map.mapTypes.set('grey', map_type_grey);" << endl
