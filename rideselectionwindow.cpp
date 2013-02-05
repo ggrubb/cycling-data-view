@@ -89,9 +89,8 @@ void RideSelectionWindow::setUser(boost::shared_ptr<User> user)
 	// Compare files in directory with those in summary and remove if already in summary
 	for (int j=0; j < _log_dir_summary->numLogs(); ++j)
 	{
-		QString filename_without_path = _log_dir_summary->log(j)._filename;
-		filename_without_path.remove(QString(path + "/"));
-		filenames.removeAll(filename_without_path);
+		QFileInfo file(_log_dir_summary->log(j)._filename);
+		filenames.removeAll(file.fileName());
 	}
 
 	// Create a small progress bar
