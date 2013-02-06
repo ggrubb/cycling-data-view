@@ -52,7 +52,7 @@ _search_result_index(0)
 	_head_label->setText("<b>Ride Data</b>");
 
 	// Log file options
-	QPushButton* save = new QPushButton("Save Changes");
+	QPushButton* save = new QPushButton("Save Edits");
 	QPushButton* exit = new QPushButton("Exit Editor");
 	connect(save, SIGNAL(clicked()),this, SLOT(save()));
 	connect(exit, SIGNAL(clicked()),this, SLOT(close()));
@@ -571,7 +571,7 @@ void LogEditorWindow::trim()
 		QMessageBox::question(
 		this, 
 		tr("RideLogEditor"), 
-		tr("This will trim the log between the start and end index (inclusive).\n\nYour original file will be saved in:\n ") + target_file + "\n\nand trimmed file in:\n" + source_file + "\n\nClick Ok to continue, or Cancel to abort.",
+		tr("This will trim the log between the start and end index (inclusive). Note, you can specify the indecies via selecting a zone in the graphs window.\n\nYour original file will be saved in:\n ") + target_file + "\n\nand trimmed file in:\n" + source_file + "\n\nClick Ok to continue, or Cancel to abort.",
 		QMessageBox::Ok | QMessageBox::Cancel );
 
 	const int start_idx = _trim_start_index->value();

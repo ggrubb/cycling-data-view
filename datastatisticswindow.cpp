@@ -62,7 +62,7 @@ DataStatisticsWindow::DataStatisticsWindow()
 	for (int r = 0; r < _table->rowCount(); ++r)
 	{
 		_table->verticalHeaderItem(r)->setSizeHint(QSize(136,16));
-		_table->setRowHeight(r,16);
+		_table->setRowHeight(r,18);
 	}
 
 	_head_label = new QLabel;
@@ -73,7 +73,8 @@ DataStatisticsWindow::DataStatisticsWindow()
 	layout->addWidget(_head_label);
 	layout->addWidget(_table);
 	setLayout(layout);
-	setFixedSize(270,365);
+	setFixedWidth(287);
+	setMinimumHeight(365);
 	
 	clearTable();
 }
