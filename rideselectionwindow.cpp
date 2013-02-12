@@ -227,6 +227,9 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 	{
 		// Get the item which represents the index
 		QStandardItem* item = _model->item(index.row(),3); // 4th element is data log index (not displayed)
+		
+		if (!item)
+			return;
 
 		// Parse complete ride details
 		if (_current_data_log == 0 ||
