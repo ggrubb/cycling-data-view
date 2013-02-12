@@ -84,7 +84,7 @@ int User::zone5() const
 }
 
 /****************************************/
-void User::readFromFile(const QString& filename)
+bool User::readFromFile(const QString& filename)
 {
 	QDomDocument dom_document;
 	QString error_msg;
@@ -105,6 +105,7 @@ void User::readFromFile(const QString& filename)
 		_hr_zone4 = user.firstChildElement("HRZone4").firstChild().nodeValue().toDouble();
 		_hr_zone5 = user.firstChildElement("HRZone5").firstChild().nodeValue().toDouble();
 	}
+	return read_success;
 }
 
 /****************************************/

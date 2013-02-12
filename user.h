@@ -28,7 +28,7 @@ class User
 	int zone4() const;
 	int zone5() const;
 
-	void readFromFile(const QString& filename);
+	bool readFromFile(const QString& filename);
 	void writeToFile(const QString& filename) const;
 
  private:
