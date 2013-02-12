@@ -39,7 +39,7 @@
 #define COMPANY_NAME "RideViewer"
 #define APP_NAME "RiderViewer"
 #define VERSION_INFO "Version 1.3 (Dec 2012)\n     http://code.google.com/p/cycling-data-view/ \n     grant.grubb@gmail.com"
-#define USER_DIRECTORY QDir::homePath() + "/RideViewer/"
+#define USER_DIRECTORY QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/RideViewer/"
 #define GARMIN_LOG_DIRECTORY "/garmin/activities/"
 
 /******************************************************/
@@ -103,8 +103,10 @@ void MainWindow::checkForSaveUser()
 	if (settings.contains("Rider"))
 	{
 		QString user_name = settings.value("Rider").toString();
-		_current_user->readFromFile(USER_DIRECTORY + user_name + ".rider");
-		setUser(_current_user);
+		if (_current_user->readFromFile(USER_DIRECTORY + user_name + ".rider"))
+			setUser(_current_user);
+		else
+			QMessageBox::information(this, "RideViewer", tr("Could not find .rider file: ") + USER_DIRECTORY + user_name + ".rider");
 	}
 	else
 	{
