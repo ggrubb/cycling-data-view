@@ -270,11 +270,11 @@ void RideSelectionWindow::rideSelected(const QModelIndex& index)
 /******************************************************/
 bool RideSelectionWindow::parse(const QString filename, boost::shared_ptr<DataLog> data_log)
 {
-	if (filename.contains(".fit"))
+	if (filename.contains(".fit", Qt::CaseInsensitive))
 	{
 		return _fit_parser->parse(filename, data_log);
 	}
-	else if (filename.contains(".tcx"))
+	else if (filename.contains(".tcx", Qt::CaseInsensitive))
 	{
 		return _tcx_parser->parse(filename, data_log);
 	}
