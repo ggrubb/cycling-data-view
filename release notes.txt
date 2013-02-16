@@ -1,11 +1,26 @@
-Release Notes for RiderViewer 1.3
+Release Notes for RiderViewer 1.4
 ---------------------------------
+
+Version 1.4 (February 2013)
+-Format lap names to always be in correct order in ride selection widget (prepend 0's)
+-Added current plot values next to legends.
+-Fixed bad bugs when loading logs on Windows Vista/7. This moved users .rider files out of the RideViewer directory and into the application directory.
+-Added function to trim logs in the log file editor
+-Added "power" to the log file editor.
+-Fixed bug in log file editor where clicking "next" in the find button group would cause a crash if no search had been performed.
+-Improved graph smoothing UI.
+-Don't plot 0 value long/lat (eg missing GPS signals).
+-Colour code path in google maps according to HR zones.
+-Change colour of speed graph (from yellow to red) for readability.
+-Added satelite view to google maps.
+-Safety checks for reading missing log/rider files.
+-Thanks to Luis Miguel Lopez for some of these suggestions for version 1.4!
 
 Version 1.3 (December 2012)
 -Completed log file editor, including function to split log files.
 -Fixed detect 20:	Use smart pointers. Application is now much more stable.
--Fixed defect 34:	Handle log files which do no load/parse (eg rename)
--Fixed defect 35:	Crash on close
+-Fixed defect 34:	Handle log files which do no load/parse (eg rename).
+-Fixed defect 35:	Crash on close.
 
 Version 1.3 beta (December 2012)
 -This is a beta release! Only partially tested...full release expected early 2013.
