@@ -158,8 +158,9 @@ void QwtCustomPlotPicker::drawRubberBand(QPainter* painter) const
 		const double x_val = plot()->invTransform(QwtPlot::xBottom,pt1.x()); // determine x value (time or dist)
 		
 		// Draw vertical line where curser is
-		const int end = 250;
-		painter->drawLine(pt1.x(), 0, pt1.x(), end);
+		const int bot = 400;
+		const int top = 0;
+		painter->drawLine(pt1.x(), bot, pt1.x(), top); 
 
 		// Set pen and fond for all coming text
 		painter->setPen(QColor(Qt::black));
