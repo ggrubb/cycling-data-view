@@ -404,6 +404,10 @@ void LogEditorWindow::save()
 /******************************************************/
 void LogEditorWindow::split()
 {
+	if (_split_index->value() == 1)
+	{
+		return;
+	}
 	// Create filenames
 	QString filename_pt1 = _data_log->filename(); 
 	filename_pt1.chop(4);

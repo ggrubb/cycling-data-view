@@ -86,14 +86,18 @@ void DataProcessing::computeSpeed(
 	std::vector<double>& speed)
 {
 	assert(time.size() == dist.size());
-	assert(time.size() > 2);
 
-	// Compute speed from distance over time
-	speed.resize(time.size());
-	for (unsigned int i=2; i < time.size(); ++i)
+	if (time.size() > 2)
 	{
-		if (time[i] - time[i-2] > 0)
-			speed[i] = 3.6*(dist[i] - dist[i-2])/(time[i] - time[i-2]);
+		// Compute speed from distance over time
+		speed.resize(time.size());
+		for (unsigned int i=2; i < time.size(); ++i)
+		{
+			if (time[i] - time[i-2] > 0)
+			{
+				speed[i] = 3.6*(dist[i] - dist[i-2])/(time[i] - time[i-2]);
+			}
+		}
 	}
 }
 
